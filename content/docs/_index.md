@@ -1,6 +1,8 @@
 ---
 title: Documentation
-next: first-page
+type: docs
+next: docs/installation/
+prev: /
 ---
 
 This is a demo of the theme's documentation layout.
