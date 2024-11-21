@@ -21,11 +21,11 @@ menu:
     - name: Docs
       pageRef: /docs
       weight: 1
-    - name: About
-      pageRef: /about
-      weight: 2
-    - name: Contact ↗
-      url: "https://github.com/imfing"
+    # - name: About
+    #   pageRef: /about
+    #   weight: 2
+    - name: Repo ↗
+      url: "https://github.com/lemmego"
       weight: 3
     - name: Search
       weight: 4
@@ -33,7 +33,7 @@ menu:
         type: search
     - name: GitHub
       weight: 5
-      url: "https://github.com/imfing/hextra-starter-template"
+      url: "https://github.com/lemmego"
       params:
         icon: github
     - name: Twitter
