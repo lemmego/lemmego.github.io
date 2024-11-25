@@ -8,7 +8,7 @@ sidebar:
 weight: 2
 ---
 
-### Creating an application
+## Creating an application
 
 Now that you have installed the `lemmego` cli, you can use it to create a new project running the following command:
 
@@ -30,7 +30,7 @@ cd my-project
 go run ./cmd/app
 ```
 
-### Running an application:
+## Running an application:
 
 If no other application has occupied the `8080` port, your app should be running now. Open your browser and visit `http://locahost:8080` and you should see a minimal homepage.
 
@@ -47,7 +47,7 @@ If you have air installed, and the `air` command is available in your terminal, 
 to run the application with live-reloading enabled. Your project already has an `air.toml` file which will be detected
 by the `air` command.
 
-### Frontend watching:
+## Frontend watching:
 
 Lemmego comes with a few frontend options:
 

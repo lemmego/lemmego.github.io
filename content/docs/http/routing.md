@@ -17,9 +17,9 @@ Routes are defined inside the `./internal/routes` directory. By default, there a
 routes: the `web.go` and the `api.go` files.
 
 * The `web.go` file contains the routes which are typically requested from
-a browser that return HTML (e.g. `content-type: text/html`) responses.
+a browser that return text responses (e.g. `text/plain`, `text/html`).
 
-* The `api.go` file contains the routes which typically return non-HTML (e.g. `content-type: application/json`) responses.
+* The `api.go` file contains the routes which typically return non-HTML (e.g. `application/json`) responses.
 
 Feel free to define your routes in these files, or create your own route files (e.g. `products.go`, `orders.go`) if you
 need. Let's create an example route in the `web.go` file:
