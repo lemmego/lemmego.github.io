@@ -1,8 +1,16 @@
 ---
-title: Documentation
+title: Introduction
 type: docs
 next: docs/installation/
 ---
+
+👋 Hello! Welcome to the Lemmego documentation!
+
+## What is Lemmego?
+Lemmego is a modern, full-stack web development framework built with Go, designed to streamline the creation of scalable and high-performance applications.
+
+## Features
+
 
 ## Prerequisite
 
