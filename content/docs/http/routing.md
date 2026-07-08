@@ -1,36 +1,112 @@
 ---
 title: Routing
 type: docs
-prev: docs/quick-start/
+prev: docs/http/
 sidebar:
   open: true
-weight: 4
+weight: 6
 ---
 
-Routing is how we want our application to respond to an HTTP request when a given URL segment, for example,
-the `/api/v1/user` part in the `https://example.com/api/v1/user` and the HTTP verb (e.g. `GET`, `POST`, `PATCH` etc.) are
-matched with our defined ones after submitting the request from the browser, or any other HTTP client such as Postman.
+## Route Definitions
 
-### Route Definitions
+Routes are defined in `internal/routes/` using the application's `Router` interface. The framework supports all standard HTTP verbs.
 
-Routes are defined inside the `./internal/routes` directory. By default, there are two files containing some example
-routes: the `web.go` and the `api.go` files.
+```go
+// internal/routes/web.go
+package routes
 
-* The `web.go` file contains the routes which are typically requested from
-a browser that return text responses (e.g. `text/plain`, `text/html`).
+func WebRoutes(a app.App) {
+    r := a.Router()
 
-* The `api.go` file contains the routes which typically return non-HTML (e.g. `application/json`) responses.
+    r.Get("/hello", func(c app.Context) error {
+        return c.Text([]byte("World"))
+    })
 
-Feel free to define your routes in these files, or create your own route files (e.g. `products.go`, `orders.go`) if you
-need. Let's create an example route in the `web.go` file:
+    r.Post("/submit", func(c app.Context) error {
+        return c.JSON(app.M{"status": "ok"})
+    })
+}
+```
 
-```go {filename="web.go"}
-r.Get("/hello", func(c *app.Context) error {
-    return c.Text([]byte(`World`))
+## Route Parameters
+
+Extract URL parameters using `c.Param()`:
+
+```go
+r.Get("/users/{id}", func(c app.Context) error {
+    id := c.Param("id")
+    return c.Text([]byte("User: " + id))
 })
 ```
 
-Keep your server running and open the `http://localhost:8080/hello` URL in your browser and
-you should see the `text/plain` response:
+## Route Groups
 
-> World
+Group routes under a common prefix with shared middleware:
+
+```go
+api := r.Group("/api")
+api.Get("/users", handlers.UserIndex)
+api.Post("/users", handlers.UserStore)
+
+admin := r.Group("/admin")
+admin.UseBefore(middleware.AdminAuth)
+admin.Get("/dashboard", handlers.AdminDashboard)
+```
+
+Nested groups are also supported:
+
+```go
+v1 := api.Group("/v1")
+v1.Get("/products", handlers.ProductIndex)
+```
+
+## Route Registration
+
+Routes are registered via callbacks in `bootstrap/routes.go`:
+
+```go
+// bootstrap/routes.go
+package bootstrap
+
+func LoadRoutes() []app.RouteCallback {
+    return []app.RouteCallback{
+        routes.WebRoutes,
+        routes.ApiRoutes,
+    }
+}
+```
+
+Each `RouteCallback` is a `func(a app.App)` that receives the full app instance and registers routes on `a.Router()`.
+
+## Input Middleware
+
+Use the router's `Input` middleware to automatically decode request bodies into typed structs:
+
+```go
+r.Post("/tasks", router.Input(&inputs.TaskInput{}), handlers.TaskStore)
+```
+
+The decoded input is stored in the request context and can be retrieved via `c.Input()`.
+
+## Router API
+
+```go
+type Router interface {
+    Group(prefix string) *routeGroup
+    UseBefore(handlers ...Handler)
+    UseAfter(handlers ...Handler)
+    Get(pattern string, handlers ...Handler) *route
+    Post(pattern string, handlers ...Handler) *route
+    Put(pattern string, handlers ...Handler) *route
+    Patch(pattern string, handlers ...Handler) *route
+    Delete(pattern string, handlers ...Handler) *route
+    Head(pattern string, handlers ...Handler) *route
+    Options(pattern string, handlers ...Handler) *route
+    Connect(pattern string, handlers ...Handler) *route
+    Trace(pattern string, handlers ...Handler) *route
+    Use(middlewares ...HTTPMiddleware)
+    HasRoute(method string, pattern string) bool
+    Handle(pattern string, handler http.Handler)
+    HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request))
+}
+```

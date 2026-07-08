@@ -6,38 +6,56 @@ next: docs/quick-start/
 weight: 1
 ---
 
-To get started let's install the `lemmego` cli first by running the following shell command in your favorite terminal:
+To get started, install the `lemmego` CLI.
 
-{{< tabs items="Linux,macOS,Windows" >}}
-
-{{< tab >}}
-
-```shell
-curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sudo sh
-```
-
-{{</tab>}}
-{{< tab >}}
+{{< tabs >}}
+{{< tab name="Linux" >}}
 
 ```shell
 curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sudo sh
 ```
 
-{{</tab>}}
-{{< tab >}} TBA {{</tab>}}
+{{< /tab >}}
+{{< tab name="macOS" >}}
 
+```shell
+curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sudo sh
+```
+
+Or with Homebrew (if available):
+
+```shell
+brew install lemmego/tap/lemmego
+```
+
+{{< /tab >}}
+{{< tab name="Windows" >}} TBA {{< /tab >}}
 {{< /tabs >}}
 
-## Confirm Installation
+### Install via Go
 
-Run the following command to make sure that the binary has been installed and is available system-wide:
+If you have Go installed, you can also install the CLI directly:
+
+```shell
+go install github.com/lemmego/cli/cmd/lemmego@latest
+```
+
+Make sure `$GOPATH/bin` is in your `PATH`.
+
+## Verify Installation
+
+Run the following to confirm the CLI is installed:
 
 ```shell
 lemmego --version
 ```
 
-It should output something like this:
+Expected output:
 
-> version [x.x.x]
+```
+version [x.x.x]
+```
 
-Congratulations! You have successfully installed the `lemmego` cli. In the next section, we will use this to create a new project.
+## Next Steps
+
+Now that the CLI is installed, proceed to the [Quick Start](/docs/quick-start/) guide to create your first project.

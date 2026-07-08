@@ -2,64 +2,108 @@
 title: Quick Start
 type: docs
 prev: docs/installation/
-next: docs/http/routing/
+next: docs/http/
 sidebar:
   open: true
 weight: 2
 ---
 
-## Creating an application
+## Creating an Application
 
-Now that you have installed the `lemmego` cli, you can use it to create a new project running the following command:
+Now that you have installed the `lemmego` CLI, you can create a new project:
 
 ```shell
 lemmego new my-project
 ```
 
-This command will ask you to provide the module name (for the `go.mod` file) of your project and create a new project in the `my-project` directory.
+This command will walk you through interactive prompts:
 
-Once the project has been created, you can navigate into your project directory:
+1. **Module name** — the Go module path (e.g., `github.com/username/my-project`)
+2. **Preset** — choose between `mvc` (with frontend) or `rest_api` (backend-only)
+3. **ORM** — select `gorm` or `bun` as the database ORM
+4. **Redis** — enable or disable Redis support
+5. **Auth** — enable or disable authentication scaffolding
+6. **GPA** (experimental) — enable the Go Persistence API
+7. **Frontend preset** (for `mvc`) — pick Go Templates, Templ, Inertia React, Inertia Vue, or combinations
+
+Once configured, navigate into your project directory:
 
 ```shell
 cd my-project
 ```
 
-...and run your application:
+## Running the Application
+
+Start the development server:
 
 ```shell
-go run ./cmd/app
+lemmego run
 ```
 
-## Running an application:
+Or use hot-reload:
 
-If no other application has occupied the `8080` port, your app should be running now. Open your browser and visit `http://locahost:8080` and you should see a minimal homepage.
+```shell
+lemmego dev
+```
 
-The `go run ./cmd/app` is the very basic command to run your application. If you run `lemmego run` from your project root,
-the result will be the same.
+The `dev` command orchestrates three parallel processes:
+- **air** — Go hot reload on `:8080`
+- **templ generate --watch** — Templ file watcher (if `.templ` files exist)
+- **vite dev** — Frontend dev server (if `package.json` exists)
 
-If you use either of these commands to run your application, whenever you make any changes to your source code, you will
-have to restart your server by pressing `Ctrl+C` from your terminal and re-running the command.
+Visit `http://localhost:8080` in your browser — you should see the application's homepage.
 
-During development, you might want to [use the air package](https://github.com/air-verse/air) for live-reloading of your application upon changes.
-Follow the instructions in the air documentation to get started.
+## Development Workflow
 
-If you have air installed, and the `air` command is available in your terminal, run the `air` command from the project root
-to run the application with live-reloading enabled. Your project already has an `air.toml` file which will be detected
-by the `air` command.
+The generated project includes a `Makefile` with common tasks:
 
-## Frontend watching:
+| Command | Description |
+|---------|-------------|
+| `make run` | Start with hot reload (`air`) |
+| `make watch` | Parallel templ + tailwind + air + file watcher |
+| `make dev` | Frontend dev server |
+| `make build` | Build frontend assets |
+| `make migrate` | Run pending migrations |
+| `make migration n=name` | Create a new migration |
+| `make model n=name` | Generate a model |
+| `make handlers n=name` | Generate CRUD handlers |
+| `make input n=name` | Generate input validation |
+| `make form n=name` | Generate a form component |
 
-Lemmego comes with a few frontend options:
+## Frontend Options
 
-* [Go Templates](https://pkg.go.dev/text/template)
-  * If you want to use Go Templates for your frontend, you can run the `make watch` command which will use the port 1773
-    and reload the browser if any `.gohtml` file is modified.
-* [Templ](https://templ.guide/)
-  * If you want to use Templ for your frontend, you can run the `make watch` command which will use the port 1773
-        and reload the browser if any `.templ` file is modified.
-* [Inertia](https://inertiajs.com/) (with React and Vue)
-  * If you want to use Inertia for your frontend, you can run the `npm run dev` command which will take care of reloading
-    your React (`.tsx/.jsx`) or Vue (`.vue`) components.
+Lemmego supports multiple frontend approaches:
 
+- **Go Templates** (`*.page.gohtml`) — server-rendered HTML with layouts and partials
+- **Templ** (`*.templ`) — type-safe Go templates with compile-time checking
+- **Inertia.js** with React or Vue — SPA-like experience with server-side routing
 
-  
+The `make watch` command handles Go Templates and Templ reloading. For Inertia, run `npm run dev` separately.
+
+## Project Structure
+
+After scaffolding, your project will have this structure:
+
+```
+├── bootstrap/          # Application bootstrap layer
+│   ├── providers.go    # Service provider registration
+│   ├── routes.go       # Route registration
+│   ├── middleware.go   # App-level middleware
+│   └── commands.go     # CLI commands
+├── cmd/app/main.go     # Application entry point
+├── internal/           
+│   ├── commands/       # CLI command implementations
+│   ├── configs/        # Configuration (auto-loaded)
+│   ├── handlers/       # HTTP request handlers
+│   ├── inputs/         # Input validation structs
+│   ├── middleware/      # App-specific middleware
+│   ├── migrations/     # Database migrations
+│   ├── models/         # Domain models
+│   ├── plugins/        # Extension point
+│   ├── repos/          # Repository layer
+│   └── routes/         # Route definitions
+├── resources/          # Frontend source (JS, CSS, templates)
+├── templates/          # Go/Templ templates
+├── public/             # Compiled static assets
+└── storage/            # Runtime data (database, sessions, uploads)
+```
