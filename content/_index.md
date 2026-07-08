@@ -36,7 +36,7 @@ func LoadProviders() []app.Provider {
 ```
 
 {{< /tab >}}
-{{< tab name="Route" >}}
+{{< tab name="Routing" >}}
 
 ```go
 // internal/routes/web.go
@@ -52,11 +52,6 @@ func WebRoutes(a app.App) {
     admin.Post("/articles", handlers.ArticleStore)
 }
 ```
-
-Route parameters like `{id}` are accessed via `c.Param("id")`. Groups share common prefixes and middleware.
-
-{{< /tab >}}
-{{< tab name="Middleware" >}}
 
 ```go
 // bootstrap/http_middleware.go
@@ -78,7 +73,45 @@ func LoadMiddlewares() []app.Handler {
 }
 ```
 
+Route parameters like `{id}` are accessed via `c.Param("id")`. Groups share common prefixes and middleware.
+
 HTTP middleware wraps the entire router. App middleware runs at the handler level — both compose into a flexible pipeline.
+
+{{< /tab >}}
+{{< tab name="Handler" >}}
+
+```go
+// internal/inputs/article_input.go
+type CreateArticleInput struct {
+    Title string `json:"title"`
+    Body  string `json:"body"`
+}
+
+func (i *CreateArticleInput) Validate() error {
+    v := app.NewValidator()
+    v.Field("title", i.Title).Required().Max(255)
+    v.Field("body", i.Body).Required()
+    return v.Validate()
+}
+```
+
+```go
+// internal/handlers/article_handler.go
+func ArticleStore(c app.Context) error {
+    input, err := c.Input(&CreateArticleInput{}).(*CreateArticleInput)
+    if err != nil {
+        return c.UnprocessableEntity(err)
+    }
+    article := &models.Article{
+        Title: input.Title,
+        Body:  input.Body,
+    }
+    Article().Create(c.RequestContext(), article)
+    return inertia.Redirect(c, "/articles")
+}
+```
+
+Input structs define validation rules inline. The handler binds, validates, persists, and redirects — all in a few lines of type-safe Go.
 
 {{< /tab >}}
 {{< tab name="Migrations" >}}
