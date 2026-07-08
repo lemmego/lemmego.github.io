@@ -6,7 +6,18 @@ next: docs/quick-start/
 weight: 1
 ---
 
-To get started, install the `lemmego` CLI.
+## Prerequisites
+
+Lemmego is a Go framework. You should have basic familiarity with Go and have the following installed:
+
+- [Go 1.24+](https://go.dev/dl/)
+- [Node.js](https://nodejs.org/en/download/package-manager) (for frontend tooling)
+- [Air](https://github.com/air-verse/air) (for hot reloading)
+- [Templ](https://templ.guide/quick-start/installation) (optional, for type-safe Go templates)
+
+## Installation
+
+Once you have all the prerequisites installed, install the Lemmego CLI using this command:
 
 {{< tabs >}}
 {{< tab name="Linux" >}}

@@ -7,17 +7,17 @@ Lemmego is a modern, full-stack web framework for Go that combines the productiv
 
 ## Features
 
+- **Full-featured HTTP layer** — Param-based routing, route grouping, flexible middleware, input validation, typed errors
 - **Type-safe database layer** — GPA provides compile-time type safety across SQL, NoSQL, and KV stores with generic `Repository[T]`
 - **Plugin architecture** — Extend the framework through providers without modifying core code
 - **Multiple frontends** — Go Templates, Templ, or Inertia.js with React/Vue
-- **Full-featured HTTP layer** — Chi-based routing, two-level middleware, input validation, typed errors
-- **CLI tools** — Project scaffolding, code generators, migration management
 - **File storage** — Unified abstraction for local, S3, and GCS
+- **CLI tools** — Project scaffolding, code generators, migration management
 
 ## Get Started
 
 {{< cards >}}
-{{< card link="docs" title="Documentation" icon="book-open" subtitle="Learn the framework from the ground up" >}}
+{{< card link="docs/prologue" title="Prologue" icon="book-open" subtitle="Learn the framework from the ground up" >}}
 {{< card link="docs/installation" title="Installation" icon="terminal" subtitle="Install the lemmego CLI" >}}
 {{< card link="docs/quick-start" title="Quick Start" icon="fire" subtitle="Create your first project in minutes" >}}
 {{< /cards >}}
