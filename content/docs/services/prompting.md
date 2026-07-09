@@ -2,9 +2,10 @@
 title: CLI Prompting
 type: docs
 prev: docs/services/queue
+next: docs/appendix/
 sidebar:
   open: true
-weight: 55
+weight: 53
 ---
 
 ## Overview

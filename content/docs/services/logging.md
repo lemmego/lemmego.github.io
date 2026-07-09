@@ -5,7 +5,7 @@ prev: docs/services/session
 next: docs/services/caching
 sidebar:
   open: true
-weight: 52
+weight: 50
 ---
 
 ## Overview

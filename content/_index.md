@@ -1,9 +1,8 @@
 ---
 title: Lemmego — The full-stack Go web framework
+layout: home
 toc: false
 ---
-
-Lemmego is a modern, full-stack web framework for Go that combines the productivity of Laravel/Rails with the type safety and performance of Go.
 
 ## Batteries
 
@@ -30,6 +29,7 @@ func LoadProviders() []app.Provider {
         &session.Provider{},
         &gormconnector.Provider{UseGPA: true},
         &inertia.Provider{},
+        &queue.Provider{},
         &auth.Provider{},
     }
 }
@@ -54,15 +54,6 @@ func WebRoutes(a app.App) {
 ```
 
 ```go
-// bootstrap/http_middleware.go
-func LoadHTTPMiddlewares() []app.HTTPMiddleware {
-    return []app.HTTPMiddleware{
-        middleware.Recoverer(),     // Panic recovery
-        middleware.RequestLogger(), // Request logging
-        middleware.MethodOverride,  // PUT/DELETE via _method
-    }
-}
-
 // bootstrap/middleware.go
 func LoadMiddlewares() []app.Handler {
     return []app.Handler{
@@ -73,9 +64,7 @@ func LoadMiddlewares() []app.Handler {
 }
 ```
 
-Route parameters like `{id}` are accessed via `c.Param("id")`. Groups share common prefixes and middleware.
-
-HTTP middleware wraps the entire router. App middleware runs at the handler level — both compose into a flexible pipeline.
+Route parameters like `{id}` are accessed via `c.Param("id")`. HTTP middleware wraps the router while app middleware runs at the handler level — both compose into a flexible pipeline.
 
 {{< /tab >}}
 {{< tab name="Handler" >}}
@@ -170,37 +159,37 @@ func ArticleIndex(c app.Context) error {
 Type-safe, generic repositories — no `interface{}` casting, no runtime reflection.
 
 {{< /tab >}}
-{{< tab name="Plugins" >}}
+{{< tab name="Queues" >}}
 
 ```go
-// plugins/cms/provider.go
-type CMSProvider struct{}
+type SendEmail struct {
+    Email string `json:"email"`
+    UserID int   `json:"user_id"`
+}
 
-func (p *CMSProvider) Provide(a app.App) error {
-    a.AddService(NewCMS(a.Config()))
-    a.Router().Get("/sitemap.xml", p.Sitemap)
+func (j *SendEmail) Handle(ctx context.Context) error {
+    fmt.Printf("Sending email to %s\n", j.Email)
     return nil
 }
 
-func (p *CMSProvider) Sitemap(c app.Context) error {
-    articles, _ := Article().FindAll(c.RequestContext(),
-        gpa.Where("status", gpa.OpEqual, "published"),
-    )
-    return c.XML(app.M{"sitemap": buildSitemap(articles)})
+func init() {
+    queue.RegisterJob("*jobs.SendEmail", func() queue.Job {
+        return &SendEmail{}
+    })
 }
 ```
 
 ```go
-// bootstrap/providers.go
-func LoadProviders() []app.Provider {
-    return []app.Provider{
-        // ...framework providers...
-        &plugins.CMSProvider{},
-    }
-}
+// Dispatched from any handler
+queue.Dispatch(ctx, &SendEmail{
+    Email: "user@test.com", UserID: 42,
+})
+
+// Workers claim and process jobs
+// $ lemmego run tasker:work --queue=default --workers=3
 ```
 
-Providers implement `app.Provider` — they register services, routes, and middleware with full access to the application instance.
+Monitor jobs in real-time at `http://localhost:8080/tasker/` with the built-in web dashboard.
 
 {{< /tab >}}
 {{< tab name="Frontend" >}}
@@ -234,6 +223,37 @@ export default function Index({ articles }: PageProps) {
 Choose from Inertia.js with React/Vue, server-rendered Go Templates, or type-safe Templ components.
 
 {{< /tab >}}
+{{< tab name="Plugins" >}}
+
+```go
+// plugins/cms/provider.go
+type CMSProvider struct{}
+
+func (p *CMSProvider) Provide(a app.App) error {
+    a.AddService(NewCMS(a.Config()))
+    a.Router().Get("/sitemap.xml", p.Sitemap)
+    return nil
+}
+
+func (p *CMSProvider) Sitemap(c app.Context) error {
+    articles, _ := Article().FindAll(c.RequestContext(),
+        gpa.Where("status", gpa.OpEqual, "published"),
+    )
+    return c.XML(app.M{"sitemap": buildSitemap(articles)})
+}
+```
+
+```go
+// bootstrap/providers.go
+func LoadProviders() []app.Provider {
+    return []app.Provider{
+        // ...framework providers...
+        &plugins.CMSProvider{},
+    }
+}
+```
+
+{{< /tab >}}
 {{< /tabs >}}
 
 ## Features
@@ -244,6 +264,7 @@ Choose from Inertia.js with React/Vue, server-rendered Go Templates, or type-saf
 - **Multiple frontends** — Go Templates, Templ, or Inertia.js with React/Vue
 - **File storage** — Unified abstraction for local, S3, and GCS
 - **CLI tools** — Project scaffolding, code generators, migration management
+- **Background jobs** — Distributed queue system with web dashboard
 
 ## Get Started
 
@@ -259,6 +280,7 @@ Choose from Inertia.js with React/Vue, server-rendered Go Templates, or type-saf
 |--------|-------------|
 | **API** | Core framework: routing, middleware, DI, sessions, config, validation |
 | **GPA** | Type-safe database abstraction with multi-provider support |
+| **Queue** | Distributed background job system with web dashboard |
 | **CLI** | Project scaffolding and code generation |
 | **Inertia** | Server-side adapter for Inertia.js SPAs |
 | **Templ** | Bridge for type-safe Go templates |

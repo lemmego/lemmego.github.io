@@ -14,7 +14,7 @@ Every HTTP request to a Lemmego application goes through a well-defined pipeline
 
 1. **Entry** — The Go HTTP server receives the request
 2. **HTTP Middleware** — Global middleware runs first (recovery, logging, method override)
-3. **Router** — Chi-based router matches the request to a route
+3. **Router** — Zero-dependency router matches the request to a route
 4. **App Middleware** — Application-level middleware runs (CSRF, auth, etc.)
 5. **Handler** — The route handler processes the request and returns a response
 6. **Response** — The response is sent back to the client

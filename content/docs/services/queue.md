@@ -5,7 +5,7 @@ prev: docs/services/caching
 next: docs/services/prompting
 sidebar:
   open: true
-weight: 54
+weight: 52
 ---
 
 ## Overview

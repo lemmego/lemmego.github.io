@@ -1,10 +1,10 @@
 ---
 title: Appendix
 type: docs
-prev: docs/deployment/
+prev: docs/services/prompting
 sidebar:
   open: true
-weight: 49
+weight: 54
 ---
 
 ## Environment Variables

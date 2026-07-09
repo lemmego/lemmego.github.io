@@ -1,10 +1,11 @@
 ---
-title: Session Management
+title: Session
 type: docs
-prev: docs/services/
+prev: docs/deployment/
+next: docs/services/logging
 sidebar:
   open: true
-weight: 51
+weight: 49
 ---
 
 ## Overview

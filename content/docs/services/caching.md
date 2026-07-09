@@ -5,7 +5,7 @@ prev: docs/services/logging
 next: docs/services/queue
 sidebar:
   open: true
-weight: 53
+weight: 51
 ---
 
 ## Overview

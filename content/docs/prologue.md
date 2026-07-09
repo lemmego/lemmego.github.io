@@ -28,8 +28,8 @@ Key features:
 ## Documentation Sections
 
 {{< cards >}}
-{{< card link="installation" title="Installation" subtitle="Install the lemmego CLI" icon="terminal" >}}
-{{< card link="quick-start" title="Quick Start" subtitle="Create and run your first project" icon="fire" >}}
+{{< card link="../installation" title="Installation" subtitle="Install the lemmego CLI" icon="terminal" >}}
+{{< card link="../quick-start" title="Quick Start" subtitle="Create and run your first project" icon="fire" >}}
 {{< card link="../http" title="HTTP Layer" subtitle="Routing, middleware, request/response handling" icon="annotation" >}}
 {{< card link="../database" title="Database" subtitle="GPA — the Go Persistence API" icon="database" >}}
 {{< card link="../migrations" title="Migrations" subtitle="Schema builder & database versioning" icon="folder-tree" >}}
