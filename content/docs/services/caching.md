@@ -2,7 +2,7 @@
 title: Caching
 type: docs
 prev: docs/services/logging
-next: docs/services/prompting
+next: docs/services/queue
 sidebar:
   open: true
 weight: 53

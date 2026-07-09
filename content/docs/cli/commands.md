@@ -119,6 +119,16 @@ lemmego g form UserForm -f templ    # Templ flavor
 
 Form field types: text, textarea, integer, decimal, boolean, radio, checkbox, dropdown, date, time, datetime, file.
 
+## Maintenance
+
+### `lemmego cache-clean`
+
+Clears the local scaffold cache at `~/.cache/lemmego/scaffold`, forcing the CLI to use the embedded scaffold templates on the next `lemmego new`. Useful when you've updated the CLI binary and want to pick up fresh scaffold templates without waiting for the cache to expire.
+
+```shell
+lemmego cache-clean
+```
+
 ## Inertia SSR
 
 ### `lemmego inertia-ssr start`

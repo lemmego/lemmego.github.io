@@ -39,6 +39,51 @@ func handler(c app.Context) error {
 }
 ```
 
+### XML
+
+Return XML responses from structs, maps, or raw strings:
+
+```go
+// From a map
+func handler(c app.Context) error {
+    return c.XML(app.M{
+        "status": "ok",
+        "count":  42,
+    })
+}
+// Produces: <response><status>ok</status><count>42</count></response>
+```
+
+```go
+// From a struct
+type Item struct {
+    XMLName xml.Name `xml:"item"`
+    ID      int      `xml:"id"`
+    Name    string   `xml:"name"`
+}
+
+func handler(c app.Context) error {
+    return c.XML(Item{ID: 1, Name: "test"})
+}
+// Produces: <item><id>1</id><name>test</name></item>
+```
+
+```go
+// From a raw string or bytes
+func handler(c app.Context) error {
+    return c.XML("<status>ok</status>")
+}
+```
+
+Combine with content negotiation:
+
+```go
+if c.WantsXML() {
+    return c.XML(data)
+}
+return c.JSON(data)
+```
+
 ### Redirect
 
 ```go

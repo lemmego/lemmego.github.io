@@ -1,10 +1,10 @@
 ---
 title: CLI Prompting
 type: docs
-prev: docs/services/caching
+prev: docs/services/queue
 sidebar:
   open: true
-weight: 54
+weight: 55
 ---
 
 ## Overview
