@@ -11,7 +11,7 @@ weight: 70
 
 ### What is Lemmego?
 
-Lemmego is a full-stack web framework for Go, inspired by Laravel and Rails. It provides a complete toolkit for building web applications: HTTP routing, middleware, database abstraction, migrations, authentication, frontend integration, and CLI tooling.
+Lemmego is a full-stack web framework for Go that provides a complete toolkit for building web applications: HTTP routing, middleware, database abstraction, migrations, authentication, frontend integration, and CLI tooling.
 
 ### Is Lemmego production-ready?
 
@@ -19,7 +19,7 @@ Lemmego is experimental. The core framework (HTTP layer, sessions, config) and s
 
 ### How is this different from other Go frameworks?
 
-Unlike minimal routers (chi, gorilla) or micro-frameworks, Lemmego provides a full application architecture: service containers, provider plugins, database abstraction, migrations, CLI generators, and frontend integration — similar to what Laravel/Django provides for their ecosystems.
+Unlike minimal routers or micro-frameworks, Lemmego provides a full application architecture: service containers, provider plugins, database abstraction, migrations, CLI generators, and frontend integration.
 
 ## Framework
 

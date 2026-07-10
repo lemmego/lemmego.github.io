@@ -25,7 +25,7 @@ app.ErrInternalServerError   // 500
 Return them from handlers manually:
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return app.ErrNotFound
 }
 ```
@@ -35,7 +35,7 @@ func handler(c app.Context) error {
 The context provides convenience methods for common error responses:
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.NotFound()
     return c.Unauthorized()
     return c.Forbidden()

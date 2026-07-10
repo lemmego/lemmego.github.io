@@ -1,7 +1,7 @@
 ---
 title: HTTP Lifecycle
 type: docs
-prev: docs/quick-start/
+prev: docs/cli/
 next: docs/http/routing
 sidebar:
   open: true

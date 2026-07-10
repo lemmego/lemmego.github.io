@@ -29,7 +29,7 @@ The template engine automatically discovers layouts and partials by walking up t
 ```go
 import "github.com/lemmego/api/res"
 
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     tmpl := res.NewTemplate(c, "index.page.gohtml")
     tmpl = tmpl.WithData(map[string]any{
         "title": "Welcome",

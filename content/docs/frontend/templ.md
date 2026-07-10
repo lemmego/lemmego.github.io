@@ -21,7 +21,7 @@ The generated project includes Templ support out of the box. If you selected Tem
 ```go
 import "github.com/lemmego/templ"
 
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.Templ(components.Hello("World"))
 }
 ```

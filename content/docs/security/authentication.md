@@ -102,7 +102,7 @@ r.Get("/profile", auth.OptionalAuth, handlers.Profile)
 ## Accessing the Current User
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     user, ok := c.Get(auth.UserKey).(*auth.User)
     if !ok {
         return c.Unauthorized()

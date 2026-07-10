@@ -2,7 +2,9 @@
 title: Project Structure
 type: docs
 prev: docs/configuration/
-next: docs/http/
+next: docs/cli/
+sidebar:
+  open: true
 weight: 4
 ---
 

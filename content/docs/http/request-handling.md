@@ -16,7 +16,7 @@ The `req` package provides functions for parsing request data into Go structs.
 Parses request bodies from JSON, form data, or query parameters based on the `Content-Type` header:
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     var input CreateUserInput
     err := c.ParseInput(&input)
     if err != nil {
@@ -46,14 +46,25 @@ func (i *CreateUserInput) Validate() error {
     v.Field("email", i.Email).Required().Email()
     return v.Validate()
 }
+
+func NewCreateUserInput(c app.Context) (*CreateUserInput, error) {
+    input := &CreateUserInput{}
+    if err := c.ParseInput(input); err != nil {
+        return nil, err
+    }
+    return input, input.Validate()
+}
 ```
 
 Use with the handler:
 
 ```go
-func store(c app.Context) error {
-    input, err := c.Input(&CreateUserInput{}).(*CreateUserInput)
-    // input is automatically decoded and stored in context
+func Store(c app.Context) error {
+    input, err := NewCreateUserInput(c)
+    if err != nil {
+        return c.UnprocessableEntity(err)
+    }
+    // input is validated and ready to use
 }
 ```
 
@@ -79,7 +90,7 @@ func UserStore(c app.Context) error {
 For direct JSON decoding without struct binding:
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     var data map[string]any
     err := c.DecodeJSON(&data)
     if err != nil {
@@ -124,7 +135,7 @@ if c.HasFormURLEncodedRequest() { /* URL-encoded form */ }
 Handle file uploads with `c.Upload()`:
 
 ```go
-func upload(c app.Context) error {
+func Upload(c app.Context) error {
     file, err := c.Upload("avatar", "avatars")
     if err != nil {
         return c.BadRequest(err)

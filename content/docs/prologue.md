@@ -14,7 +14,7 @@ If you're new here, start with [Installation](/docs/installation/) to set up the
 
 ## What is Lemmego?
 
-Lemmego is a modern, full-stack web framework for Go that combines the productivity of Laravel/Rails with the type safety and performance of Go. Built around a plugin-based architecture and a powerful type-safe database abstraction layer (GPA), it enables rapid application development without sacrificing compile-time safety.
+Lemmego is a modern, full-stack web framework for Go that combines the productivity of modern web frameworks with the type safety and performance of Go. Built around a plugin-based architecture and a powerful type-safe database abstraction layer (GPA), it enables rapid application development without sacrificing compile-time safety.
 
 Key features:
 

@@ -10,7 +10,7 @@ weight: 49
 
 ## Overview
 
-Session management is handled by the `session` package, which wraps `github.com/alexedwards/scs/v2`. It supports multiple storage backends and integrates with the framework's CSRF protection.
+Session management is handled by the `session` package. It supports multiple storage backends and integrates with the framework's CSRF protection.
 
 ## Configuration
 

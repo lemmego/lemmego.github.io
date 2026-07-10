@@ -10,7 +10,7 @@ weight: 38
 
 ## Overview
 
-[Inertia.js](https://inertiajs.com/) enables building modern SPAs using server-side routing and client-side rendering with React or Vue. Lemmego includes a first-class Inertia adapter through the `inertia` package that wraps `gonertia` without leaking its types.
+[Inertia.js](https://inertiajs.com/) enables building modern SPAs using server-side routing and client-side rendering with React or Vue. Lemmego includes a first-class Inertia adapter through the `inertia` package.
 
 ## Setup
 
@@ -56,7 +56,7 @@ The provider automatically configures default options: version from manifest fil
 ```go
 import "github.com/lemmego/inertia"
 
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return inertia.Respond(c, "Users/Index", map[string]any{
         "users": users,
     })
@@ -177,7 +177,7 @@ inertia.Respond(c, "Posts/Index", map[string]any{
 Validation errors from the server are automatically available on the client as `page.props.errors`:
 
 ```go
-func store(c app.Context) error {
+func Store(c app.Context) error {
     if err := input.Validate(); err != nil {
         return c.UnprocessableEntity(err)
     }

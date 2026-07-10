@@ -14,7 +14,7 @@ Lemmego's `Context` provides several response methods.
 ### JSON
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.JSON(app.M{
         "id":    1,
         "name":  "John",
@@ -26,7 +26,7 @@ func handler(c app.Context) error {
 ### HTML
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.HTML([]byte("<h1>Hello</h1>"))
 }
 ```
@@ -34,7 +34,7 @@ func handler(c app.Context) error {
 ### Text
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.Text([]byte("Hello, World!"))
 }
 ```
@@ -45,7 +45,7 @@ Return XML responses from structs, maps, or raw strings:
 
 ```go
 // From a map
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.XML(app.M{
         "status": "ok",
         "count":  42,
@@ -62,7 +62,7 @@ type Item struct {
     Name    string   `xml:"name"`
 }
 
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.XML(Item{ID: 1, Name: "test"})
 }
 // Produces: <item><id>1</id><name>test</name></item>
@@ -70,7 +70,7 @@ func handler(c app.Context) error {
 
 ```go
 // From a raw string or bytes
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.XML("<status>ok</status>")
 }
 ```
@@ -87,11 +87,11 @@ return c.JSON(data)
 ### Redirect
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.Redirect("/dashboard")
 }
 
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.Back() // redirect to referrer
 }
 ```
@@ -100,17 +100,17 @@ func handler(c app.Context) error {
 
 ```go
 // Serve a file from the filesystem
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.File("path/to/file.pdf")
 }
 
 // Serve a file from a storage disk
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.StorageFile("uploads/report.pdf")
 }
 
 // Download a file with a custom filename
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.Download("path/to/file.pdf", "report.pdf")
 }
 ```
@@ -124,7 +124,7 @@ Render Go HTML templates using the `res` package:
 ```go
 import "github.com/lemmego/api/res"
 
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     tmpl := res.NewTemplate(c, "index.page.gohtml")
     tmpl = tmpl.WithData(map[string]any{
         "title": "Hello World",
@@ -147,7 +147,7 @@ Render Templ components using the `templ` package:
 ```go
 import "github.com/lemmego/templ"
 
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return c.Templ(components.Hello("World"))
 }
 ```
@@ -165,7 +165,7 @@ For Inertia.js responses:
 ```go
 import "github.com/lemmego/inertia"
 
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     return inertia.Respond(c, "Users/Index", inertia.Props{
         "users": users,
     })
@@ -177,7 +177,7 @@ func handler(c app.Context) error {
 Set custom HTTP status codes:
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     c.SetStatus(http.StatusCreated)
     return c.JSON(app.M{"id": 1})
 }
@@ -186,7 +186,7 @@ func handler(c app.Context) error {
 ## Setting Headers
 
 ```go
-func handler(c app.Context) error {
+func MyHandler(c app.Context) error {
     c.SetHeader("X-Custom", "value")
     c.SetHeader("Cache-Control", "no-cache")
     return c.JSON(app.M{"ok": true})
