@@ -1,0 +1,59 @@
+:root {
+  --primary-hue: 0;
+  --primary-saturation: 70%;
+  --primary-lightness: 45%;
+}
+
+.hero {
+  background: linear-gradient(180deg, #f5f0f0 0%, #faf5f5 50%, #f5f0f0 100%);
+  padding: 4rem 0;
+}
+
+.hero h1 {
+  color: #b91c1c;
+}
+
+.dark .hero h1 {
+  color: #fca5a5;
+}
+
+.dark .hero {
+  background: linear-gradient(180deg, #3d1515 0%, #5c2020 50%, #3d1515 100%);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid #b91c1c;
+  background-color: #b91c1c;
+  color: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.dark .btn-primary {
+  border-color: #fca5a5;
+  background-color: #fca5a5;
+  color: #7f1d1d;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid #b91c1c;
+  color: #b91c1c;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.dark .btn-outline {
+  border-color: #fca5a5;
+  color: #fca5a5;
+}

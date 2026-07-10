@@ -221,21 +221,21 @@ Alternative driver for node coordination, leader election, and distributed locki
 ## Architecture
 
 ```
-┌──────────────┐  ┌──────────────┐
-│   Web App    │  │  Worker 1    │
-│  Dispatch    │  │  Supervisor  │
-│  Dashboard   │  │  └─Pool (3)  │
-└──────┬───────┘  └──────┬───────┘
-       │                 │
-       └──────┬──────────┘
-              │
-     ┌────────▼────────┐
-     │   PostgreSQL     │
-     │   (jobs table)   │
-     │ SELECT FOR       │
-     │ UPDATE SKIP      │
-     │ LOCKED           │
-     └─────────────────┘
+   ┌──────────────┐     ┌──────────────┐
+   │   Web App    │     │  Worker 1    │
+   │  Dispatch    │     │  Supervisor  │
+   │  Dashboard   │     │  └─Pool (3)  │
+   └──────┬───────┘     └──────┬───────┘
+          │                    │
+          └────────┬───────────┘
+                   │
+          ┌────────▼────────┐
+          │   PostgreSQL    │
+          │  (jobs table)   │
+          │  SELECT FOR     │
+          │  UPDATE SKIP    │
+          │  LOCKED         │
+          └─────────────────┘
 ```
 
 Multiple workers share the same database — they claim available jobs atomically. No direct inter-node communication needed. Scale by adding more worker processes.
