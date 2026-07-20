@@ -1,8 +1,8 @@
 ---
 title: Queue & Background Jobs
 type: docs
-prev: docs/services/caching
-next: docs/services/prompting
+prev: docs/caching
+next: docs/prompting
 sidebar:
   open: true
 weight: 52

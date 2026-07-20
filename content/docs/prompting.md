@@ -1,7 +1,7 @@
 ---
 title: CLI Prompting
 type: docs
-prev: docs/services/queue
+prev: docs/queue
 next: docs/appendix/
 sidebar:
   open: true

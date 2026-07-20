@@ -1,8 +1,8 @@
 ---
 title: Caching
 type: docs
-prev: docs/services/logging
-next: docs/services/queue
+prev: docs/logging
+next: docs/queue
 sidebar:
   open: true
 weight: 51

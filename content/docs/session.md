@@ -2,7 +2,7 @@
 title: Session
 type: docs
 prev: docs/deployment/
-next: docs/services/logging
+next: docs/logging
 sidebar:
   open: true
 weight: 49

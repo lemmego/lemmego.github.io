@@ -1,8 +1,8 @@
 ---
 title: Logging
 type: docs
-prev: docs/services/session
-next: docs/services/caching
+prev: docs/session
+next: docs/caching
 sidebar:
   open: true
 weight: 50

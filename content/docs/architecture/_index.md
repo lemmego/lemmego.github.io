@@ -1,7 +1,7 @@
 ---
 title: Architecture
 type: docs
-prev: docs/services/prompting
+prev: docs/prompting
 sidebar:
   open: true
 weight: 60

@@ -2,7 +2,7 @@
 title: Deployment
 type: docs
 prev: docs/testing/
-next: docs/services/session
+next: docs/session
 sidebar:
   open: true
 weight: 48
