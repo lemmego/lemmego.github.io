@@ -110,6 +110,37 @@ lives, rather than being rotated per request; [CSRF Protection](/docs/security/c
 explains why. Destroying or regenerating the session therefore also invalidates the
 CSRF token, and the next request issues a fresh one.
 
+Logging in rotates the session id (see [Session fixation](#session-fixation)),
+but carries the data across, so the CSRF token survives and the request right
+after a login is not rejected as expired. Logging out destroys the session, so
+the next page load issues a new token.
+
+## Session Fixation
+
+`auth.Login` rotates the session id before writing the user into the session,
+and `auth.Logout` destroys the session rather than only removing the user.
+Without the rotation, an attacker who can plant a session cookie in a victim's
+browser before they log in still holds a valid id afterwards, authenticated as
+them.
+
+Both are handled for you; there is nothing to call. If you manage sessions
+yourself, do the same at your own login boundary:
+
+```go
+sess := app.Get[*session.Session](a)
+
+if err := sess.RenewToken(ctx); err != nil {   // before storing the identity
+    return err
+}
+sess.Put(ctx, "user_id", user.ID)
+
+// ...and on the way out
+err := sess.Destroy(ctx)
+```
+
+Applications configured with `DisableSession: true` authenticate with JWT and
+have no session to fixate.
+
 ## Lifecycle
 
 Session data is automatically loaded on request start and committed on response completion. You don't need to manually save session changes.

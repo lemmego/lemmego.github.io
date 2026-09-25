@@ -61,14 +61,12 @@ Excluded patterns are evaluated as regular expressions. Requests matching any pa
 
 ### Go Templates
 
-The middleware puts the token on the request context, so pass it through when
-rendering:
+`res.Template.Render` supplies `_token` from the request context, the same way
+it supplies `errors`, so the handler does not have to pass it through:
 
 ```go
 func TaskCreate(c app.Context) error {
-    tmpl := res.NewTemplate(c, "tasks.page.gohtml").
-        WithData(map[string]any{"_token": c.Get("_token")})
-    return c.Render(tmpl)
+    return c.Render(res.NewTemplate(c, "tasks.page.gohtml"))
 }
 ```
 
@@ -77,6 +75,8 @@ func TaskCreate(c app.Context) error {
     <input type="hidden" name="_token" value="{{ ._token }}">
 </form>
 ```
+
+An explicit `_token` in `WithData` still wins, if you need to override it.
 
 ### Templ
 
