@@ -91,4 +91,8 @@ Check your `.env` file for correct `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, and cr
 
 ### CSRF token mismatch
 
-Ensure all state-changing forms include the `_token` field. For API routes, add them to the CSRF exclusion list.
+Ensure every state-changing form includes the `_token` field, or that the request
+carries the `X-XSRF-TOKEN` header (Inertia and axios read the `XSRF-TOKEN` cookie
+and do this for you). A 419 also means the session was lost — check that the
+session cookie is actually coming back, since a new session means a new token.
+For API routes authenticated some other way, add them to the CSRF exclusion list.

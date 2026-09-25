@@ -153,7 +153,7 @@ middleware.VerifyCSRF(&middleware.CSRFOpts{
 })
 ```
 
-CSRF tokens are rotated after each successful validation.
+The token is a per-session secret: it is stored in the session, mirrored into the `XSRF-TOKEN` cookie, and deliberately not rotated on each request. See [CSRF Protection](/docs/security/csrf).
 
 ### Method Override
 

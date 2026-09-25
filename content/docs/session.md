@@ -104,7 +104,11 @@ sess.Put(ctx, "last_activity", time.Now())
 
 ## Session & CSRF
 
-The session is used by the CSRF middleware to store and verify tokens. On each successful validation, the session token is rotated for security.
+The CSRF middleware keeps its token in the session, under `_token`. It is generated
+once — on the first request of a session — and reused for as long as that session
+lives, rather than being rotated per request; [CSRF Protection](/docs/security/csrf)
+explains why. Destroying or regenerating the session therefore also invalidates the
+CSRF token, and the next request issues a fresh one.
 
 ## Lifecycle
 
