@@ -57,7 +57,8 @@ The schema builder maps 37 generic column types to database-specific SQL types.
 ## Best Practices
 
 - Use `BigIncrements("id")` for primary keys in production — it supports up to 9 quintillion rows
-- Use `Timestamps()` for created_at/updated_at tracking
-- Use `SoftDeletes()` for soft deletion support
+- Add `DateTime("created_at", 6).Nullable()` and `DateTime("updated_at", 6).Nullable()` for
+  timestamp tracking — the [ORM](/docs/orm/writes#automatic-timestamps) fills them in automatically
+- Add `DateTime("deleted_at", 6).Nullable()` to opt a table into [soft deletes](/docs/orm/writes#soft-deletes)
 - For enums in PostgreSQL, the builder uses VARCHAR with CHECK constraints
 - Always wrap string defaults in extra quotes: `Default("'active'")`

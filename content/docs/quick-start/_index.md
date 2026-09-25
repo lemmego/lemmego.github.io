@@ -20,7 +20,7 @@ This command will walk you through interactive prompts:
 
 1. **Module name** — the Go module path (e.g., `github.com/username/my-project`)
 2. **Preset** — choose between `mvc` (with frontend) or `rest_api` (backend-only)
-3. **ORM** — select `gorm` or `bun` as the database ORM
+3. **ORM** — select `orm` (the built-in [Lemmego ORM](/docs/orm/), the default), `gorm` or `bun`
 4. **Redis** — enable or disable Redis support
 5. **Auth** — enable or disable authentication scaffolding
 6. **GPA** (experimental) — enable the Go Persistence API

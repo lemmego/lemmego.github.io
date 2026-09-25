@@ -49,7 +49,7 @@ api.Get("/users", handlers.UserIndex)
 api.Post("/users", handlers.UserStore)
 
 admin := r.Group("/admin")
-admin.UseBefore(middleware.AdminAuth)
+admin.UseBefore(auth.Protected)
 admin.Get("/dashboard", handlers.AdminDashboard)
 ```
 

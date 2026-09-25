@@ -1,7 +1,7 @@
 ---
 title: GPA Overview
 type: docs
-prev: docs/http/context
+prev: docs/orm/gpa-adapter
 next: docs/database/provider-registry
 sidebar:
   open: true

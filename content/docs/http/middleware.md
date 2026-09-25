@@ -69,15 +69,20 @@ func LoadMiddlewares() []app.Handler {
 Apply middleware to specific routes or groups:
 
 ```go
-// Before middleware (runs before handler)
-r.UseBefore(middleware.AuthRequired)
+// Before middleware (runs before the handler)
+r.UseBefore(auth.Protected)
 
-// Per-route middleware
-api.Group("/admin").UseBefore(middleware.AdminOnly)
+// Per-route middleware — auth.Protected ships with the framework,
+// AdminOnly is one you write yourself (see below)
+api.Group("/admin").UseBefore(auth.Protected, middleware.AdminOnly)
 
-// After middleware (runs after handler)
-r.UseAfter(middleware.ResponseLogger)
+// After middleware (runs after the handler)
+r.UseAfter(middleware.AuditLog)
 ```
+
+`auth.Protected` rejects unauthenticated requests, `auth.Guest` rejects authenticated
+ones (for login/register routes), and `auth.OptionalAuth` populates the user when one
+is present without ever blocking.
 
 ## Writing Custom Middleware
 

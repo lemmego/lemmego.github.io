@@ -43,14 +43,34 @@ Creates a new Lemmego project with interactive configuration.
 **Interactive Prompts:**
 - Module name (Go module path)
 - Preset: `mvc` or `rest_api`
-- ORM: `gorm` or `bun`
+- ORM: `orm` (the built-in [Lemmego ORM](/docs/orm/), the default), `gorm` or `bun`
 - Redis: yes/no
 - Auth: yes/no
 - GPA (experimental): yes/no (with `--exp` flag)
-- Frontend preset (for `mvc`): Go Templates, Templ, Inertia React, Inertia Vue
+- Frontend preset (for `mvc`): Go Templates, Templ, Inertia React, Inertia Vue,
+  Templ + Inertia React, Templ + Inertia Vue
 
 **Flags:**
 - `--exp` — Enable experimental GPA features
+- `--non-interactive` — Skip every prompt and take the answers from the flags below
+- `--module <path>` — Go module path (required with `--non-interactive`)
+- `--preset <mvc|rest_api>` — Project preset (default `mvc`)
+- `--orm <orm|gorm|bun>` — SQL layer (default `orm`)
+- `--frontend <preset>` — MVC frontend preset (default `go_templates`)
+- `--redis` — Enable Redis
+- `--auth` — Scaffold registration, login and logout
+- `--gpa` — Wire the ORM through [GPA](/docs/database/)
+
+**Example:**
+
+```bash
+lemmego new blog \
+  --non-interactive \
+  --module github.com/me/blog \
+  --orm orm \
+  --frontend inertia_react \
+  --auth
+```
 
 **Post-creation:** Runs `go mod tidy`, generates app key, optionally builds frontend assets.
 

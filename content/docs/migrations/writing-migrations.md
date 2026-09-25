@@ -42,10 +42,11 @@ lemmego g migration create_users_table
 func mig_up(tx *sql.Tx) error {
     schema := migration.Create("users", func(t *migration.Table) {
         t.BigIncrements("id")
-        t.String("name").NotNull()
-        t.String("email").Unique()
-        t.String("password").NotNull()
-        t.Timestamps()
+        t.String("name", 255).NotNull()
+        t.String("email", 255).Unique()
+        t.String("password", 255).NotNull()
+        t.DateTime("created_at", 6).Nullable()
+        t.DateTime("updated_at", 6).Nullable()
     }).Build()
     _, err := tx.Exec(schema)
     return err
@@ -57,7 +58,7 @@ func mig_up(tx *sql.Tx) error {
 ```go
 func mig_up(tx *sql.Tx) error {
     schema := migration.Alter("users", func(t *migration.Table) {
-        t.String("phone").Nullable().After("email")
+        t.String("phone", 255).Nullable().After("email")
         t.Boolean("is_verified").Default(false)
     }).Build()
     _, err := tx.Exec(schema)
@@ -80,10 +81,11 @@ func mig_up(tx *sql.Tx) error {
 func mig_up(tx *sql.Tx) error {
     schema := migration.Create("posts", func(t *migration.Table) {
         t.BigIncrements("id")
-        t.String("title").NotNull()
+        t.String("title", 255).NotNull()
         t.Text("body")
         t.ForeignID("user_id").Constrained()
-        t.Timestamps()
+        t.DateTime("created_at", 6).Nullable()
+        t.DateTime("updated_at", 6).Nullable()
     }).Build()
     _, err := tx.Exec(schema)
     return err
@@ -96,8 +98,8 @@ func mig_up(tx *sql.Tx) error {
 func mig_up(tx *sql.Tx) error {
     schema := migration.Create("posts", func(t *migration.Table) {
         t.BigIncrements("id")
-        t.String("slug").Unique()
-        t.String("status")
+        t.String("slug", 255).Unique()
+        t.String("status", 255)
         t.Index("status")
     }).Build()
     _, err := tx.Exec(schema)
@@ -149,11 +151,12 @@ func init() {
 func mig_users_up(tx *sql.Tx) error {
     schema := migration.Create("users", func(t *migration.Table) {
         t.BigIncrements("id")
-        t.String("name").NotNull()
-        t.String("email").Unique().NotNull()
-        t.String("password").NotNull()
-        t.Timestamps()
-        t.SoftDeletes()
+        t.String("name", 255).NotNull()
+        t.String("email", 255).Unique().NotNull()
+        t.String("password", 255).NotNull()
+        t.DateTime("created_at", 6).Nullable()
+        t.DateTime("updated_at", 6).Nullable()
+        t.DateTime("deleted_at", 6).Nullable()
     }).Build()
     _, err := tx.Exec(schema)
     return err

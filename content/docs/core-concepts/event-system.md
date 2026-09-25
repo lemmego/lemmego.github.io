@@ -2,6 +2,7 @@
 title: Event System
 type: docs
 prev: docs/core-concepts/dependency-injection
+next: docs/orm/
 sidebar:
   open: true
 weight: 17

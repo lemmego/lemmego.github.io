@@ -17,9 +17,10 @@ The schema builder provides a fluent API for creating, altering, and dropping da
 ```go
 schema := migration.Create("users", func(t *migration.Table) {
     t.BigIncrements("id")
-    t.String("name").NotNull()
-    t.String("email").Unique()
-    t.Timestamps()
+    t.String("name", 255).NotNull()
+    t.String("email", 255).Unique()
+    t.DateTime("created_at", 6).Nullable()
+    t.DateTime("updated_at", 6).Nullable()
 }).Build()
 // Execute with: tx.Exec(schema)
 ```
@@ -28,7 +29,7 @@ schema := migration.Create("users", func(t *migration.Table) {
 
 ```go
 schema := migration.Alter("users", func(t *migration.Table) {
-    t.String("phone").Nullable()
+    t.String("phone", 255).Nullable()
     t.Boolean("is_active").Default(true)
 }).Build()
 ```
@@ -40,10 +41,14 @@ err := migration.Drop("users")
 // Returns "DROP TABLE IF EXISTS users"
 ```
 
-## Renaming Tables
+## Renaming Columns
+
+There is no table rename helper. Columns are renamed through `Alter`:
 
 ```go
-migration.Rename("old_name", "new_name")
+schema := migration.Alter("users", func(t *migration.Table) {
+    t.RenameColumn("email", "email_address")
+}).Build()
 ```
 
 ## Available Column Types
@@ -80,28 +85,30 @@ migration.Rename("old_name", "new_name")
 ## Column Modifiers
 
 ```go
-t.String("email").Unique()
-t.String("name").NotNull()
-t.String("phone").Nullable()
+t.String("email", 255).Unique()
+t.String("name", 255).NotNull()
+t.String("phone", 255).Nullable()
 t.Integer("age").Default(18)
-t.String("status").Default("'active'")  // Note: SQL string literals need quotes
-t.String("old_field").Change()           // Modify existing column
+t.String("status", 255).Default("'active'")  // Note: SQL string literals need quotes
+t.String("old_field", 255).Change()           // Modify existing column
 ```
 
 **Important**: String defaults use SQL syntax — `Default("'active'")` means the SQL literal `'active'`.
 
-## Timestamps Helper
+## Timestamps and Soft Deletes
+
+There are no `Timestamps()` or `SoftDeletes()` shortcuts — declare the columns:
 
 ```go
-t.Timestamps()
-// Adds: created_at TIMESTAMP NULL, updated_at TIMESTAMP NULL
+t.DateTime("created_at", 6).Nullable()
+t.DateTime("updated_at", 6).Nullable()
+t.DateTime("deleted_at", 6).Nullable()
 
-t.SoftDeletes()
-// Adds: deleted_at TIMESTAMP NULL
-
-t.SoftDeletesTz(precision)
-// Adds: deleted_at TIMESTAMPTZ(precision) NULL
+t.DateTimeTz("published_at", 6).Nullable()   // with a time zone
 ```
+
+A soft-delete column must be nullable, and the model field must be
+`*time.Time` or `sql.NullTime`. See [Soft deletes](/docs/orm/writes#soft-deletes).
 
 ## Constraints
 
@@ -153,12 +160,13 @@ t.ForeignID("user_id").
     })
 ```
 
-## Helper Methods
+## Primary Keys
+
+There is no `ID()` shortcut. Declare the key explicitly:
 
 ```go
-t.ID()
-// Shortcut for BigIncrements("id")
-
-t.StringTimestamps()
-// created_at DATETIME, updated_at DATETIME (not nullable)
+t.BigIncrements("id").Primary()
 ```
+
+On MySQL an auto-increment column must be a key; if you do not mark it, the
+builder marks it for you rather than emitting DDL the server would refuse.

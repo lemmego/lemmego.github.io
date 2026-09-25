@@ -79,6 +79,9 @@ weight: 54
 | `gpabun` | `github.com/lemmego/gpabun` | Bun provider |
 | `gpamongo` | `github.com/lemmego/gpamongo` | MongoDB provider |
 | `gparedis` | `github.com/lemmego/gparedis` | Redis provider |
+| `orm` | `github.com/lemmego/orm` | Built-in SQL ORM |
+| `gpaorm` | `github.com/lemmego/gpaorm` | GPA provider backed by the built-in ORM |
+| `ormconnector` | `github.com/lemmego/ormconnector` | ORM app provider |
 | `gormconnector` | `github.com/lemmego/gormconnector` | GORM app provider |
 | `bunconnector` | `github.com/lemmego/bunconnector` | Bun app provider |
 | `inertia` | `github.com/lemmego/inertia` | Inertia.js adapter |
@@ -94,11 +97,14 @@ gpagorm → gpa, GORM
 gpabun → gpa, Bun
 gpamongo → gpa, MongoDB driver
 gparedis → gpa, go-redis
+orm → (standalone, database/sql only)
+gpaorm → gpa, orm
+ormconnector → api, gpa, orm, gpaorm
 gormconnector → api, gpa, gpagorm
 bunconnector → api, gpa, gpabun
 inertia → api, gonertia
 templ → api, a-h/templ
 auth → api
 cli → (standalone, embeds scaffold templates)
-lemmego → api, gpa, gpagorm, gparedis, inertia, auth, gormconnector, migration
+lemmego → api, gpa, orm, gparedis, inertia, auth, ormconnector, migration, queue
 ```

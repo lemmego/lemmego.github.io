@@ -128,7 +128,7 @@ func LoadProviders() []app.Provider {
         &fs.Provider{},
         &session.Provider{},
         &inertia.Provider{},
-        &gormconnector.Provider{UseGPA: true},
+        &ormconnector.Provider{},
         &auth.Provider{Opts: &auth.Opts{...}},
         &MyProvider{},
     }
@@ -142,6 +142,7 @@ func LoadProviders() []app.Provider {
 | `fs.Provider` | `github.com/lemmego/api/providers/fs` | File system abstraction |
 | `session.Provider` | `github.com/lemmego/api/providers/session` | Session management |
 | `inertia.Provider` | `github.com/lemmego/inertia` | Inertia.js integration |
+| `ormconnector.Provider` | `github.com/lemmego/ormconnector` | Built-in ORM database connection |
 | `gormconnector.Provider` | `github.com/lemmego/gormconnector` | GORM database connection |
 | `bunconnector.Provider` | `github.com/lemmego/bunconnector` | Bun ORM database connection |
 | `auth.Provider` | `github.com/lemmego/auth` | Authentication |

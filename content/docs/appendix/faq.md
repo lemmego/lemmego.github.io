@@ -25,7 +25,7 @@ Unlike minimal routers or micro-frameworks, Lemmego provides a full application 
 
 ### What Go version is required?
 
-Go 1.24 or later (the framework uses generics extensively).
+Go 1.27 or later. The framework uses generics extensively, and the ORM relies on generic methods (`db.Model[User]()`), which Go 1.27 introduced.
 
 ### Can I use Lemmego with just the HTTP layer?
 

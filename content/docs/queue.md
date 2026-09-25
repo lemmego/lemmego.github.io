@@ -34,6 +34,7 @@ import (
     "context"
     "fmt"
     "github.com/lemmego/queue"
+    "github.com/lemmego/tasker"
 )
 
 type SendWelcomeEmail struct {
@@ -47,7 +48,7 @@ func (j *SendWelcomeEmail) Handle(ctx context.Context) error {
 }
 
 func init() {
-    queue.RegisterJob("*jobs.SendWelcomeEmail", func() queue.Job {
+    queue.RegisterJob("*jobs.SendWelcomeEmail", func() tasker.Job {
         return &SendWelcomeEmail{}
     })
 }
@@ -63,9 +64,9 @@ queue.Dispatch(ctx, &SendWelcomeEmail{
 
 // With options
 queue.Dispatch(ctx, &SendWelcomeEmail{UserID: 43},
-    queue.OnQueue("email"),
-    queue.WithDelay(5*time.Minute),
-    queue.WithTags("priority"),
+    tasker.OnQueue("email"),
+    tasker.WithDelay(5*time.Minute),
+    tasker.WithTags("priority"),
 )
 ```
 

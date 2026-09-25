@@ -59,6 +59,7 @@ The framework registers several services through its providers:
 |---------|------|----------|
 | Session Manager | `*session.Session` | `session.Provider` |
 | File System | `*fs.FileSystem` | `fs.Provider` |
+| Database | `*orm.DB` | `ormconnector` |
 | Database | `*gorm.DB` / `*bun.DB` | `gormconnector` / `bunconnector` |
 | Inertia | `*inertia.Inertia` | `inertia.Provider` |
 | Auth | `*auth.Auth` | `auth.Provider` |

@@ -101,11 +101,14 @@ gpa.Select("id", "name", "email")
 ### Joins
 
 ```go
-gpa.Join("profiles", "profiles.user_id", "users.id")
-gpa.InnerJoin("orders", "orders.user_id", "users.id")
-gpa.LeftJoin("comments", "comments.user_id", "users.id")
-gpa.RightJoin(...)
-gpa.FullJoin(...)
+// Convenience helpers take the table and a join condition
+gpa.InnerJoin("orders", "orders.user_id = users.id")
+gpa.LeftJoin("comments", "comments.user_id = users.id")
+
+// gpa.Join takes the join type explicitly, plus an optional alias.
+// JoinInner, JoinLeft, JoinRight and JoinFull are the available types.
+gpa.Join(gpa.JoinRight, "profiles", "profiles.user_id = users.id")
+gpa.Join(gpa.JoinFull, "audits", "audits.user_id = users.id", "a")
 ```
 
 ### Grouping and Having

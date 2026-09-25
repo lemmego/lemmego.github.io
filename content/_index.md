@@ -27,7 +27,7 @@ func main() {
 func LoadProviders() []app.Provider {
     return []app.Provider{
         &session.Provider{},
-        &gormconnector.Provider{UseGPA: true},
+        &ormconnector.Provider{},
         &inertia.Provider{},
         &queue.Provider{},
         &auth.Provider{},
@@ -47,7 +47,7 @@ func WebRoutes(a app.App) {
     r.Get("/articles/{id}", handlers.ArticleShow)
 
     admin := r.Group("/admin")
-    admin.UseBefore(middleware.AdminAuth)
+    admin.UseBefore(auth.Protected, middleware.AdminOnly)
     admin.Get("/articles/new", handlers.ArticleCreate)
     admin.Post("/articles", handlers.ArticleStore)
 }
@@ -117,11 +117,12 @@ func init() {
 func mig_up(tx *sql.Tx) error {
     schema := migration.Create("articles", func(t *migration.Table) {
         t.BigIncrements("id")
-        t.String("title").NotNull()
+        t.String("title", 255).NotNull()
         t.Text("body")
-        t.String("status").Default("'draft'")
+        t.String("status", 255).Default("'draft'")
         t.ForeignID("author_id").Constrained()
-        t.Timestamps()
+        t.DateTime("created_at", 6).Nullable()
+        t.DateTime("updated_at", 6).Nullable()
     }).Build()
     _, err := tx.Exec(schema)
     return err
@@ -134,29 +135,40 @@ Run with: `lemmego run migrate up`
 {{< tab name="Persistence" >}}
 
 ```go
-// internal/repos/article_repo.go
-type ArticleRepository struct {
-    gpa.MigratableRepository[models.Article]
-}
-
-func Article() *ArticleRepository {
-    return &ArticleRepository{
-        gpagorm.GetRepository[models.Article](),
-    }
+// internal/models/article.go
+type Article struct {
+    ID        uint      `orm:"primaryKey"`
+    Title     string
+    Status    string
+    AuthorID  uint
+    Author    *User     `orm:"belongsTo:AuthorID"`
+    Comments  []Comment `orm:"hasMany:ArticleID"`
+    CreatedAt time.Time
+    UpdatedAt time.Time
+    DeletedAt *time.Time
 }
 
 // internal/handlers/article_handler.go
 func ArticleIndex(c app.Context) error {
-    articles, _ := Article().FindAll(c.RequestContext(),
-        gpa.Where("status", gpa.OpEqual, "published"),
-        gpa.OrderBy("created_at", gpa.OrderDesc),
-        gpa.Preload("Author"),
-    )
+    db := ormconnector.Get(c.App())
+
+    articles, err := db.Model[models.Article]().
+        Where(orm.Eq("status", "published")).
+        With("Author", "Comments").
+        OrderBy(orm.Desc("created_at")).
+        Limit(20).
+        All(c.RequestContext())
+    if err != nil {
+        return err
+    }
     return c.JSON(app.M{"articles": articles})
 }
 ```
 
-Type-safe, generic repositories — no `interface{}` casting, no runtime reflection.
+The built-in [ORM](/docs/orm/) uses Go generic methods, so `db.Model[Article]()` returns
+`[]Article` — no casting, no `interface{}`. `With` eager-loads relations in one extra query
+per level, and `DeletedAt` opts the model into soft deletes. Prefer GORM, Bun, MongoDB or
+Redis? Swap in a [GPA provider](/docs/database/) and keep the same repository shape.
 
 {{< /tab >}}
 {{< tab name="Queues" >}}
@@ -173,7 +185,7 @@ func (j *SendEmail) Handle(ctx context.Context) error {
 }
 
 func init() {
-    queue.RegisterJob("*jobs.SendEmail", func() queue.Job {
+    queue.RegisterJob("*jobs.SendEmail", func() tasker.Job {
         return &SendEmail{}
     })
 }
@@ -259,6 +271,7 @@ func LoadProviders() []app.Provider {
 ## Features
 
 - **Full-featured HTTP layer** — Param-based routing, route grouping, flexible middleware, input validation, typed errors
+- **Built-in ORM** — Generic query builder, eager-loaded relationships, soft deletes, scopes and pagination over plain `database/sql`
 - **Type-safe database layer** — GPA provides compile-time type safety across SQL, NoSQL, and KV stores with generic `Repository[T]`
 - **Plugin architecture** — Extend the framework through providers without modifying core code
 - **Multiple frontends** — Go Templates, Templ, or Inertia.js with React/Vue
@@ -279,6 +292,7 @@ func LoadProviders() []app.Provider {
 | Module | Description |
 |--------|-------------|
 | **API** | Core framework: routing, middleware, DI, sessions, config, validation |
+| **ORM** | Generic SQL ORM: query builder, relationships, soft deletes, pagination |
 | **GPA** | Type-safe database abstraction with multi-provider support |
 | **Queue** | Distributed background job system with web dashboard |
 | **CLI** | Project scaffolding and code generation |

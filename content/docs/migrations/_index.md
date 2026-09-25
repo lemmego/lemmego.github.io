@@ -52,9 +52,10 @@ func init() {
 func mig_users_up(tx *sql.Tx) error {
     schema := migration.Create("users", func(t *migration.Table) {
         t.BigIncrements("id")
-        t.String("name").NotNull()
-        t.String("email").Unique()
-        t.Timestamps()
+        t.String("name", 255).NotNull()
+        t.String("email", 255).Unique()
+        t.DateTime("created_at", 6).Nullable()
+        t.DateTime("updated_at", 6).Nullable()
     }).Build()
     _, err := tx.Exec(schema)
     return err
