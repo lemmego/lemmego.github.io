@@ -119,7 +119,7 @@ func mig_up(tx *sql.Tx) error {
         t.BigIncrements("id")
         t.String("title", 255).NotNull()
         t.Text("body")
-        t.String("status", 255).Default("'draft'")
+        t.String("status", 255).Default("draft")
         t.ForeignID("author_id").Constrained()
         t.DateTime("created_at", 6).Nullable()
         t.DateTime("updated_at", 6).Nullable()

@@ -61,4 +61,4 @@ The schema builder maps 37 generic column types to database-specific SQL types.
   timestamp tracking — the [ORM](/docs/orm/writes#automatic-timestamps) fills them in automatically
 - Add `DateTime("deleted_at", 6).Nullable()` to opt a table into [soft deletes](/docs/orm/writes#soft-deletes)
 - For enums in PostgreSQL, the builder uses VARCHAR with CHECK constraints
-- Always wrap string defaults in extra quotes: `Default("'active'")`
+- Pass defaults as plain Go values — `Default("active")`, `Default(18)`, `Default(false)`. Use `migration.Expr` for SQL expressions and `migration.CurrentTimestamp` for insert-time clocks

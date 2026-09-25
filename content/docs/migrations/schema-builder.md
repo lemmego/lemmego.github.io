@@ -88,12 +88,41 @@ schema := migration.Alter("users", func(t *migration.Table) {
 t.String("email", 255).Unique()
 t.String("name", 255).NotNull()
 t.String("phone", 255).Nullable()
-t.Integer("age").Default(18)
-t.String("status", 255).Default("'active'")  // Note: SQL string literals need quotes
-t.String("old_field", 255).Change()           // Modify existing column
+t.String("old_field", 255).Change()   // Modify an existing column
 ```
 
-**Important**: String defaults use SQL syntax — `Default("'active'")` means the SQL literal `'active'`.
+### Defaults
+
+`Default` takes the value you want, and renders it as the right SQL literal for
+its Go type. Strings are quoted and their quotes escaped, numbers and booleans
+are emitted bare, and `nil` becomes `DEFAULT NULL`:
+
+```go
+t.String("status", 255).Default("active")     // DEFAULT 'active'
+t.String("note", 255).Default("it's fine")    // DEFAULT 'it''s fine'
+t.Integer("age").Default(18)                  // DEFAULT 18
+t.Boolean("admin").Default(false)             // DEFAULT FALSE on PostgreSQL, 0 elsewhere
+t.String("nickname", 255).Nullable().Default(nil)
+```
+
+For a default that is an *expression* rather than a value, wrap it in
+`migration.Expr`, which is emitted verbatim:
+
+```go
+t.Integer("attempts").Default(migration.Expr("(1 + 1)"))
+```
+
+Insert-time timestamps have their own value, because MySQL requires the
+default's fractional-second precision to match the column's — `CurrentTimestamp`
+handles that for you, where a hand-written `Expr("CURRENT_TIMESTAMP")` would be
+rejected on a `DATETIME(6)` column:
+
+```go
+t.DateTime("created_at", 6).Default(migration.CurrentTimestamp)
+```
+
+A value of a type with no SQL literal form is reported by `Validate` (and panics
+in `Build`) naming the table and column, rather than being silently dropped.
 
 ## Timestamps and Soft Deletes
 
