@@ -49,11 +49,30 @@ jobs:
         run: |
           wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
           && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+      # The hero badge shows the current release. Resolving it at build time
+      # keeps it from going stale every time the CLI is tagged, which is what
+      # a hardcoded value did. A failed lookup is not fatal: the build falls
+      # back to params.version in hugo.yaml.
+      - name: Resolve the latest release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(gh release view --repo lemmego/cli --json tagName -q .tagName 2>/dev/null || true)
+          if [ -z "$version" ]; then
+            echo "Could not resolve the latest lemmego/cli release; falling back to params.version" >&2
+          else
+            echo "Latest release: $version"
+            echo "version=$version" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build with Hugo
         env:
           # For maximum backward compatibility with Hugo modules
           HUGO_ENVIRONMENT: production
           HUGO_ENV: production
+          # Empty when the lookup failed, which leaves hugo.yaml's value in place.
+          HUGO_PARAMS_LATESTRELEASE: ${{ steps.release.outputs.version }}
         run: |
           hugo \
             --gc --minify \

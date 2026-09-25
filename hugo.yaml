@@ -44,6 +44,13 @@ menu:
 
 
 params:
+  # The version shown in the hero badge. The Pages workflow sets latestRelease
+  # from the newest lemmego/cli release at build time; the hero prefers it and
+  # falls back to version here, so a failed lookup shows a stale value rather
+  # than an empty badge. Keep version roughly current for local builds.
+  version: v0.1.53
+  latestRelease: ""
+
   navbar:
     displayTitle: true
     displayLogo: false

@@ -2,7 +2,7 @@
 
 <div class="hero">
   <div class="hx:max-w-[90rem] hx:mx-auto hx:px-6 hx:text-center">
-    <span class="hx:inline-block hx:rounded-full hx:bg-red-200 hx:dark:bg-red-900 hx:px-4 hx:py-1.5 hx:text-sm hx:font-medium hx:mb-4 hx:border hx:border-red-300 hx:dark:border-red-700 hx:text-red-800 hx:dark:text-red-200">v0.1.41</span>
+    <a href="https://github.com/lemmego/cli/releases/latest" class="hx:inline-block hx:rounded-full hx:bg-red-200 hx:dark:bg-red-900 hx:px-4 hx:py-1.5 hx:text-sm hx:font-medium hx:mb-4 hx:border hx:border-red-300 hx:dark:border-red-700 hx:text-red-800 hx:dark:text-red-200">{{ with site.Params.latestRelease }}{{ . }}{{ else }}{{ site.Params.version }}{{ end }}</a>
     <h1 class="hx:text-4xl hx:sm:text-5xl hx:font-bold hx:tracking-tight hx:mb-4 hx:text-red-900" style="color: #b91c1c;">The Go framework that ships batteries included</h1>
     <p class="hx:text-xl hx:mb-8 hx:text-red-800 hx:dark:text-red-200">Lemmego combines the productivity of modern web frameworks with the type safety and performance of Go.</p>
     <div class="hx:flex hx:justify-center hx:gap-4">
