@@ -1,7 +1,7 @@
 ---
 title: Generic Repository
 type: docs
-prev: docs/database/provider-registry
+prev: docs/database/connection-seam
 next: docs/database/query-system
 sidebar:
   open: true

@@ -2,6 +2,7 @@
 title: Encryption
 type: docs
 prev: docs/security/csrf
+next: docs/oauth2/
 sidebar:
   open: true
 weight: 45

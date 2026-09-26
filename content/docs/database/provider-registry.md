@@ -2,7 +2,7 @@
 title: Provider Registry
 type: docs
 prev: docs/database/
-next: docs/database/generic-repository
+next: docs/database/connection-seam
 sidebar:
   open: true
 weight: 19
