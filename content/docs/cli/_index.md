@@ -118,6 +118,34 @@ and then fail:
 
 **Post-creation:** Runs `go mod tidy`, generates app key, optionally builds frontend assets.
 
+## Where generated code goes
+
+`lemmego gen` writes into the directories your project configures, not fixed
+ones. The paths live in `internal/configs/app.go`, and each has an environment
+variable:
+
+| Config key | Env variable | Default |
+|---|---|---|
+| `app.model_path` | `MODEL_PATH` | `./internal/models` |
+| `app.handler_path` | `HANDLER_PATH` | `./internal/handlers` |
+| `app.input_path` | `INPUT_PATH` | `./internal/inputs` |
+| `app.migration_path` | `MIGRATION_PATH` | `./internal/migrations` |
+| `app.config_path` | `CONFIG_PATH` | `./internal/configs` |
+| `app.command_path` | `COMMAND_PATH` | `./internal/commands` |
+| `app.middleware_path` | `MIDDLEWARE_PATH` | `./internal/middleware` |
+| `app.route_path` | `ROUTE_PATH` | `./internal/routes` |
+
+Move models to `./domain/models` and the next generated model goes there. The
+directory is created if it does not exist.
+
+The CLI cannot read `internal/configs` itself — that is Go source only your
+project can execute — so it asks the project, which costs one build per
+generator run. Outside a project, or if the project does not compile, the
+defaults above are used and the CLI says so.
+
+`MIGRATIONS_DIR` still overrides the migration path, because `lemmego run
+migrate` reads it too and the two have to agree.
+
 ## Running & Development
 
 ### `lemmego run [args]`
