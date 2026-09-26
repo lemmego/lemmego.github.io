@@ -97,7 +97,49 @@ A generated project includes these configuration files:
 | `sql.connections.sqlite.database` | `DB_DATABASE` | `storage/database.sqlite` | SQLite path |
 | `sql.connections.mysql.host` | `DB_HOST` | `127.0.0.1` | MySQL host |
 | `sql.connections.mysql.port` | `DB_PORT` | `3306` | MySQL port |
-| `keyvalue.redis.host` | `REDIS_HOST` | `127.0.0.1` | Redis host |
+
+Only the connection the project chose is written, so a SQLite project has no
+`mysql` block to ignore.
+
+### `keyvalue.go` — the shared Redis connection
+
+Written when anything in the project uses Redis: the cache, the queue or
+sessions. It is one connection that all three fall back to, so a single server
+is configured once.
+
+| Config key | Env variable | Default |
+|-----------|-------------|---------|
+| `keyvalue.connections.redis.host` | `REDIS_HOST` | `localhost` |
+| `keyvalue.connections.redis.port` | `REDIS_PORT` | `6379` |
+| `keyvalue.connections.redis.password` | `REDIS_PASSWORD` | — |
+
+A subsystem can still point somewhere else by setting its own key —
+`CACHE_REDIS_ADDR` or `TASKER_REDIS_ADDR` — which overrides the shared value.
+
+### `cache.go` — the cache
+
+| Config key | Env variable | Default |
+|-----------|-------------|---------|
+| `cache.driver` | `CACHE_DRIVER` | the driver chosen at scaffold time |
+| `cache.prefix` | `CACHE_PREFIX` | `lemmego_cache:` |
+| `cache.ttl` | `CACHE_TTL` | `3600` (seconds) |
+| `cache.codec` | `CACHE_CODEC` | `json` |
+| `cache.lenient` | `CACHE_LENIENT` | `false` |
+
+See [Caching](/docs/cache/) for what each driver can do.
+
+### `tasker.go` — the background queue
+
+| Config key | Env variable | Default |
+|-----------|-------------|---------|
+| `tasker.driver` | `TASKER_DRIVER` | the driver chosen at scaffold time |
+| `tasker.queue` | `TASKER_QUEUE` | `default` |
+| `tasker.max_attempts` | `TASKER_MAX_ATTEMPTS` | `3` |
+| `tasker.workers.default` | `TASKER_WORKERS` | `3` |
+
+With the SQL driver and no `TASKER_DSN`, the queue uses the application's own
+database connection, so there is one database rather than two that can drift
+apart.
 
 ### `filesystems.go` — Storage Disks
 

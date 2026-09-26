@@ -40,37 +40,81 @@ Creates a new Lemmego project with interactive configuration.
 **Arguments:**
 - `<dirname>` — Directory name for the new project
 
-**Interactive Prompts:**
-- Module name (Go module path)
-- Preset: `mvc` or `rest_api`
-- ORM: `orm` (the built-in [Lemmego ORM](/docs/orm/), the default), `gorm` or `bun`
-- Redis: yes/no
-- Auth: yes/no
-- GPA (experimental): yes/no (with `--exp` flag)
-- Frontend preset (for `mvc`): Go Templates, Templ, Inertia React, Inertia Vue,
-  Templ + Inertia React, Templ + Inertia Vue
+**Interactive prompts.** The first question asks how much you want to be asked:
 
-**Flags:**
-- `--exp` — Enable experimental GPA features
-- `--non-interactive` — Skip every prompt and take the answers from the flags below
-- `--module <path>` — Go module path (required with `--non-interactive`)
-- `--preset <mvc|rest_api>` — Project preset (default `mvc`)
-- `--orm <orm|gorm|bun>` — SQL layer (default `orm`)
-- `--frontend <preset>` — MVC frontend preset (default `go_templates`)
-- `--redis` — Enable Redis
-- `--auth` — Scaffold registration, login and logout
-- `--gpa` — Wire the ORM through [GPA](/docs/database/)
+- **Quick start** — module name, preset, auth and (for MVC) the frontend.
+  Everything else takes a sensible default: SQLite, the Lemmego ORM, a file
+  cache, a SQL queue, file sessions and local storage.
+- **Customise** — pages through a driver for each part of the project.
 
-**Example:**
+The full set of questions:
+
+| Question | Options | Default |
+|---|---|---|
+| Module name | a Go module path | — |
+| Preset | `mvc`, `rest_api` | `mvc` |
+| Authentication | yes / no | yes |
+| Frontend (MVC only) | Go Templates, Templ, Inertia React, Inertia Vue, Templ + Inertia React, Templ + Inertia Vue | Go Templates |
+| Database | SQLite, PostgreSQL, MySQL, **None** | SQLite |
+| SQL layer | [Lemmego ORM](/docs/orm/), GORM, Bun | Lemmego ORM |
+| Cache | File, Memory, Redis, **None** | File |
+| Queue | SQL, Redis, **None** | SQL |
+| Sessions | File, Memory, Redis | File |
+| Storage | Local, Amazon S3 | Local |
+| GPA (experimental) | yes / no, with `--exp` | no |
+
+**Flags**, for `--non-interactive`:
+
+| Flag | |
+|---|---|
+| `--module <path>` | Go module path — required |
+| `--preset <mvc\|rest_api>` | |
+| `--frontend <preset>` | MVC only |
+| `--database <sqlite\|mysql\|postgres\|none>` | |
+| `--orm <orm\|gorm\|bun\|none>` | The SQL layer, not the backend |
+| `--cache <file\|memory\|redis\|none>` | |
+| `--queue <sql\|redis\|none>` | |
+| `--session <file\|memory\|redis>` | |
+| `--disk <local\|s3>` | |
+| `--redis` | Use Redis for anything left unset |
+| `--auth` | Scaffold registration, login and logout (default true) |
+| `--gpa` | Wire the ORM through [GPA](/docs/database/) |
+| `--exp` | Offer the experimental GPA question |
+
+**Examples:**
 
 ```bash
-lemmego new blog \
-  --non-interactive \
+# A blog on Postgres with Redis behind everything
+lemmego new blog --non-interactive \
   --module github.com/me/blog \
-  --orm orm \
-  --frontend inertia_react \
-  --auth
+  --database postgres --frontend inertia_react --redis
+
+# A JSON API with no database, cache or queue
+lemmego new api --non-interactive \
+  --module github.com/me/api \
+  --preset rest_api \
+  --database none --cache none --queue none --auth=false
 ```
+
+## Leaving a part out
+
+The database, cache and queue each have a **None**. Choosing it removes the
+dependency from `go.mod`, the provider from `bootstrap/providers.go`, the
+configuration file from `internal/configs/`, and the environment variables
+from `.env.example`. A project with all three set to none requires only
+`github.com/lemmego/api`.
+
+Sessions and storage have a driver choice but no None. The HTTP server wraps
+its router in the session manager, and sessions carry the CSRF token,
+validation errors and flash messages — an application without one could not
+render its own error pages.
+
+Two combinations are refused rather than scaffolded, because they would build
+and then fail:
+
+- a SQL queue with no database
+- authentication with no database, since it scaffolds a users table, a
+  migration and repositories that resolve the connection
 
 **Post-creation:** Runs `go mod tidy`, generates app key, optionally builds frontend assets.
 

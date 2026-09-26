@@ -198,6 +198,10 @@ All endpoints are mounted under `/tasker/`:
 
 ### Via .env
 
+A scaffolded project gets `internal/configs/tasker.go`, which reads these.
+Before the queue had a config file, every `TASKER_*` variable was ignored and
+the queue ran on its built-in defaults.
+
 ```env
 TASKER_ROUTE_PREFIX=/jobs
 TASKER_TABLE_PREFIX=myapp_
@@ -208,6 +212,18 @@ TASKER_REQUEUE_SEC=60
 TASKER_PRUNE_HOURS=168
 TASKER_AUTOSCALE=false
 ```
+
+## Which database the queue uses
+
+With the SQL driver and no `TASKER_DSN`, the queue uses the application's own
+connection, so jobs live in the same database as everything else and there is
+one thing to back up.
+
+Point it somewhere else with `TASKER_DSN` if you want the queue isolated — but
+be careful what you point it at. A queue on an in-memory database accepts jobs
+and loses every one of them on restart, silently: the tables are recreated
+empty and nothing reports that anything was dropped. The queue logs a warning
+when it detects one.
 
 ## Driver Support
 

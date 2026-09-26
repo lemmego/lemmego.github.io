@@ -16,15 +16,26 @@ Now that you have installed the `lemmego` CLI, you can create a new project:
 lemmego new my-project
 ```
 
-This command will walk you through interactive prompts:
+The first question asks how much you want to be asked:
 
-1. **Module name** — the Go module path (e.g., `github.com/username/my-project`)
-2. **Preset** — choose between `mvc` (with frontend) or `rest_api` (backend-only)
-3. **ORM** — select `orm` (the built-in [Lemmego ORM](/docs/orm/), the default), `gorm` or `bun`
-4. **Redis** — enable or disable Redis support
-5. **Auth** — enable or disable authentication scaffolding
-6. **GPA** (experimental) — enable the Go Persistence API
-7. **Frontend preset** (for `mvc`) — pick Go Templates, Templ, Inertia React, Inertia Vue, or combinations
+- **Quick start** takes four answers — module name, preset, whether to scaffold
+  authentication, and the frontend if this is an MVC project — and uses
+  sensible defaults for the rest: SQLite, the [Lemmego ORM](/docs/orm/), a file
+  cache, a SQL queue, file sessions and local storage.
+- **Customise** pages through a driver for each part: the database, the SQL
+  layer, the cache, the queue, sessions and storage.
+
+The database, cache and queue can each be set to **None**, which leaves that
+part out of the project entirely — no dependency, no provider, no config file.
+See [the CLI reference](/docs/cli/#leaving-a-part-out).
+
+Everything is also available as a flag with `--non-interactive`:
+
+```shell
+lemmego new my-project --non-interactive \
+  --module github.com/username/my-project \
+  --database postgres --cache redis --queue redis
+```
 
 Once configured, navigate into your project directory:
 
