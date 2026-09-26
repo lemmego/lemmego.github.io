@@ -87,6 +87,13 @@ been revoked.
 `always` is the honest price of revocation meaning what it says. Choose
 another only if you have decided that trade knowingly.
 
+### `management_routes` — default `true`
+
+Mounts the page at `{route_prefix}/clients` where a signed-in user registers
+and revokes their own clients. It lists only their own, so it needs no
+administrator role. Turn it off if the application registers clients another
+way or shows them in its own interface.
+
 ### `skip_consent_for_first_party` — default `true`
 
 A client marked `--first-party` is one your own application owns, so there is

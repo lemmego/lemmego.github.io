@@ -11,6 +11,33 @@ weight: 3
 A client is an application allowed to ask for tokens. Which kind you register
 decides how it authenticates and which grants it may use.
 
+## The management page
+
+A signed-in user manages their own clients at `{route_prefix}/clients`:
+registering one, seeing what they have, and revoking it. It is a plain Go
+template with no JavaScript, in the same style as the consent screen, so it
+works whatever the application's frontend is.
+
+It lists **their own** clients and nobody else's. That is what makes it safe
+without an administrator role — a page showing every client would leak the
+existence of every integration to whoever reached it. A client belonging to
+someone else is reported as "No such client" rather than "forbidden", so the
+page cannot be used to find out which client ids exist.
+
+A secret is shown exactly once, immediately after registration. It is stored
+hashed, so a refresh genuinely cannot recover it.
+
+{{< callout type="info" >}}
+The page is a typed route, so it inherits the framework's CSRF protection and
+session — unlike the token endpoint, which is a raw handler precisely so that
+CSRF does not apply to it. It carries its own anti-forgery token as well,
+because the REST preset installs no CSRF middleware at all and a page that can
+register an OAuth client is not one to leave unprotected.
+{{< /callout >}}
+
+Set `management_routes` to `false` to turn it off, or supply `ClientsView` on
+the provider to render it yourself.
+
 ## The five kinds
 
 ### Confidential — the default
