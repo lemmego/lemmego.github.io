@@ -1,7 +1,7 @@
 ---
 title: Queue & Background Jobs
 type: docs
-prev: docs/caching
+prev: docs/cache/events
 next: docs/prompting
 sidebar:
   open: true

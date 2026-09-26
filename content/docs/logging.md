@@ -2,7 +2,7 @@
 title: Logging
 type: docs
 prev: docs/session
-next: docs/caching
+next: docs/cache/
 sidebar:
   open: true
 weight: 50
