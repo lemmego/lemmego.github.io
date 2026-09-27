@@ -142,7 +142,60 @@ scheduler.New(mgr).Register(scheduler.ScheduledJob{
 
 ## Web Dashboard
 
-Visit `http://localhost:8080/tasker/` for the real-time dashboard:
+The dashboard lives at `http://localhost:8080/tasker/`, and it is **closed
+until you say who may use it**. Visiting it before then answers 401.
+
+That is deliberate rather than an oversight. The dashboard can retry, cancel
+and delete jobs and pause a queue, so the failure mode of an open default is a
+public button that clears somebody's work.
+
+```go
+&queue.Provider{
+    DashboardAuth: func(c app.Context) bool {
+        if err := auth.Check(c); err != nil {
+            return false
+        }
+        user, ok := auth.UserAs[*models.User](c)
+        return ok && slices.Contains(taskerAdmins(), user.Email)
+    },
+}
+```
+
+Return `true` to let the request through, `false` for 401.
+
+{{< callout type="warning" >}}
+**Call `auth.Check` first.** The dashboard is mounted as a raw
+`http.Handler`, so none of the router's middleware runs for it and nothing has
+looked at the request's cookie by the time your predicate is called. Leave it
+out and the user is always absent, so the dashboard refuses everyone —
+including the administrators you just listed.
+{{< /callout >}}
+
+In a scaffolded project this is already wired, reading a comma-separated list
+from `TASKER_ADMINS`:
+
+```bash
+TASKER_ADMINS=ada@example.com,grace@example.com
+```
+
+`auth.Check` resolves a session cookie and a bearer token alike, so the same
+rule covers a browser and an API client — see
+[The Current User](/docs/security/current-user). And nothing obliges the rule
+to involve a user at all; a shared secret header or an IP allowlist is just as
+valid, which is why `DashboardAuth` is a predicate over the request rather
+than over a user:
+
+```go
+DashboardAuth: func(c app.Context) bool {
+    return subtle.ConstantTimeCompare(
+        []byte(c.Header("X-Tasker-Key")), []byte(key)) == 1
+},
+```
+
+CSRF protection is enabled alongside it automatically, since the dashboard
+posts from a browser.
+
+Once open:
 
 | Feature | Description |
 |---------|-------------|
@@ -157,7 +210,8 @@ Visit `http://localhost:8080/tasker/` for the real-time dashboard:
 
 ## API Endpoints
 
-All endpoints are mounted under `/tasker/`:
+All endpoints are mounted under `/tasker/`, and every one of them is behind
+`DashboardAuth` — including the `POST`s that retry, cancel and prune:
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -204,6 +258,7 @@ the queue ran on its built-in defaults.
 
 ```env
 TASKER_ROUTE_PREFIX=/jobs
+TASKER_ADMINS=ada@example.com,grace@example.com
 TASKER_TABLE_PREFIX=myapp_
 TASKER_QUEUE=default
 TASKER_MAX_ATTEMPTS=3
