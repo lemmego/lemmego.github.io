@@ -304,6 +304,41 @@ sess := a.Session()           // Session manager
 fs := a.FileSystem()          // Filesystem manager
 ```
 
+## Wrapping a Raw Handler
+
+A handler registered through the router already receives a `Context`. The
+exception is a **third-party `http.Handler` mounted on the router** — a
+management dashboard, an embedded admin UI — which is handed an
+`*http.Request` and nothing else, and is therefore cut off from auth, sessions
+and the container.
+
+`app.NewContext` bridges that gap:
+
+```go
+func guard(a app.App, next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        c := app.NewContext(a, w, r)
+        if err := auth.Check(c); err != nil {
+            http.Error(w, "unauthorized", http.StatusUnauthorized)
+            return
+        }
+        next.ServeHTTP(w, c.Request())
+    })
+}
+```
+
+Two things to know:
+
+- **`Set` rebinds the request.** Pass `c.Request()` to the handler you wrap,
+  not the `r` you started with, or everything your check established — the
+  loaded user, most of all — is silently dropped.
+- **No router middleware has run.** A raw mount bypasses the handler chain
+  entirely, so nothing has looked at the request's cookie yet. Call
+  `auth.Check` yourself; reading the user without it finds nobody.
+
+This is what the queue dashboard uses — see
+[Queues](/docs/queue#web-dashboard). Reach for it nowhere else.
+
 ## Interface Reference
 
 ```go

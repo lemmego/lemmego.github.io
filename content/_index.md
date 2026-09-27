@@ -29,11 +29,15 @@ func LoadProviders() []app.Provider {
         &session.Provider{},
         &ormconnector.Provider{},
         &inertia.Provider{},
-        &queue.Provider{},
-        &auth.Provider{},
+        &queue.Provider{DashboardAuth: mayUseTheDashboard},
+        &auth.Provider{Opts: &auth.Opts{UserLoader: loadUser}},
     }
 }
 ```
+
+Both take a rule you own: `UserLoader` turns the id a credential carries into
+your user, and `DashboardAuth` decides who may retry and cancel jobs. The
+scaffold writes both for you.
 
 {{< /tab >}}
 {{< tab name="Routing" >}}
@@ -201,7 +205,7 @@ queue.Dispatch(ctx, &SendEmail{
 // $ lemmego run tasker:work --queue=default --workers=3
 ```
 
-Monitor jobs in real-time at `http://localhost:8080/tasker/` with the built-in web dashboard.
+Monitor jobs in real-time at `http://localhost:8080/tasker/` with the built-in web dashboard — closed until you name who may use it, since it can retry, cancel and delete jobs. See [Queues](/docs/queue#web-dashboard).
 
 {{< /tab >}}
 {{< tab name="Frontend" >}}

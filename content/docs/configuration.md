@@ -136,10 +136,17 @@ See [Caching](/docs/cache/) for what each driver can do.
 | `tasker.queue` | `TASKER_QUEUE` | `default` |
 | `tasker.max_attempts` | `TASKER_MAX_ATTEMPTS` | `3` |
 | `tasker.workers.default` | `TASKER_WORKERS` | `3` |
+| `tasker.route_prefix` | `TASKER_ROUTE_PREFIX` | `/tasker` |
+| — | `TASKER_ADMINS` | empty: nobody may open the dashboard |
 
 With the SQL driver and no `TASKER_DSN`, the queue uses the application's own
 database connection, so there is one database rather than two that can drift
 apart.
+
+`TASKER_ADMINS` is read by the scaffolded `DashboardAuth` predicate in
+`bootstrap/providers.go`, not by the `tasker` config itself — it is a rule your
+application owns, so it lives in Go where you can change it to anything. Empty
+means the dashboard refuses everyone.
 
 ### `filesystems.go` — Storage Disks
 
