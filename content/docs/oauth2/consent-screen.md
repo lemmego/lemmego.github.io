@@ -90,10 +90,10 @@ lifted from another user's page is useless.
 
 ## Identifying the user
 
-By default the module reads whoever the `auth` package established, handling
-both shapes it produces: a live user object when sessions are enabled, and the
-map decoded from a JWT when the scaffold's default `DisableSession: true` is
-in force.
+By default the module asks `auth` for the id of whoever is signed in
+(`auth.UserID`). That is one value on every path, because a credential carries
+an id and nothing else — there is no shape to unpack. Consent only needs the
+id, so no user row is read here.
 
 A visitor who is not signed in is redirected to `login_route`, not refused
 with a 401 — this is a browser flow, and a person who is not signed in should

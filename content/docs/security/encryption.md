@@ -5,7 +5,7 @@ prev: docs/security/csrf
 next: docs/oauth2/
 sidebar:
   open: true
-weight: 45
+weight: 46
 ---
 
 ## Overview

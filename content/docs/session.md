@@ -139,8 +139,28 @@ err := sess.Destroy(ctx)
 ```
 
 Applications configured with `DisableSession: true` authenticate with JWT and
-have no session to fixate.
+have no session to fixate — but note that they also have nothing to revoke:
+`auth.Logout` clears the cookie and a copy of the token taken beforehand stays
+valid until it expires. The fixation defence above and server-side logout are
+the same feature seen from two sides, and both are off together.
 
 ## Lifecycle
 
 Session data is automatically loaded on request start and committed on response completion. You don't need to manually save session changes.
+
+## When a session cannot be read
+
+A stored record sometimes cannot be decoded: the file is corrupt, or the
+record holds a `gob`-encoded type that the binary now running no longer
+registers — which is the ordinary case after a deploy that removed one.
+
+Such a session is treated as **an absent session**, not a server error. The
+framework logs a warning, drops the cookie and serves the request anonymously,
+so the visitor is signed out and can sign back in.
+
+This is worth knowing because the underlying library does the opposite. `scs`
+calls its error handler and returns *without invoking your handler at all*;
+with no handler configured that is a bare `500`. The visitor would get a blank
+error page on every URL — **including `/login`** — for as long as the cookie
+lived, with nothing they could do about it. `api` v0.1.40 and later wrap the
+middleware to prevent that.

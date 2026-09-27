@@ -68,34 +68,34 @@ claim invites treating a client id as a user id.
 
 ## Working with the auth package
 
-`Protect` also sets the key `auth` uses, so a handler already written against
-`auth.AuthUser(c)` works with a bearer token without being changed:
+`Protect` does not resolve users itself. It establishes the identity and hands
+it to `auth`, which loads the row through the application's own `UserLoader` —
+the same one a session cookie or a bearer JWT goes through. So a handler
+written for either of those works unchanged behind a token:
 
 ```go
-user := auth.AuthUser(c)   // the *Principal, or a real user — see below
+user, ok := auth.UserAs[*models.User](c)   // the same type on every path
 ```
 
-With no resolver configured this is the `*oauth2.Principal`. To hand handlers
-a real user row, supply one:
-
-```go
-&oauth2.Provider{
-    UserResolver: func(ctx context.Context, userID string) (any, error) {
-        return repos.User(a).FindByID(ctx, userID)
-    },
-}
-```
-
-This module cannot do that lookup itself: `auth.UserProvider` is three getters
-with no lookup method, and `oauth2` has no opinion about what a user is or
-where it lives.
+For a **client-credentials** token there is no user, and `ok` is false.
+`auth.IsAuthenticated(c)` is still true: the caller is verified, it is simply
+not a person. Reach for the client through `PrincipalFrom` instead.
 
 {{< callout type="info" >}}
-The dependency only ever points one way. `oauth2` imports `auth` for the
-context key; `auth` knows nothing about OAuth2. What makes that work is that
-`auth.Check` treats a user another middleware has already established as
-authenticated, so `auth.Protected` and `oauth2.Protect` compose in either
-order.
+The dependency only ever points one way. `oauth2` calls `auth.SetSubject` for
+a user token and `auth.SetAuthenticated` for a machine one; `auth` knows
+nothing about OAuth2. That seam is public, so any guard that verifies an
+identity some other way — mTLS, an upstream proxy header — plugs in the same
+way and produces the same type. See
+[The Current User](/docs/security/current-user).
+{{< /callout >}}
+
+{{< callout type="warning" >}}
+`Provider.UserResolver` was removed in **v0.2.0**, along with the
+`oauth2.UserResolver` type. Configure `auth.Opts.UserLoader` instead: one
+loader now serves every kind of credential. Before v0.2.0, `Protect` wrote an
+`*oauth2.Principal` under auth's user key, so a handler asserting its own user
+type got `(nil, false)` and quietly rendered a signed-out page.
 {{< /callout >}}
 
 ## Combining with session authentication
@@ -106,8 +106,9 @@ A route can accept either a session cookie or a bearer token:
 api.UseBefore(provider.Protect(), auth.Protected)
 ```
 
-`Protect` populates the user from a token when one is present; `auth.Protected`
-then accepts it, or falls back to the session.
+`Protect` establishes the subject from a token when one is present;
+`auth.Protected` then loads it, or falls back to the session. Either way the
+handler sees one type.
 
 ## Checking a token from elsewhere
 

@@ -13,6 +13,7 @@ Lemmego provides built-in security features including authentication, CSRF prote
 
 {{< cards >}}
 {{< card link="authentication" title="Authentication" subtitle="Session & JWT auth with middleware" >}}
+{{< card link="current-user" title="The Current User" subtitle="One type on every authenticated path" >}}
 {{< card link="csrf" title="CSRF Protection" subtitle="Cross-site request forgery prevention" >}}
 {{< card link="encryption" title="Encryption" subtitle="AES-256-GCM encryption" >}}
 {{< card link="/docs/oauth2" title="OAuth2 Server" subtitle="Issue and revoke tokens for third-party apps" >}}
