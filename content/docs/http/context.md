@@ -71,7 +71,7 @@ path := r.URL.Path
 var input MyInput
 if err := c.DecodeJSON(&input); err != nil { ... }
 
-// Parse and validate with httpin tags
+// Parse the body, whatever it is: the Content-Type picks the decoder
 if err := c.ParseInput(&input); err != nil { ... }
 
 // One-liner: parse and store in context

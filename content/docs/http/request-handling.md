@@ -13,7 +13,15 @@ The `req` package provides functions for parsing request data into Go structs.
 
 ### ParseInput
 
-Parses request bodies from JSON, form data, or query parameters based on the `Content-Type` header:
+Parses the request body into a struct. The `Content-Type` header picks the decoder, and the decoder picks which struct tag it reads:
+
+| Content-Type | Decoder | Tag |
+|---|---|---|
+| `application/json`, `*+json` | `encoding/json` | `json:` |
+| `application/xml`, `text/xml`, `*+xml` | `encoding/xml` | `xml:` |
+| anything else | the framework's form binder | `form:` |
+
+"Anything else" covers URL-encoded forms, multipart forms, and a query string on a request with no body. Both bodies are bounded at 1 MiB.
 
 ```go
 func MyHandler(c app.Context) error {
@@ -26,9 +34,14 @@ func MyHandler(c app.Context) error {
 }
 ```
 
-`ParseInput` automatically:
-- Decodes JSON bodies (for `application/json` requests)
-- Decodes form/query parameters (for form submissions)
+A field needs the tag for the content type it will actually arrive as. **A struct tagged only `json:` binds nothing from an HTML form** — the form binder reads `form:`, finds no name for the field and leaves it at its zero, so validation reports "required" for a field the person just filled in. Tag both when an endpoint serves both:
+
+```go
+Name  string `json:"name" form:"name"`
+Email string `json:"email" form:"email"`
+```
+
+The form binder also handles what a browser really sends: an unchecked box is absent rather than `false`, a checked one is `on`; a repeated field binds to a slice as `tags`, `tags[]` or `tags[0]` alike; a pointer field distinguishes absent from present-and-empty; and a `*multipart.FileHeader` or `[]*multipart.FileHeader` field binds the uploaded files themselves.
 
 ### Input Structs and Validation
 
@@ -36,8 +49,8 @@ Define input structs with a `Validate()` method:
 
 ```go
 type CreateUserInput struct {
-    Name  string `json:"name"`
-    Email string `json:"email"`
+    Name  string `json:"name" form:"name"`
+    Email string `json:"email" form:"email"`
 }
 
 func (i *CreateUserInput) Validate() error {
