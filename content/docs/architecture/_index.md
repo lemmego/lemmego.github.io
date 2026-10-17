@@ -4,7 +4,7 @@ type: docs
 prev: docs/prompting
 sidebar:
   open: true
-weight: 60
+weight: 85
 ---
 
 ## Overview

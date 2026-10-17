@@ -19,11 +19,22 @@ The `App` instance implements the `EventEmitter` interface:
 ```go
 type EventEmitter interface {
     On(event string, listener EventListener)
-    Dispatch(event string, payload ...any) error
+    Dispatch(event string, payload ...any)
 }
 
 type EventListener func(payload any) error
 ```
+
+{{< callout type="warning" >}}
+**`Dispatch` returns nothing.** A listener's error is logged and the remaining
+listeners still run, so there is no value for the caller to act on — writing
+`if err := a.Dispatch(…)` does not compile.
+
+Dispatch is also **synchronous, on the caller's goroutine**. It is right for
+an observability hook and wrong for slow work: a listener that blocks blocks
+the request. For anything that takes time, have the listener enqueue a
+`tasker` job.
+{{< /callout >}}
 
 ## Listening to Events
 

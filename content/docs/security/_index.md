@@ -2,6 +2,7 @@
 title: Security
 type: docs
 prev: docs/cli/commands
+next: docs/authz/
 sidebar:
   open: true
 weight: 42

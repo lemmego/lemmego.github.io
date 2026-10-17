@@ -4,7 +4,7 @@ type: docs
 prev: docs/prompting
 sidebar:
   open: true
-weight: 54
+weight: 80
 ---
 
 ## Environment Variables

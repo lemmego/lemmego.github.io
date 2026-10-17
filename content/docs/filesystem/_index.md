@@ -1,7 +1,7 @@
 ---
 title: File System
 type: docs
-prev: docs/oauth2/tokens-and-keys
+prev: docs/ratelimit/
 next: docs/testing/
 sidebar:
   open: true
