@@ -24,7 +24,7 @@
       <div><code class="hero-install"><span class="prompt">$</span>{{ . }}</code></div>
     {{ end }}
 
-    <div class="hx:flex hx:justify-center hx:gap-3 hx:mt-8 hx:flex-wrap">
+    <div class="hero-actions">
       {{ range .Params.actions }}
         <a href="{{ .link }}" class="{{ if .primary }}btn-primary{{ else }}btn-outline{{ end }}">{{ .text }}</a>
       {{ end }}

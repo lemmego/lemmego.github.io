@@ -160,3 +160,27 @@
 .dark .hero-install .prompt {
   color: var(--hx-color-primary-300);
 }
+
+/* ------------------------------------------------------------- actions -- */
+
+/*
+  The hero's own layout, in plain CSS rather than in Tailwind utilities.
+
+  Tailwind v4 generates only the utilities it finds, and it does not scan this
+  site's layouts/ — so a class the theme happens to use elsewhere works here
+  and one it does not use silently does nothing. hx:gap-3 was the latter: the
+  bundle carries gap-1, gap-2 and gap-4, and the buttons rendered flush
+  against each other with no error anywhere.
+
+  Anything this hero needs that the theme does not already use belongs here,
+  where it is emitted because it was written rather than because something
+  else referenced it first.
+*/
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
