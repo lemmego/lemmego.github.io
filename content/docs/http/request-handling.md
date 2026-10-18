@@ -83,20 +83,41 @@ func Store(c app.Context) error {
 
 ### Input Middleware
 
-The router supports an `Input` middleware that decodes and validates before the handler runs:
-
-```go
-r.Post("/users", router.Input(&CreateUserInput{}), handlers.UserStore)
-```
-
-The decoded input is available in the handler via `c.Input()`:
+Decode in the handler, with `c.ParseInput`:
 
 ```go
 func UserStore(c app.Context) error {
-    input := c.Input().(*CreateUserInput)
-    // input is already validated
+    var input CreateUserInput
+    if err := c.ParseInput(&input); err != nil {
+        return err
+    }
+    // ...
 }
 ```
+
+`c.Input(&CreateUserInput{})` is the same decode and returns the value
+instead of an error. It takes the struct to decode into — the no-argument
+form does not compile.
+
+In practice the decode and the validation belong together, in a constructor
+beside the input type, so a handler gets one call and one error:
+
+```go
+func NewCreateUserInput(c app.Context) (*CreateUserInput, error) {
+    input := &CreateUserInput{ctx: c}
+    if err := c.ParseInput(input); err != nil {
+        return nil, err
+    }
+    return input, input.Validate()
+}
+```
+
+{{< callout type="warning" >}}
+`app.Input(&CreateUserInput{})` exists and looks like route middleware, but
+it returns an `app.Middleware` and **nothing in the framework accepts one**.
+Routes, groups and the router all take `app.Handler`. There is no way to wire
+it up, and nothing in the framework or any application built on it does.
+{{< /callout >}}
 
 ## JSON Body Decoding
 

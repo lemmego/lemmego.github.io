@@ -78,15 +78,23 @@ func LoadRoutes() []app.RouteCallback {
 
 Each `RouteCallback` is a `func(a app.App)` that receives the full app instance and registers routes on `a.Router()`.
 
-## Input Middleware
+## Route Middleware
 
-Use the router's `Input` middleware to automatically decode request bodies into typed structs:
+Middleware on a route is an ordinary `app.Handler` placed before the one that
+answers. Each runs in turn, and a handler that returns without calling
+`c.Next()` stops the chain:
 
 ```go
-r.Post("/tasks", router.Input(&inputs.TaskInput{}), handlers.TaskStore)
+r.Get("/search", auth.OptionalAuth, handlers.SearchIndex)
+r.Post("/posts", auth.Protected, handlers.PostStore)
 ```
 
-The decoded input is stored in the request context and can be retrieved via `c.Input()`.
+`auth.Protected` is `func(c app.Context) error` like any other handler, which
+is the whole of the contract — there is no separate middleware type to
+satisfy.
+
+Request bodies are decoded in the handler rather than by middleware; see
+[Request Handling](/docs/http/request-handling).
 
 ## Router API
 
