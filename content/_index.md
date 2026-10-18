@@ -1,12 +1,57 @@
 ---
-title: Lemmego — The full-stack Go web framework
+title: Lemmego
 layout: home
 toc: false
+
+headline: The Go framework that ships batteries included
+subtitle: >-
+  Routing, an ORM, migrations, auth, queues, mail, realtime and a frontend —
+  wired together, type-safe, and yours to replace one piece at a time.
+install: go install github.com/lemmego/cli/cmd/lemmego@latest
+actions:
+  - text: Get started
+    link: /docs/quick-start
+    primary: true
+  - text: Read the docs
+    link: /docs/prologue
+  - text: GitHub
+    link: https://github.com/lemmego
 ---
 
-## Batteries
+{{< hextra/feature-grid cols="3" >}}
+  {{< hextra/feature-card
+    icon="server"
+    title="A real HTTP layer"
+    subtitle="Pattern routing, groups, handler-chained middleware, typed errors that negotiate JSON or HTML, and validation that reads like a sentence."
+  >}}
+  {{< hextra/feature-card
+    icon="database"
+    title="An ORM, or yours"
+    subtitle="Generic queries over database/sql — no casting, no interface{}. Prefer GORM, Bun, Mongo or Redis? Swap the GPA provider and keep the same shape."
+  >}}
+  {{< hextra/feature-card
+    icon="table"
+    title="Migrations that travel"
+    subtitle="One declaration renders per dialect. PostgreSQL, MySQL and SQLite each get the right unsigned integer, timestamp and index form."
+  >}}
+  {{< hextra/feature-card
+    icon="lightning-bolt"
+    title="Background work"
+    subtitle="A queue over a cron scheduler, with a dashboard that stays closed until you name who may retry and cancel jobs."
+  >}}
+  {{< hextra/feature-card
+    icon="desktop-computer"
+    title="Pick your frontend"
+    subtitle="Inertia with React or Vue and server-side rendering, type-safe Templ components, or plain Go templates."
+  >}}
+  {{< hextra/feature-card
+    icon="puzzle"
+    title="Everything is a provider"
+    subtitle="Each capability is its own module behind an interface. Add one, replace one, or write your own against the same seam."
+  >}}
+{{< /hextra/feature-grid >}}
 
-Lemmego is a batteries-included framework.
+## What it looks like
 
 {{< tabs >}}
 {{< tab name="Bootstrap" >}}
@@ -18,7 +63,7 @@ func main() {
         WithProviders(bootstrap.LoadProviders()).
         WithRoutes(bootstrap.LoadRoutes()).
         WithMiddlewares(bootstrap.LoadMiddlewares()).
-    Run()
+        Run()
 }
 ```
 
@@ -26,6 +71,7 @@ func main() {
 // bootstrap/providers.go
 func LoadProviders() []app.Provider {
     return []app.Provider{
+        &logger.Provider{},
         &session.Provider{},
         &ormconnector.Provider{},
         &inertia.Provider{},
@@ -35,9 +81,9 @@ func LoadProviders() []app.Provider {
 }
 ```
 
-Both take a rule you own: `UserLoader` turns the id a credential carries into
-your user, and `DashboardAuth` decides who may retry and cancel jobs. The
-scaffold writes both for you.
+Two of those take a rule you own. `UserLoader` turns the id a credential
+carries into your user; `DashboardAuth` decides who may retry and cancel
+jobs. The scaffold writes both.
 
 {{< /tab >}}
 {{< tab name="Routing" >}}
@@ -51,24 +97,15 @@ func WebRoutes(a app.App) {
     r.Get("/articles/{id}", handlers.ArticleShow)
 
     admin := r.Group("/admin")
-    admin.UseBefore(auth.Protected, middleware.AdminOnly)
+    admin.UseBefore(auth.Protected)
     admin.Get("/articles/new", handlers.ArticleCreate)
     admin.Post("/articles", handlers.ArticleStore)
 }
 ```
 
-```go
-// bootstrap/middleware.go
-func LoadMiddlewares() []app.Handler {
-    return []app.Handler{
-        middleware.VerifyCSRF(&middleware.CSRFOpts{
-            ExcludePatterns: []string{"/api/.*"},
-        }),
-    }
-}
-```
-
-Route parameters like `{id}` are accessed via `c.Param("id")`. HTTP middleware wraps the router while app middleware runs at the handler level — both compose into a flexible pipeline.
+Middleware on a route is an ordinary handler — `auth.Protected` is
+`func(app.Context) error`, like the one that answers. A `{id}` segment is read
+with `c.Param("id")`.
 
 {{< /tab >}}
 {{< tab name="Handler" >}}
@@ -76,12 +113,21 @@ Route parameters like `{id}` are accessed via `c.Param("id")`. HTTP middleware w
 ```go
 // internal/inputs/article_input.go
 type CreateArticleInput struct {
-    Title string `json:"title"`
-    Body  string `json:"body"`
+    ctx   app.Context
+    Title string `json:"title" form:"title"`
+    Body  string `json:"body"  form:"body"`
+}
+
+func NewCreateArticleInput(c app.Context) (*CreateArticleInput, error) {
+    input := &CreateArticleInput{ctx: c}
+    if err := c.ParseInput(input); err != nil {
+        return nil, err
+    }
+    return input, input.Validate()
 }
 
 func (i *CreateArticleInput) Validate() error {
-    v := app.NewValidator()
+    v := i.ctx.Validator()
     v.Field("title", i.Title).Required().Max(255)
     v.Field("body", i.Body).Required()
     return v.Validate()
@@ -91,49 +137,54 @@ func (i *CreateArticleInput) Validate() error {
 ```go
 // internal/handlers/article_handler.go
 func ArticleStore(c app.Context) error {
-    input, err := c.Input(&CreateArticleInput{}).(*CreateArticleInput)
+    input, err := inputs.NewCreateArticleInput(c)
     if err != nil {
-        return c.UnprocessableEntity(err)
+        return err
     }
-    article := &models.Article{
-        Title: input.Title,
-        Body:  input.Body,
+
+    article := &models.Article{Title: input.Title, Body: input.Body}
+    if _, err := ormconnector.Get(c.App()).
+        Model[models.Article]().
+        Create(c.RequestContext(), article); err != nil {
+        return err
     }
-    Article().Create(c.RequestContext(), article)
-    return inertia.Redirect(c, "/articles")
+
+    inertia.Redirect(c, "/articles")
+    return nil
 }
 ```
 
-Input structs define validation rules inline. The handler binds, validates, persists, and redirects — all in a few lines of type-safe Go.
+The decode and the validation live together, beside the input type, so a
+handler gets one call and one error.
 
 {{< /tab >}}
 {{< tab name="Migrations" >}}
 
 ```go
 // internal/migrations/20250706000001_create_articles_table.go
-func init() {
-    migration.GetMigrator().AddMigration(&migration.Migration{
-        Version: "20250706000001",
-        Up:      mig_up, Down: mig_down,
-    })
-}
-
 func mig_up(tx *sql.Tx) error {
     schema := migration.Create("articles", func(t *migration.Table) {
-        t.BigIncrements("id")
-        t.String("title", 255).NotNull()
-        t.Text("body")
-        t.String("status", 255).Default("draft")
-        t.ForeignID("author_id").Constrained()
-        t.DateTime("created_at", 6).Nullable()
-        t.DateTime("updated_at", 6).Nullable()
+        t.BigIncrements("id").Primary()
+        t.UnsignedBigInt("author_id")
+        t.String("title", 255)
+        t.Text("body").Default("")
+        t.String("status", 16).Default("draft")
+        t.TimestampTz("created_at", 0).Default(migration.Expr("now()"))
+        t.TimestampTz("deleted_at", 0).Nullable()
+
+        t.Foreign("author_id").References("id").On("users").OnDelete("CASCADE")
+        t.Check("articles_status_valid", "status IN ('draft','published')")
+        t.Index("status", "created_at").Name("articles_feed_idx")
     }).Build()
+
     _, err := tx.Exec(schema)
     return err
 }
 ```
 
-Run with: `lemmego run migrate up`
+The same declaration becomes `BIGINT UNSIGNED` on MySQL and `BIGINT` on
+PostgreSQL, an inline `INDEX` clause on one and a `CREATE INDEX` on the
+others. Run it with `lemmego run migrate up`.
 
 {{< /tab >}}
 {{< tab name="Persistence" >}}
@@ -141,12 +192,12 @@ Run with: `lemmego run migrate up`
 ```go
 // internal/models/article.go
 type Article struct {
-    ID        uint      `orm:"primaryKey"`
+    ID        uint       `orm:"primaryKey;autoIncrement"`
     Title     string
     Status    string
     AuthorID  uint
-    Author    *User     `orm:"belongsTo:AuthorID"`
-    Comments  []Comment `orm:"hasMany:ArticleID"`
+    Author    *User      `orm:"belongsTo:AuthorID"`
+    Comments  []Comment  `orm:"hasMany:ArticleID"`
     CreatedAt time.Time
     UpdatedAt time.Time
     DeletedAt *time.Time
@@ -169,139 +220,64 @@ func ArticleIndex(c app.Context) error {
 }
 ```
 
-The built-in [ORM](/docs/orm/) uses Go generic methods, so `db.Model[Article]()` returns
-`[]Article` — no casting, no `interface{}`. `With` eager-loads relations in one extra query
-per level, and `DeletedAt` opts the model into soft deletes. Prefer GORM, Bun, MongoDB or
-Redis? Swap in a [GPA provider](/docs/database/) and keep the same repository shape.
+`db.Model[Article]()` returns `[]Article` — generic methods on a concrete
+type, so there is nothing to cast. `With` eager-loads at one query per
+relation level, and a nullable `DeletedAt` opts the model into soft deletes.
 
 {{< /tab >}}
 {{< tab name="Queues" >}}
 
 ```go
+// internal/jobs/send_email.go
 type SendEmail struct {
-    Email string `json:"email"`
-    UserID int   `json:"user_id"`
+    Email  string `json:"email"`
+    UserID int    `json:"user_id"`
 }
 
 func (j *SendEmail) Handle(ctx context.Context) error {
-    fmt.Printf("Sending email to %s\n", j.Email)
-    return nil
+    return mail.Send(ctx, welcome(j.Email))
 }
 
 func init() {
-    queue.RegisterJob("*jobs.SendEmail", func() tasker.Job {
-        return &SendEmail{}
-    })
+    queue.RegisterJob("*jobs.SendEmail", func() tasker.Job { return &SendEmail{} })
 }
 ```
 
 ```go
-// Dispatched from any handler
-queue.Dispatch(ctx, &SendEmail{
-    Email: "user@test.com", UserID: 42,
-})
-
-// Workers claim and process jobs
-// $ lemmego run tasker:work --queue=default --workers=3
-```
-
-Monitor jobs in real-time at `http://localhost:8080/tasker/` with the built-in web dashboard — closed until you name who may use it, since it can retry, cancel and delete jobs. See [Queues](/docs/queue#web-dashboard).
-
-{{< /tab >}}
-{{< tab name="Frontend" >}}
-
-```go
-// internal/handlers/article_handler.go
-func ArticleIndex(c app.Context) error {
-    articles, _ := Article().FindAll(c.RequestContext(),
-        gpa.Where("status", gpa.OpEqual, "published"),
-        gpa.Preload("Author"),
-    )
-    return inertia.Respond(c, "Articles/Index", map[string]any{
-        "articles": articles,
-    })
+// from any handler
+if _, err := queue.Dispatch(c.RequestContext(), &jobs.SendEmail{
+    Email: user.Email, UserID: user.ID,
+}); err != nil {
+    return err
 }
 ```
 
-```tsx
-// resources/js/Pages/Articles/Index.tsx
-export default function Index({ articles }: PageProps) {
-    return (
-        <div>
-            {articles.map(article => (
-                <ArticleCard key={article.id} article={article} />
-            ))}
-        </div>
-    );
-}
-```
-
-Choose from Inertia.js with React/Vue, server-rendered Go Templates, or type-safe Templ components.
-
-{{< /tab >}}
-{{< tab name="Plugins" >}}
-
-```go
-// plugins/cms/provider.go
-type CMSProvider struct{}
-
-func (p *CMSProvider) Provide(a app.App) error {
-    a.AddService(NewCMS(a.Config()))
-    a.Router().Get("/sitemap.xml", p.Sitemap)
-    return nil
-}
-
-func (p *CMSProvider) Sitemap(c app.Context) error {
-    articles, _ := Article().FindAll(c.RequestContext(),
-        gpa.Where("status", gpa.OpEqual, "published"),
-    )
-    return c.XML(app.M{"sitemap": buildSitemap(articles)})
-}
-```
-
-```go
-// bootstrap/providers.go
-func LoadProviders() []app.Provider {
-    return []app.Provider{
-        // ...framework providers...
-        &plugins.CMSProvider{},
-    }
-}
-```
+Workers claim jobs with `lemmego run tasker:work`, and the scheduler runs as
+one process with `lemmego run tasker:schedule`.
 
 {{< /tab >}}
 {{< /tabs >}}
 
-## Features
-
-- **Full-featured HTTP layer** — Param-based routing, route grouping, flexible middleware, input validation, typed errors
-- **Built-in ORM** — Generic query builder, eager-loaded relationships, soft deletes, scopes and pagination over plain `database/sql`
-- **Type-safe database layer** — GPA provides compile-time type safety across SQL, NoSQL, and KV stores with generic `Repository[T]`
-- **Plugin architecture** — Extend the framework through providers without modifying core code
-- **Multiple frontends** — Go Templates, Templ, or Inertia.js with React/Vue
-- **File storage** — Unified abstraction for local, S3, and GCS
-- **CLI tools** — Project scaffolding, code generators, migration management
-- **Background jobs** — Distributed queue system with web dashboard
-
-## Get Started
+## Start here
 
 {{< cards >}}
-{{< card link="docs/prologue" title="Prologue" icon="book-open" subtitle="Learn the framework from the ground up" >}}
-{{< card link="docs/installation" title="Installation" icon="terminal" subtitle="Install the lemmego CLI" >}}
-{{< card link="docs/quick-start" title="Quick Start" icon="fire" subtitle="Create your first project in minutes" >}}
+  {{< card link="docs/installation" title="Installation" icon="terminal" subtitle="Install the CLI" >}}
+  {{< card link="docs/quick-start" title="Quick Start" icon="fire" subtitle="A running project in minutes" >}}
+  {{< card link="docs/prologue" title="Prologue" icon="book-open" subtitle="The framework from the ground up" >}}
 {{< /cards >}}
 
-## What's Included
+## The modules
 
-| Module | Description |
-|--------|-------------|
-| **API** | Core framework: routing, middleware, DI, sessions, config, validation |
-| **ORM** | Generic SQL ORM: query builder, relationships, soft deletes, pagination |
-| **GPA** | Type-safe database abstraction with multi-provider support |
-| **Queue** | Distributed background job system with web dashboard |
-| **CLI** | Project scaffolding and code generation |
-| **Inertia** | Server-side adapter for Inertia.js SPAs |
-| **Templ** | Bridge for type-safe Go templates |
-| **Auth** | Session + JWT authentication with middleware |
-| **Migrations** | Bidirectional database schema management |
-| **File System** | Cloud-agnostic storage (local, S3, GCS) |
+Each is its own Go module and its own repository. A project takes the ones it
+needs and nothing else.
+
+| | |
+|---|---|
+| **Core** | [`api`](/docs/http/) routing, middleware, DI, sessions, config, validation · [`cli`](/docs/cli/) scaffolding and generators · [`log`](/docs/logging) rotating files and a terminal-aware console |
+| **Data** | [`orm`](/docs/orm/) generic SQL persistence · [`gpa`](/docs/database/) the multi-provider abstraction · [`migration`](/docs/migrations/) dialect-aware schema evolution · [`search`](/docs/search/) full-text over `tsvector` |
+| **Identity** | [`auth`](/docs/security/authentication) credentials, sessions, JWT and social sign-in · [`authz`](/docs/authz/) policies, ownership and a route gate · [`oauth2`](/docs/oauth2/) an authorization server |
+| **Delivery** | [`mail`](/docs/mail/) SMTP with queued sending · [`notify`](/docs/notifications/) one notification over many channels · [`broadcast`](/docs/broadcast/) SSE and WebSocket behind one contract |
+| **Frontend** | [`inertia`](/docs/frontend/inertia) React or Vue with SSR · [`templ`](/docs/frontend/templ) type-safe Go components · [`seo`](/docs/seo/) meta, JSON-LD, sitemaps and slugs |
+| **Infrastructure** | [`queue`](/docs/queue) background jobs and a cron scheduler · [`cache`](/docs/cache/) memory, file and redis stores · [`fsys`](/docs/filesystem/) local, S3 and GCS · [`media`](/docs/media/) image ingest with no CGO · [`ratelimit`](/docs/ratelimit/) middleware over the cache |
+| **Commerce** | [`pay`](/docs/payments/) one hosted checkout and one webhook |
+| **Testing** | [`apptest`](/docs/testing/) boots the real application against a scratch database |

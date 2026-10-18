@@ -1,59 +1,162 @@
+/*
+  One colour knob.
+
+  Hextra derives --color-primary-50 … -900 from these three, and every part of
+  the theme that is tinted reads that scale. So the brand lives here, in the
+  three values the theme documents, and nothing below hardcodes a hex — which
+  is what the hero used to do, twice, in a way that could not follow a change
+  made here and did not match in dark mode.
+*/
 :root {
   --primary-hue: 0;
   --primary-saturation: 70%;
   --primary-lightness: 45%;
 }
 
+/* ---------------------------------------------------------------- hero -- */
+
+/*
+  Full-bleed, which is the one thing the theme's own hero shortcodes cannot
+  do: they render inside the content column. Everything else about it comes
+  from the theme.
+*/
 .hero {
-  background: linear-gradient(180deg, #f5f0f0 0%, #faf5f5 50%, #f5f0f0 100%);
-  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+  padding: 5rem 0 4.5rem;
+  background:
+    radial-gradient(60rem 24rem at 50% -8rem,
+      color-mix(in srgb, var(--color-primary-500) 14%, transparent), transparent 70%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--color-primary-500) 5%, transparent) 0%,
+      transparent 100%);
+}
+
+/*
+  A hairline under the band so it reads as a section rather than as a tint
+  that failed to load. currentColor-free, so it works in both schemes.
+*/
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--color-primary-500) 18%, transparent);
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 9999px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid color-mix(in srgb, var(--color-primary-500) 30%, transparent);
+  background: color-mix(in srgb, var(--color-primary-500) 10%, transparent);
+  color: var(--color-primary-700);
+  transition: background-color 0.15s ease;
+}
+
+.hero-badge:hover {
+  background: color-mix(in srgb, var(--color-primary-500) 18%, transparent);
+}
+
+.dark .hero-badge {
+  color: var(--color-primary-200);
 }
 
 .hero h1 {
-  color: #b91c1c;
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 1.25rem 0 0;
 }
 
-.dark .hero h1 {
-  color: #fca5a5;
+.hero p {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  max-width: 44rem;
+  margin: 1.25rem auto 0;
+  color: var(--color-gray-600);
 }
 
-.dark .hero {
-  background: linear-gradient(180deg, #3d1515 0%, #5c2020 50%, #3d1515 100%);
+.dark .hero p {
+  color: var(--color-gray-400);
 }
 
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 9999px;
-  padding: 0.625rem 1.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: 1px solid #b91c1c;
-  background-color: #b91c1c;
-  color: #ffffff;
-  transition: all 0.15s ease;
-}
+/* ------------------------------------------------------------- buttons -- */
 
-.dark .btn-primary {
-  border-color: #fca5a5;
-  background-color: #fca5a5;
-  color: #7f1d1d;
-}
-
+.btn-primary,
 .btn-outline {
   display: inline-flex;
   align-items: center;
+  gap: 0.4rem;
   border-radius: 9999px;
-  padding: 0.625rem 1.5rem;
-  font-size: 0.875rem;
+  padding: 0.65rem 1.5rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  border: 1px solid #b91c1c;
-  color: #b91c1c;
-  background: transparent;
-  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-primary {
+  border-color: var(--color-primary-600);
+  background-color: var(--color-primary-600);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  border-color: var(--color-primary-700);
+  background-color: var(--color-primary-700);
+}
+
+.btn-outline {
+  border-color: color-mix(in srgb, var(--color-primary-500) 35%, transparent);
+  color: var(--color-primary-700);
+}
+
+.btn-outline:hover {
+  background-color: color-mix(in srgb, var(--color-primary-500) 8%, transparent);
 }
 
 .dark .btn-outline {
-  border-color: #fca5a5;
-  color: #fca5a5;
+  color: var(--color-primary-200);
+}
+
+/* --------------------------------------------------------- install line -- */
+
+/*
+  The first thing somebody wants from a framework's landing page is the
+  command, so it is in the hero rather than three clicks into Installation.
+  A <code> rather than a styled div: it is text to be selected and copied.
+*/
+.hero-install {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.75rem;
+  border-radius: 0.6rem;
+  padding: 0.6rem 1rem;
+  font-family: var(--hx-default-mono-font-family, ui-monospace, monospace);
+  font-size: 0.875rem;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-gray-50);
+  color: var(--color-gray-800);
+}
+
+.dark .hero-install {
+  border-color: var(--color-gray-800);
+  background: color-mix(in srgb, var(--color-gray-900) 60%, transparent);
+  color: var(--color-gray-200);
+}
+
+.hero-install .prompt {
+  color: var(--color-primary-600);
+  user-select: none;
+}
+
+.dark .hero-install .prompt {
+  color: var(--color-primary-300);
 }
