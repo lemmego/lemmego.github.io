@@ -8,194 +8,343 @@ sidebar:
 weight: 31
 ---
 
-## Overview
+## Why declare instead of writing SQL
 
-The schema builder provides a fluent API for creating, altering, and dropping database tables in a database-agnostic way.
+A migration is `func(tx *sql.Tx) error`, so `tx.Exec` with hand-written SQL
+always works. The reason to declare a table instead is that the same
+declaration comes out differently on each driver, and hand-written SQL is
+correct for exactly one of them.
 
-## Creating Tables
+One table, built for all three:
+
+```go
+migration.CreateFor(migration.DriverPostgres, "circle_members", func(t *migration.Table) {
+    t.UnsignedBigInt("circle_id")
+    t.UnsignedBigInt("user_id")
+    t.String("role", 12).Default("member")
+    t.TimestampTz("joined_at", 0).Default(migration.Expr("CURRENT_TIMESTAMP"))
+    t.PrimaryKey("circle_id", "user_id")
+    t.Index("user_id", "joined_at").Name("circle_members_user_idx")
+})
+```
+
+| | PostgreSQL | MySQL | SQLite |
+|---|---|---|---|
+| `UnsignedBigInt` | `BIGINT` | `BIGINT UNSIGNED` | `BIGINT` |
+| `TimestampTz` | `TIMESTAMP WITH TIME ZONE` | `TIMESTAMP` | `TIMESTAMP` |
+| `Index` | a separate `CREATE INDEX` | an inline `INDEX` clause | a separate `CREATE INDEX` |
+
+MySQL takes its index inside the table and its unsigned integers in the type.
+Neither is something SQL written for PostgreSQL would get right.
+
+## Create, alter, drop
 
 ```go
 schema := migration.Create("users", func(t *migration.Table) {
-    t.BigIncrements("id")
-    t.String("name", 255).NotNull()
-    t.String("email", 255).Unique()
-    t.DateTime("created_at", 6).Nullable()
-    t.DateTime("updated_at", 6).Nullable()
+    t.BigIncrements("id").Primary()
+    t.String("email", 255)
+    t.TimestampTz("created_at", 0).Default(migration.Expr("now()"))
 }).Build()
-// Execute with: tx.Exec(schema)
+
+_, err := tx.Exec(schema)
 ```
 
-## Altering Tables
+`Build` returns the whole statement, newline-joined when there is more than
+one — a table plus the `CREATE INDEX` lines that follow it. `Statements`
+returns them separately, which a driver that will not take several at once
+needs:
 
 ```go
-schema := migration.Alter("users", func(t *migration.Table) {
-    t.String("phone", 255).Nullable()
-    t.Boolean("is_active").Default(true)
-}).Build()
+for _, statement := range migration.Create("users", func(t *migration.Table) {
+    t.BigIncrements("id").Primary()
+    t.Index("id").Name("users_id_idx")
+}).Statements() {
+    if _, err := tx.Exec(statement); err != nil {
+        return err
+    }
+}
 ```
 
-## Dropping Tables
+`Build` panics on a schema that cannot be rendered. `Validate` returns the
+same error if you would rather check:
 
 ```go
-err := migration.Drop("users")
-// Returns "DROP TABLE IF EXISTS users"
+if err := migration.Create("users", func(t *migration.Table) {
+    t.BigIncrements("id").Primary()
+}).Validate(); err != nil {
+    return err
+}
 ```
 
-## Renaming Columns
-
-There is no table rename helper. Columns are renamed through `Alter`:
+Altering and dropping:
 
 ```go
-schema := migration.Alter("users", func(t *migration.Table) {
-    t.RenameColumn("email", "email_address")
+alter := migration.Alter("users", func(t *migration.Table) {
+    t.Int("view_count").Default(0)
+    t.String("nickname", 80).Nullable().Change()
+    t.DropColumn("legacy_body")
+    t.RenameColumn("body", "body_source")
 }).Build()
+
+drop := migration.Drop("users").Build()
 ```
 
-## Available Column Types
+`Drop` returns a `*Schema` like the others — `Build` turns it into
+`DROP TABLE IF EXISTS users`. It is not an error value, and
+`return migration.Drop("users")` does not compile.
 
-| Method | Description |
-|--------|-------------|
-| `Increments(name)` | Auto-incrementing integer (primary key) |
-| `BigIncrements(name)` | Big auto-incrementing integer |
-| `String(name, length)` | VARCHAR with optional length |
-| `Text(name)` | TEXT field |
-| `UUID(name)` | UUID field |
-| `ULID(name)` | ULID field |
-| `Integer(name)` | INT |
-| `BigInteger(name)` | BIGINT |
-| `TinyInt(name)` | TINYINT |
-| `SmallInt(name)` | SMALLINT |
-| `MediumInt(name)` | MEDIUMINT |
-| `Binary(name)` | BLOB |
-| `Boolean(name)` | BOOLEAN/TINYINT |
-| `Char(name, length)` | CHAR with optional length |
-| `DateTime(name, precision)` | DATETIME |
-| `DateTimeTz(name, precision)` | DATETIME with timezone |
-| `Date(name)` | DATE |
-| `Time(name, precision)` | TIME |
-| `Timestamp(name, precision)` | TIMESTAMP |
-| `TimestampTz(name, precision)` | TIMESTAMP with timezone |
-| `Decimal(name, precision, scale)` | DECIMAL |
-| `Double(name)` | DOUBLE |
-| `Float(name, precision)` | FLOAT |
-| `Enum(name, values)` | ENUM |
-| `UnsignedInteger(name)` | UNSIGNED INT |
-| `UnsignedBigInteger(name)` | UNSIGNED BIGINT |
+`CreateFor`, `AlterFor` and `DropFor` take a dialect instead of reading
+`DB_DRIVER`, which is how you render DDL for a database you are not connected
+to — and how these examples are tested.
 
-## Column Modifiers
+## Columns
+
+```go
+t.BigIncrements("id").Primary()
+t.String("email", 255)
+t.Text("bio")
+t.Int("view_count").Default(0)
+t.Boolean("is_published").Default(false)
+t.Json("payload").Nullable()
+t.TimestampTz("created_at", 0)
+```
+
+The full list is in [Column Types](/docs/migrations/column-types). Three are
+worth knowing before you reach it, because the obvious call is the wrong one:
+
+**`TimestampTz(name, 0)` — always zero.** The precision is appended after the
+whole type name, so `TimestampTz("created_at", 6)` emits
+`TIMESTAMP WITH TIME ZONE(6)`, which PostgreSQL rejects with a syntax error.
+Pass `0` and you get `TIMESTAMP WITH TIME ZONE`, which is what you wanted.
+The same applies to `Double(name, 0, 0)`.
+
+**`Enum` emits no constraint on SQLite.** MySQL gets a native `ENUM` and
+PostgreSQL a `TEXT` with a `CHECK` appended, but SQLite gets plain `TEXT` and
+nothing else — so the values you listed are enforced on two drivers of three.
+Use a `String` and a `Check` when you need all three:
+
+```go
+t.String("status", 16).Default("draft")
+t.Check("posts_status_valid", "status IN ('draft','published','removed')")
+```
+
+**`ForeignID` is not a foreign key column.** It adds the column as an
+auto-increment type, so on PostgreSQL `t.ForeignID("user_id").Constrained()`
+produces `user_id BIGSERIAL NOT NULL` — a foreign key with its own sequence,
+where a row inserted without one silently gets the next number and points at
+whichever user that happens to be. Declare the column and the key separately:
+
+```go
+t.UnsignedBigInt("user_id")
+t.Foreign("user_id").References("id").On("users").OnDelete("CASCADE")
+```
+
+### Modifiers
 
 ```go
 t.String("email", 255).Unique()
 t.String("name", 255).NotNull()
 t.String("phone", 255).Nullable()
-t.String("old_field", 255).Change()   // Modify an existing column
+t.BigIncrements("id").Primary()
+t.Int("views").Unsigned()
+t.String("nickname", 80).Nullable().Change()   // in an Alter
 ```
+
+`Unsigned()` on PostgreSQL emits nothing, and never has: suffixes are decided
+before the column is marked. MySQL honours it, because its `UNSIGNED` is read
+when the type is rendered.
 
 ### Defaults
 
-`Default` takes the value you want, and renders it as the right SQL literal for
-its Go type. Strings are quoted and their quotes escaped, numbers and booleans
-are emitted bare, and `nil` becomes `DEFAULT NULL`:
+`Default` takes a value and renders it as the right SQL literal for its Go
+type — strings quoted and escaped, numbers and booleans bare, `nil` as
+`DEFAULT NULL`:
 
 ```go
-t.String("status", 255).Default("active")     // DEFAULT 'active'
-t.String("note", 255).Default("it's fine")    // DEFAULT 'it''s fine'
-t.Integer("age").Default(18)                  // DEFAULT 18
-t.Boolean("admin").Default(false)             // DEFAULT FALSE on PostgreSQL, 0 elsewhere
+t.String("status", 255).Default("active")      // DEFAULT 'active'
+t.String("note", 255).Default("it's fine")     // DEFAULT 'it''s fine'
+t.Int("age").Default(18)                       // DEFAULT 18
+t.Boolean("admin").Default(false)              // DEFAULT FALSE on PostgreSQL, 0 elsewhere
 t.String("nickname", 255).Nullable().Default(nil)
 ```
 
-For a default that is an *expression* rather than a value, wrap it in
-`migration.Expr`, which is emitted verbatim:
+For an *expression* rather than a value, wrap it in `migration.Expr`, which is
+emitted verbatim:
 
 ```go
-t.Integer("attempts").Default(migration.Expr("(1 + 1)"))
+t.Int("attempts").Default(migration.Expr("(1 + 1)"))
+t.TimestampTz("created_at", 0).Default(migration.Expr("now()"))
 ```
 
 Insert-time timestamps have their own value, because MySQL requires the
-default's fractional-second precision to match the column's — `CurrentTimestamp`
-handles that for you, where a hand-written `Expr("CURRENT_TIMESTAMP")` would be
-rejected on a `DATETIME(6)` column:
+default's fractional-second precision to match the column's —
+`CurrentTimestamp` handles that, where a hand-written
+`Expr("CURRENT_TIMESTAMP")` is rejected on a `DATETIME(6)` column:
 
 ```go
 t.DateTime("created_at", 6).Default(migration.CurrentTimestamp)
 ```
 
-A value of a type with no SQL literal form is reported by `Validate` (and panics
-in `Build`) naming the table and column, rather than being silently dropped.
+A value of a type with no SQL literal form is reported by `Validate`, and
+panics in `Build`, naming the table and column rather than being dropped in
+silence.
 
-## Timestamps and Soft Deletes
+## Keys and constraints
 
-There are no `Timestamps()` or `SoftDeletes()` shortcuts — declare the columns:
+### Primary keys
+
+There is no `ID()` shortcut:
 
 ```go
-t.DateTime("created_at", 6).Nullable()
-t.DateTime("updated_at", 6).Nullable()
-t.DateTime("deleted_at", 6).Nullable()
-
-t.DateTimeTz("published_at", 6).Nullable()   // with a time zone
+t.BigIncrements("id").Primary()
+t.PrimaryKey("circle_id", "user_id")   // composite
 ```
 
-A soft-delete column must be nullable, and the model field must be
-`*time.Time` or `sql.NullTime`. See [Soft deletes](/docs/orm/writes#soft-deletes).
+On MySQL an auto-increment column must be a key; if you do not mark one, the
+builder marks it rather than emitting DDL the server would refuse.
 
-## Constraints
+### Checks
 
-### Primary Keys
+`CHECK` is standard SQL — PostgreSQL, MySQL 8.0.16+ and SQLite all enforce
+one. Name it, because the name is what an error reports and what a later
+migration drops:
 
 ```go
-t.PrimaryKey("id")
-t.PrimaryKey("order_id", "product_id") // Composite
-t.DropPrimaryKey("pk_name")             // Drop primary key
+t.Check("posts_kind_valid", "kind IN ('status','text','link')")
+t.Check("posts_counts_sane", "reaction_count >= 0 AND comment_count >= 0")
 ```
 
 ### Indexes
 
 ```go
-t.Index("email")                         // Single column
-t.Index("email", "status")               // Composite
-t.DropIndex("index_name")                // Drop index
+t.Index("user_id")
+t.Index("user_id", "created_at").Name("posts_author_idx")
+t.Index("user_id", "created_at").Desc("created_at").Name("posts_recent_idx")
+t.Index("email").Unique().Name("users_email_key")
+t.Index("email").Unique().Where("deleted_at IS NULL").Name("users_live_email_key")
 ```
 
-### Unique Keys
+`Name` matters more than it looks. The derived name is right for a new table
+and wrong for one that exists: every index in a migration that has already run
+has a name in somebody's database, and a builder that cannot reproduce it
+forces the whole statement to be hand-written.
+
+`Desc` names a column already in the index. Writing the direction into the
+column list — `Index("created_at DESC")` — happens to work today only because
+the builder joins its arguments verbatim, and stops working the moment it
+quotes an identifier. A column named in `Desc` that the index does not carry
+is an error from `Validate`.
+
+`Where` makes it partial. **MySQL has no partial index in any form**, so
+`Validate` refuses one there rather than dropping the predicate — an index
+silently covering every row instead of a tenth gives correct results and a
+query plan nobody can account for.
+
+### Unique: index or constraint
+
+These are different objects, and on PostgreSQL the difference is visible:
 
 ```go
-t.UniqueKey("email")                     // Single column
-t.UniqueKey("email", "status")           // Composite
-t.DropUniqueKey("unique_key_name")       // Drop unique
+t.Index("email").Unique().Name("users_email_key")   // CREATE UNIQUE INDEX
+t.UniqueKey("email").Name("users_email_key")        // CONSTRAINT ... UNIQUE
 ```
 
-### Foreign Keys
+`pg_dump` renders the constraint as `ALTER TABLE … ADD CONSTRAINT` and the
+index as `CREATE UNIQUE INDEX`, so a schema being *matched* rather than merely
+created has to produce the right one. MySQL implements the constraint with an
+index, which is what makes the distinction easy to lose.
+
+Reach for `UniqueKey` when the uniqueness is part of what the table is, and
+for `Index(...).Unique()` when it is a lookup index that happens to be unique
+— or one you will want a `Where` on.
+
+### Foreign keys
 
 ```go
-t.Foreign("user_id").References("id").On("users").OnDelete("cascade")
-t.ForeignID("user_id").Constrained()
-// Convenience: references id on the pluralized table name
+t.Foreign("user_id").References("id").On("users").OnDelete("CASCADE")
+
+t.Foreign("user_id", "skill_id").
+    Name("endorsements_claimed_skill").
+    References("user_id", "skill_id").
+    On("user_skills").
+    OnDelete("CASCADE")
 ```
 
-Full foreign key API:
+`References` takes a column list, so a composite key is one constraint over
+the pair. Two single-column keys are not the same thing: neither of them
+refuses a row naming a user and a skill that are never paired, which is the
+invariant a pivot exists to hold. `Validate` refuses a key referencing a
+different number of columns than it carries.
+
+`Name` is opt-in. Without it the key is anonymous and the server derives one
+— which is what every key this package emitted before v0.5.0 did, so naming by
+default would rename all of them. Use it to restate a constraint that already
+exists.
+
+## Altering a table
 
 ```go
-t.Foreign("user_id").
-    References("id").
-    On("users").
-    OnDelete("cascade").
-    OnUpdate("restrict")
+migration.Alter("posts", func(t *migration.Table) {
+    t.Int("view_count").Default(0)
+    t.String("slug", 160).Nullable().Change()
+    t.DropColumn("legacy_body")
+    t.RenameColumn("body", "body_source")
 
-t.ForeignID("user_id").
-    Constrained()                           // Uses conventions
-    ConstrainedFunc(func(fk *foreignKey) {  // Custom
-        fk.OnDelete("set null")
-    })
+    t.DropIndex("posts_author_idx")
+    t.DropUniqueKey("posts_slug_unique")
+    t.DropForeignKey("posts_author_fk")
+    t.DropCheck("posts_kind_valid").IfExists()
+    t.DropPrimaryKey()
+})
 ```
 
-## Primary Keys
+The three dialects disagree more here than anywhere else:
 
-There is no `ID()` shortcut. Declare the key explicitly:
+| | PostgreSQL | MySQL | SQLite |
+|---|---|---|---|
+| drop a primary key | `DROP CONSTRAINT <table>_pkey` | `DROP PRIMARY KEY` | refused |
+| drop a unique key | `DROP CONSTRAINT <name>` | `DROP INDEX <name>` | refused |
+| drop a foreign key | `DROP CONSTRAINT <name>` | `DROP FOREIGN KEY <name>` | refused |
+| drop an index | `DROP INDEX <name>`, its own statement | `ALTER TABLE … DROP INDEX` | `DROP INDEX <name>` |
+| change a column | `ALTER COLUMN … TYPE`, plus `SET`/`DROP NOT NULL` | `MODIFY COLUMN …` | refused |
+| several actions | one statement, comma-separated | one statement, comma-separated | **one statement each** |
+
+`DropPrimaryKey()` takes no argument — PostgreSQL needs the name and derives
+`<table>_pkey`, MySQL does not use one.
+
+`IfExists` is for a down migration, which should not fail because the thing it
+removes is already gone. **MySQL has no `IF EXISTS`** on any of these — not on
+an `ALTER TABLE` drop action and not on `DROP INDEX` — so `Validate` refuses
+it there rather than quietly dropping the tolerance.
+
+SQLite's `ALTER TABLE` does `RENAME TO`, `RENAME COLUMN`, `ADD COLUMN` and
+`DROP COLUMN`, and nothing else. Changing a column or a constraint there means
+rebuilding the table, which is a migration you write yourself — so the builder
+refuses rather than emitting something SQLite will reject.
+
+## What still needs raw SQL
+
+`tx.Exec` is the sanctioned escape hatch. These have no portable form and are
+not pretending to:
+
+- **Expression and operator-class indexes**, `tsvector`, `GIN`/`GiST` —
+  PostgreSQL only.
+- **Functions and triggers.** `plpgsql` is PostgreSQL, MySQL's trigger syntax
+  differs, and SQLite has no stored functions at all.
+- **Generated columns**, whose expression is dialect-specific.
+- **`COMMENT ON`.** PostgreSQL and MySQL spell it differently; SQLite has none.
+- **Altering a column or a constraint on SQLite**, as above.
 
 ```go
-t.BigIncrements("id").Primary()
+// A generated column and the GIN index over it: PostgreSQL, and only
+// PostgreSQL, so there is nothing for the builder to render per dialect.
+for _, statement := range []string{
+    `ALTER TABLE posts ADD COLUMN search_vector tsvector
+       GENERATED ALWAYS AS (to_tsvector('english', coalesce(body, ''))) STORED`,
+    `CREATE INDEX posts_search_idx ON posts USING GIN (search_vector)`,
+} {
+    if _, err := tx.Exec(statement); err != nil {
+        return err
+    }
+}
 ```
-
-On MySQL an auto-increment column must be a key; if you do not mark it, the
-builder marks it for you rather than emitting DDL the server would refuse.

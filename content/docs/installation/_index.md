@@ -68,12 +68,12 @@ checksum. Two environment variables override that:
 
 | Variable | Effect |
 |----------|--------|
-| `LEMMEGO_VERSION` | Install a specific tag instead of the latest, e.g. `v0.1.51` |
+| `LEMMEGO_VERSION` | Install a specific tag instead of the latest, e.g. `v0.4.1` |
 | `LEMMEGO_INSTALL_DIR` | Install somewhere other than `/usr/local/bin` (`C:\Windows\System32` on Windows) |
 
 ```shell
 # Pin a version, and install without sudo
-LEMMEGO_VERSION=v0.1.51 LEMMEGO_INSTALL_DIR=$HOME/.local/bin \
+LEMMEGO_VERSION=v0.4.1 LEMMEGO_INSTALL_DIR=$HOME/.local/bin \
   curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sh
 ```
 

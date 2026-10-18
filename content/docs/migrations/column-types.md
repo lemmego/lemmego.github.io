@@ -7,58 +7,112 @@ sidebar:
 weight: 32
 ---
 
-## Type Mapping
+## Methods
 
-The schema builder maps 37 generic column types to database-specific SQL types.
+Every method on `*migration.Table` that declares a column, with the type each
+driver gets. The generic name in the first column is the `ColType*` constant,
+which you only need when calling `AddColumn` directly.
 
-| Generic Type | SQLite | MySQL | PostgreSQL |
-|-------------|--------|-------|------------|
-| `ColTypeIncrements` | INTEGER | INT UNSIGNED AUTO_INCREMENT | SERIAL |
-| `ColTypeBigIncrements` | INTEGER | BIGINT UNSIGNED AUTO_INCREMENT | BIGSERIAL |
-| `ColTypeTinyInt` | INTEGER | TINYINT | SMALLINT |
-| `ColTypeSmallInt` | INTEGER | SMALLINT | SMALLINT |
-| `ColTypeMediumInt` | INTEGER | MEDIUMINT | INTEGER |
-| `ColTypeInteger` | INTEGER | INT | INTEGER |
-| `ColTypeBigInt` | INTEGER | BIGINT | BIGINT |
-| `ColTypeUnsignedInteger` | INTEGER | INT UNSIGNED | INTEGER |
-| `ColTypeUnsignedBigInteger` | INTEGER | BIGINT UNSIGNED | BIGINT |
-| `ColTypeString` | VARCHAR | VARCHAR | VARCHAR |
-| `ColTypeChar` | CHAR | CHAR | CHAR |
-| `ColTypeText` | TEXT | TEXT | TEXT |
-| `ColTypeMediumText` | TEXT | MEDIUMTEXT | TEXT |
-| `ColTypeLongText` | TEXT | LONGTEXT | TEXT |
-| `ColTypeBoolean` | INTEGER | TINYINT(1) | BOOLEAN |
-| `ColTypeDate` | DATE | DATE | DATE |
-| `ColTypeDateTime` | DATETIME | DATETIME | TIMESTAMP |
-| `ColTypeDateTimeTz` | DATETIME | DATETIME | TIMESTAMPTZ |
-| `ColTypeTime` | TIME | TIME | TIME |
-| `ColTypeTimestamp` | DATETIME | TIMESTAMP | TIMESTAMP |
-| `ColTypeTimestampTz` | DATETIME | TIMESTAMP | TIMESTAMPTZ |
-| `ColTypeDecimal` | numeric | DECIMAL | NUMERIC |
-| `ColTypeDouble` | REAL | DOUBLE | DOUBLE PRECISION |
-| `ColTypeFloat` | REAL | FLOAT | REAL |
-| `ColTypeBinary` | BLOB | BLOB | BYTEA |
-| `ColTypeUUID` | TEXT | CHAR(36) | UUID |
-| `ColTypeULID` | TEXT | CHAR(26) | CHAR(26) |
-| `ColTypeEnum` | TEXT | ENUM('a','b') | VARCHAR + CHECK |
-| `ColTypeJson` | TEXT | JSON | JSONB |
+### Integers
 
-## Column Modifier SQL
+| Method | PostgreSQL | MySQL | SQLite |
+|---|---|---|---|
+| `Increments(name)` | `SERIAL` | `INT` | `INTEGER` |
+| `BigIncrements(name)` | `BIGSERIAL` | `BIGINT` | `INTEGER` |
+| `TinyInt(name)` | `SMALLINT` | `TINYINT` | `TINYINT` |
+| `SmallInt(name)` | `SMALLINT` | `SMALLINT` | `SMALLINT` |
+| `MediumInt(name)` | `INTEGER` | `MEDIUMINT` | `MEDIUMINT` |
+| `Int(name)` | `INTEGER` | `INT` | `INTEGER` |
+| `BigInt(name)` | `BIGINT` | `BIGINT` | `BIGINT` |
 
-| Modifier | SQLite | MySQL | PostgreSQL |
-|----------|--------|-------|------------|
-| `NOT NULL` | NOT NULL | NOT NULL | NOT NULL |
-| `DEFAULT val` | DEFAULT val | DEFAULT val | DEFAULT val |
-| `UNIQUE` | UNIQUE | UNIQUE | UNIQUE |
-| `PRIMARY KEY` | PRIMARY KEY | PRIMARY KEY | PRIMARY KEY |
-| `AUTO_INCREMENT` | AUTOINCREMENT | AUTO_INCREMENT | (SERIAL/BIGSERIAL) |
-| `UNSIGNED` | — | UNSIGNED | — |
+`UnsignedTinyInt`, `UnsignedSmallInt`, `UnsignedMediumInt`, `UnsignedInt` and
+`UnsignedBigInt` are the same types with `Unsigned()` applied — which adds
+`UNSIGNED` on MySQL and nothing on PostgreSQL or SQLite.
 
-## Best Practices
+There is no `Integer` or `BigInteger`. The methods are `Int` and `BigInt`.
 
-- Use `BigIncrements("id")` for primary keys in production — it supports up to 9 quintillion rows
-- Add `DateTime("created_at", 6).Nullable()` and `DateTime("updated_at", 6).Nullable()` for
-  timestamp tracking — the [ORM](/docs/orm/writes#automatic-timestamps) fills them in automatically
-- Add `DateTime("deleted_at", 6).Nullable()` to opt a table into [soft deletes](/docs/orm/writes#soft-deletes)
-- For enums in PostgreSQL, the builder uses VARCHAR with CHECK constraints
-- Pass defaults as plain Go values — `Default("active")`, `Default(18)`, `Default(false)`. Use `migration.Expr` for SQL expressions and `migration.CurrentTimestamp` for insert-time clocks
+### Decimals
+
+| Method | PostgreSQL | MySQL | SQLite |
+|---|---|---|---|
+| `Float(name, precision, scale)` | `FLOAT` | `FLOAT` | `FLOAT` |
+| `Double(name, precision, scale)` | `DOUBLE PRECISION` | `DOUBLE` | `DOUBLE` |
+| `Decimal(name, precision, scale)` | `DECIMAL` | `DECIMAL` | `DECIMAL` |
+
+Pass `0, 0` to `Double` unless you mean a precision — see the note under
+dates.
+
+### Text
+
+| Method | PostgreSQL | MySQL | SQLite |
+|---|---|---|---|
+| `Char(name, length)` | `CHAR` | `CHAR` | `CHAR` |
+| `String(name, length)` | `VARCHAR` | `VARCHAR` | `VARCHAR` |
+| `Text(name)` | `TEXT` | `TEXT` | `TEXT` |
+| `Json(name)` | `JSONB` | `JSON` | `TEXT` |
+| `UUID(name)` | `UUID` | `CHAR` | `TEXT` |
+| `ULID(name)` | `CHAR` | `CHAR` | `TEXT` |
+
+`Json` gives `JSONB` on PostgreSQL rather than `JSON`: it stores a parsed
+form, so it is cheaper to read than to write and can carry a GIN index. The
+cost is that key order is not preserved and duplicate keys collapse — both
+properties of JSON objects rather than of this choice. SQLite has no JSON
+type; it stores JSON as `TEXT` and its JSON1 functions operate on `TEXT`, so
+that is the answer rather than a fallback.
+
+**MySQL cannot index a JSON column at all**, and no key length helps.
+`Validate` says so, pointing at a generated column over the extracted value.
+The same check covers `TEXT` and `BLOB` columns, which MySQL refuses in a key
+without a length.
+
+### Dates and times
+
+| Method | PostgreSQL | MySQL | SQLite |
+|---|---|---|---|
+| `Date(name)` | `DATE` | `DATE` | `DATE` |
+| `Time(name, precision)` | `TIME` | `TIME` | `TIME` |
+| `DateTime(name, precision)` | `TIMESTAMP` | `DATETIME` | `DATETIME` |
+| `DateTimeTz(name, precision)` | `TIMESTAMP WITH TIME ZONE` | `DATETIME` | `DATETIME` |
+| `Timestamp(name, precision)` | `TIMESTAMP` | `TIMESTAMP` | `TIMESTAMP` |
+| `TimestampTz(name, precision)` | `TIMESTAMP WITH TIME ZONE` | `TIMESTAMP` | `TIMESTAMP` |
+
+**Pass `0` for the precision on the `Tz` variants.** It is appended after the
+whole type name, so `TimestampTz("created_at", 6)` emits
+`TIMESTAMP WITH TIME ZONE(6)` and PostgreSQL answers
+`syntax error at or near "("`. With `0` you get the type and no suffix, which
+is what was wanted. `DateTime` and `Timestamp` take a precision safely,
+because theirs is one word.
+
+### Other
+
+| Method | PostgreSQL | MySQL | SQLite |
+|---|---|---|---|
+| `Boolean(name)` | `BOOLEAN` | `BOOLEAN` | `BOOLEAN` |
+| `Binary(name)` | `BYTEA` | `BINARY` | `BINARY` |
+| `Enum(name, values...)` | `TEXT` + `CHECK` | `ENUM(...)` | `TEXT` |
+
+**`Enum` enforces nothing on SQLite.** MySQL gets a native `ENUM` and
+PostgreSQL a `TEXT` with a `CHECK (col IN (...))` appended, but SQLite gets
+plain `TEXT` and no constraint at all — so the values are checked on two
+drivers of three. Use a `String` and a `Check` when you need all three:
+
+```go
+t.String("status", 16).Default("draft")
+t.Check("posts_status_valid", "status IN ('draft','published','removed')")
+```
+
+## Timestamps and soft deletes
+
+There are no `Timestamps()` or `SoftDeletes()` shortcuts. Declare them:
+
+```go
+t.TimestampTz("created_at", 0).Default(migration.Expr("now()"))
+t.TimestampTz("updated_at", 0).Default(migration.Expr("now()"))
+t.TimestampTz("deleted_at", 0).Nullable()
+```
+
+A soft-delete column must be nullable, and the model field must be
+`*time.Time` or `sql.NullTime` — the ORM rejects a bare `time.Time` at
+metadata time, because its zero value writes a real timestamp and
+`deleted_at IS NULL` would then match nothing and hide the whole table. See
+[Soft deletes](/docs/orm/writes#soft-deletes).

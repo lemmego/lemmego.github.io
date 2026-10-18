@@ -7,133 +7,78 @@ sidebar:
 weight: 34
 ---
 
-## CLI Usage
-
-Migrations are run through the application CLI:
-
-### Up (Apply Pending)
+## Commands
 
 ```shell
-lemmego run migrate up
+lemmego run migrate up          # apply everything pending
+lemmego run migrate down        # roll back
+lemmego run migrate status      # what has run and what has not
+lemmego run migrate create -n create_users_table
 ```
 
-Apply a specific number of migrations:
+Each of `up` and `down` takes `--step` (`-s`), and each of the three takes
+`--driver` (`-d`) and `--dsn` (`-u`) to point at a database other than the
+one the application is configured with.
+
+## What `--step` counts
+
+**Migrations, on both commands.** `--step 2` on `down` reverts the two most
+recently applied migrations, not the two most recent batches.
+
+That is worth stating because it used to count batches, and the two are the
+same only when every batch holds one migration. A batch is one `migrate up`
+run, so on any project whose schema went up in a single command — every
+project on its first deploy — the latest batch is the entire schema, and
+asking to undo one migration undid all of them. Fixed in v0.1.24; if you are
+pinned below that, `down --step 1` is not what it says.
+
+With no `--step`, `down` reverts the whole of the latest batch.
 
 ```shell
-lemmego run migrate up --step=3
+lemmego run migrate down --step 1    # the last migration
+lemmego run migrate down             # the last batch
 ```
 
-### Down (Rollback)
+## One transaction per run
 
-Rollback the last batch:
+`up` opens a single transaction, runs every pending migration inside it, and
+commits once — with a 30-second budget for the whole run. A failure anywhere
+rolls back the entire run; there are no savepoints between migrations. `down`
+works the same way.
+
+This is what makes a failed deploy leave a schema that is either entirely
+before or entirely after, and what makes
+`CREATE INDEX CONCURRENTLY` impossible — see
+[The whole batch is one transaction](/docs/migrations/writing-migrations#the-whole-batch-is-one-transaction).
+
+## How it works
+
+1. `Init()` creates the `schema_migrations` table if it is absent.
+2. Migrations already recorded there are marked done in memory.
+3. `up` applies the pending ones in version order and records them against a
+   new batch number.
+4. `down` reverts in reverse version order — a number of migrations, or the
+   latest batch.
+
+## Pointing at another database
+
+The `--dsn` flag is how you run migrations against a scratch database, which
+is the cheapest way to check that a migration is reversible before it reaches
+anything you care about:
 
 ```shell
-lemmego run migrate down
+createdb myapp_scratch
+lemmego run migrate up   -u "postgres://user@localhost:5432/myapp_scratch?sslmode=disable"
+lemmego run migrate down -u "postgres://user@localhost:5432/myapp_scratch?sslmode=disable"
+dropdb myapp_scratch
 ```
 
-Rollback multiple batches:
+Up, down, and up again on a throwaway database catches the two failures a
+review does not: a down that leaves a table behind because something still
+references it, and an up that only works on an empty schema.
 
-```shell
-lemmego run migrate down --step=2
-```
-
-### Status
-
-```shell
-lemmego run migrate status
-```
-
-Output:
-
-```
-[2025-07-06 00:00:01] create_users_table .................... 2025-07-06 12:00:00
-[2025-07-06 00:00:02] create_posts_table .................... Pending
-```
-
-### Create New Migration
-
-```shell
-lemmego run migrate create create_posts_table
-```
-
-Or from outside the app:
-
-```shell
-lemmego g migration create_posts_table
-```
-
-## How Migration Tracking Works
-
-The migration system creates a `schema_migrations` table in your database:
-
-```sql
-CREATE TABLE schema_migrations (
-    version VARCHAR(255),
-    batch INT
-);
-```
-
-- **version** — The migration's version string (e.g., `20250706000001`)
-- **batch** — The batch number when the migration was applied
-
-When running `up`:
-
-1. Pending migrations are collected in version order
-2. A new batch number is created (max batch + 1)
-3. Each migration runs inside a transaction
-4. On success, the migration's version and batch are recorded
-5. If any migration in the batch fails, only that migration is rolled back
-
-When running `down`:
-
-1. The last batch number is identified
-2. Migrations in that batch are rolled back in reverse version order
-3. Each rollback runs inside a transaction
-4. The migration record is removed from `schema_migrations`
-
-## Programmatic Use
-
-```go
-import "github.com/lemmego/migration"
-
-m := migration.GetMigrator()
-
-// Initialize (creates tracking table)
-err := m.Init()
-
-// Apply all pending migrations
-err := m.Up(-1)
-
-// Apply 2 migrations
-err := m.Up(2)
-
-// Rollback latest batch
-err := m.Down(-1)
-
-// Rollback 1 batch
-err := m.Down(1)
-
-// Print status
-m.MigrationStatus()
-```
-
-## Database Connection
-
-The migrator reads the `DB_DRIVER` environment variable to determine the dialect. Database connection parameters are configured through environment variables:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DB_DRIVER` | `sqlite` | Database driver (`sqlite`, `mysql`, `pgsql`) |
-| `DB_HOST` | `127.0.0.1` | Database host |
-| `DB_PORT` | (driver default) | Database port |
-| `DB_DATABASE` | `storage/database.sqlite` | Database name/path |
-| `DB_USERNAME` | `root` | Database user |
-| `DB_PASSWORD` | `` | Database password |
-
-## Best Practices
-
-- **One change per migration** — Keep migrations focused on a single schema change
-- **Always write a down migration** — Ensure every change is reversible
-- **Test both directions** — Run `up` then `down` to verify correctness
-- **Don't modify existing migrations** — Create a new migration instead
-- **Use version control** — Migrations should be committed to git
+`lemmego run migrate` reads `DB_PARAMS` for connection options, which is
+separate from the `options` map in `internal/configs/database.go` that the
+application reads. `lib/pq` defaults to `sslmode=require`, so a local
+PostgreSQL needs `DB_PARAMS=sslmode=disable` in `.env` or migrations will
+fail to connect while the application itself is fine.
