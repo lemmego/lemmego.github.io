@@ -158,27 +158,43 @@ count, err := qb.Count(ctx, userRepo)
 qb := gpa.NewQueryBuilder[T]()
 
 qb.Where(field, operator, value)
+qb.WhereCondition(condition)          // a Condition built elsewhere
 qb.OrderBy(field, direction)
 qb.Limit(n)
 qb.Offset(n)
-qb.Select(fields...)      // Same as Fields()
-qb.Join(table, on, ...)
-qb.InnerJoin(table, on)
-qb.LeftJoin(table, on)
+qb.Select(fields...)
+qb.Join(gpa.JoinInner, table, condition)
 qb.GroupBy(fields...)
 qb.Having(field, operator, value)
 qb.Distinct()
-qb.Lock(lockType)
+qb.Lock(gpa.LockForUpdate)
 qb.Preload(relations...)
 
 // Build the Query object without executing
 query := qb.Build()
 ```
 
+There is one `Join`, taking the join type as its first argument —
+`gpa.JoinInner`, `gpa.JoinLeft`, `gpa.JoinRight` or `gpa.JoinFull`. The
+`gpa.InnerJoin` and `gpa.LeftJoin` helpers shown earlier are `QueryOption`s for the
+option-style API, not builder methods.
+
 ## Subqueries
 
+A subquery is a `*Query`, not a SQL string: it is built with the same builder
+and passed in, so the same validation and placeholder handling applies.
+
 ```go
-gpa.ExistsSubQuery("SELECT 1 FROM orders WHERE orders.user_id = users.id")
-gpa.InSubQuery("user_id", "SELECT id FROM users WHERE active = true")
-gpa.CorrelatedSubQuery("SELECT AVG(score) FROM reviews WHERE reviews.product_id = products.id")
+highValue := gpa.NewQueryBuilder[Order]().
+    Select("user_id").
+    Where("total", gpa.OpGreaterThan, 100).
+    Build()
+
+gpa.InSubQuery("id", highValue)
+gpa.ExistsSubQuery(highValue)
+gpa.CorrelatedSubQuery("score", gpa.OpGreaterThan, highValue, "product_id")
 ```
+
+`CorrelatedSubQuery` takes four arguments: the outer field, the operator, the
+subquery, and the field on the inner query that correlates back to the outer
+one.

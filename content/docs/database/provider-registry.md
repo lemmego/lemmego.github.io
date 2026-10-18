@@ -97,23 +97,32 @@ gormProviders, err := gpa.GetByType[*gpagorm.Provider]()
 
 ## Lifecycle Management
 
+Registration and lookup are package-level generic functions, but the
+lifecycle operations are methods on the registry, reached through
+`gpa.Registry()`:
+
 ```go
+r := gpa.Registry()
+
 // List registered types
-types := gpa.ListTypes()
+types := r.ListTypes()
 
 // List instances for a type
-instances := gpa.ListInstances("gorm")
+instances, err := r.ListInstances("gorm")
 
 // Remove and close a provider
-gpa.Remove("gorm", "primary")
+err := r.Remove("gorm", "primary")
 
 // Remove and close all providers
-gpa.RemoveAll()
+err := r.RemoveAll()
 
 // Health check
-health := gpa.HealthCheck()
+health := r.HealthCheck()
 // Returns map[string]map[string]error — [type][instance]error
 ```
+
+`ListInstances`, `Remove` and `RemoveAll` all report an error; only
+`ListTypes` and `HealthCheck` cannot fail.
 
 ## Type Inference
 

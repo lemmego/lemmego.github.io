@@ -366,7 +366,8 @@ type HttpProvider interface {
     RequestResponseResolver // Request, ResponseWriter, RequestContext
     CookieGetSetter         // Cookie, SetCookie
     SessionGetSetter        // Session, SessionString, PopSession, PopSessionString, PutSession
-    HttpResponder           // JSON, XML, Text, HTML, Redirect, Back, File, StorageFile, Download, Write, Render
+    HttpResponder           // JSON, XML, Text, HTML, Templ, Redirect, Back, File,
+                            // StorageFile, Download, Write, Render
     Downloader              // Download
     Uploader                // Upload
     ErrorProvider           // Error, InternalServerError, NotFound, BadRequest,
