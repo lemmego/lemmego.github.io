@@ -154,8 +154,13 @@ Runs the application via `go run ./cmd/app`.
 
 - Checks the project is a valid Lemmego project
 - Generates Templ files if `.templ` files exist
-- Builds frontend assets if `package.json` exists
+- Builds frontend assets if `package.json` exists — **skipped** for a
+  namespaced command such as `mcp:serve` or `tasker:work`, and for
+  `migrate`, `rollback`, `key` and `inspire`, none of which serve a page
 - Passes any additional args to the Go binary
+- Forwards stdin, stdout and stderr, so a command can prompt, read a pipe, or
+  speak a protocol (**cli v0.5.5 and later**; before that stdin was not
+  forwarded, so anything reading it saw EOF immediately)
 
 ### `lemmego dev`
 
@@ -172,6 +177,22 @@ Output is color-coded with `[air]`, `[templ]`, `[vite]` prefixes.
 Builds frontend assets:
 - Runs `templ generate` if `.templ` files exist
 - Runs `npm run build` / `yarn build` / `pnpm build` if `package.json` exists
+
+### `lemmego mcp:install`
+
+Configures AI coding agents to use this project's MCP server — writing
+`.mcp.json`, the guideline block in `CLAUDE.md`/`AGENTS.md`, on-demand skills
+and the project-rules index. See [AI Agents (MCP)](/docs/mcp).
+
+It does not boot the application, so it works in a project that cannot yet run
+— which is when you usually want to wire up an editor. If the project has no
+MCP server registered, it says so and prints the two steps.
+
+```shell
+lemmego mcp:install                  # every supported agent
+lemmego mcp:install --agent cursor   # just one
+lemmego mcp:install --no-skills      # skip a part
+```
 
 ## Code Generation
 

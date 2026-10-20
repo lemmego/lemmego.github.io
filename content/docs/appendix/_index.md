@@ -1,7 +1,7 @@
 ---
 title: Appendix
 type: docs
-prev: docs/prompting
+prev: docs/mcp
 sidebar:
   open: true
 weight: 80

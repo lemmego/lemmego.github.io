@@ -2,7 +2,7 @@
 title: CLI Prompting
 type: docs
 prev: docs/queue
-next: docs/appendix/
+next: docs/mcp
 sidebar:
   open: true
 weight: 53
