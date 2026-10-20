@@ -77,8 +77,59 @@ Up, down, and up again on a throwaway database catches the two failures a
 review does not: a down that leaves a table behind because something still
 references it, and an up that only works on an empty schema.
 
-`lemmego run migrate` reads `DB_PARAMS` for connection options, which is
-separate from the `options` map in `internal/configs/database.go` that the
-application reads. `lib/pq` defaults to `sslmode=require`, so a local
-PostgreSQL needs `DB_PARAMS=sslmode=disable` in `.env` or migrations will
-fail to connect while the application itself is fine.
+## Which database migrate connects to
+
+`migrate` resolves its DSN in this order, taking the first that is set:
+
+1. `--dsn`
+2. `DATABASE_URL_UNPOOLED`
+3. `DATABASE_URL`
+4. the `DB_*` components — `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`,
+   `DB_DATABASE`, `DB_PARAMS`
+
+A present-but-empty variable is treated as absent, so a stray line in a `.env`
+does not shadow the next source.
+
+Note `DB_PARAMS` is **separate** from the `options` map in
+`internal/configs/database.go` that the application reads. `lib/pq` defaults to
+`sslmode=require`, so a local PostgreSQL needs `DB_PARAMS=sslmode=disable` in
+`.env` or migrations will fail to connect while the application itself is fine.
+
+### Never migrate through a connection pooler
+
+`DATABASE_URL_UNPOOLED` sits above `DATABASE_URL` for a specific reason, added
+in `migration` v0.5.1.
+
+Managed providers such as Neon and Supabase publish two URLs for one database:
+a pooled one fronted by PgBouncer in transaction mode, and a direct one. Their
+quickstarts point you at the pooled URL, so that is usually what ends up in
+`DATABASE_URL` — and it is the wrong endpoint for a migration, twice over.
+
+`lib/pq` issues every parameterised query on the *unnamed* prepared statement
+over the extended protocol. Under transaction pooling a `Parse` from one
+logical connection can pair with a `Bind` from another, and the migrator's own
+bookkeeping queries are parameterised. So a schema change can fail partway
+through a deploy, reporting a statement nobody wrote:
+
+```text
+pq: bind message supplies 2 parameters, but prepared statement "" requires 1
+```
+
+It is intermittent and happens in both directions. Measured on a real
+deployment: of 30 concurrent parameterised queries, **28 failed through the
+pooler and 0 failed direct**.
+
+Pooled connections are also session-less by design, so anything a migration
+does that outlives a single statement — an advisory lock, a `SET`, a
+session-scoped temp table — applies to whichever backend answered rather than
+to the migration.
+
+Set both variables and the right endpoint is chosen for you:
+
+```shell
+DATABASE_URL=postgres://...-pooler.../db?sslmode=require
+DATABASE_URL_UNPOOLED=postgres://.../db?sslmode=require
+```
+
+An explicit `--dsn` still wins, including when you deliberately want the pooled
+endpoint.

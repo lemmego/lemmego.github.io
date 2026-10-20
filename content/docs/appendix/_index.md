@@ -38,7 +38,7 @@ weight: 80
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SESSION_DRIVER` | `file` | Session store (`memory`, `file`, `redis`) |
+| `SESSION_DRIVER` | `file` | Session store (`memory`, `file`, `redis`, `database`) |
 | `SESSION_LIFETIME` | `120` | Session lifetime in minutes |
 | `SESSION_COOKIE` | `lemmego_session` | Session cookie name |
 | `REDIS_HOST` | `127.0.0.1` | Redis host |

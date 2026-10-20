@@ -74,7 +74,7 @@ The full set of questions:
 | `--orm <orm\|gorm\|bun\|none>` | The SQL layer, not the backend |
 | `--cache <file\|memory\|redis\|none>` | |
 | `--queue <sql\|redis\|none>` | |
-| `--session <file\|memory\|redis>` | |
+| `--session <file\|memory\|redis\|database>` | `database` needs a database; it writes the `sessions` migration |
 | `--disk <local\|s3>` | |
 | `--redis` | Use Redis for anything left unset |
 | `--auth` | Scaffold registration, login and logout (default true) |

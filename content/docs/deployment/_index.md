@@ -47,10 +47,9 @@ DB_DATABASE=your-db-name
 DB_USERNAME=your-db-user
 DB_PASSWORD=your-db-password
 
-# Session
-SESSION_DRIVER=redis
+# Session — see "Sessions on a container platform" below
+SESSION_DRIVER=database
 SESSION_COOKIE=your_app_session
-REDIS_HOST=your-redis-host
 
 # Filesystem
 FILESYSTEM_DISK=s3
@@ -64,6 +63,124 @@ APP_KEY=base64:your-32-byte-key
 # Auth (if using JWT)
 JWT_SECRET=your-jwt-secret
 ```
+
+### Sessions on a container platform
+
+`SESSION_DRIVER` above is `database` rather than `redis`, which is worth
+explaining because the wrong choice here is invisible until you deploy.
+
+Of the four drivers, only three are durable, and two of those cost you
+infrastructure:
+
+| Driver | Survives a deploy? | Needs |
+|---|---|---|
+| `memory` | **No** | nothing |
+| `file` | Only with a mounted volume | a volume that outlives the container |
+| `redis` | Yes | a Redis service |
+| `database` | Yes | a `sessions` table |
+
+On a platform where containers are replaced on every deploy, `file` **without
+a mounted volume behaves like `memory`**: the store lives in the container
+filesystem and dies with it, so every deploy signs out every user. That failure
+is quiet — nothing errors, people are simply logged out — so it is easy to ship
+and hard to attribute.
+
+If you already run a database, `database` is the cheapest durable answer. See
+[Session → Database](/docs/session#database) for the table and the one
+provider-ordering requirement.
+
+### Managed Postgres and connection poolers
+
+Managed providers such as Neon and Supabase publish **two** URLs for one
+database: a pooled one fronted by PgBouncer in transaction mode, and a direct
+one. Their quickstarts point you at the pooled URL.
+
+**Do not run migrations through the pooled URL.** `lib/pq` issues every
+parameterised query on the *unnamed* prepared statement over the extended
+protocol, and under transaction pooling a `Parse` from one logical connection
+can pair with a `Bind` from another. The symptom is intermittent and reads like
+a bug in your code:
+
+```text
+pq: bind message supplies 2 parameters, but prepared statement "" requires 1
+```
+
+Measured on a real deployment: of 30 concurrent parameterised queries, **28
+failed through the pooler and 0 failed direct**. Pooled connections are also
+session-less by design, so an advisory lock, a `SET`, or a session-scoped temp
+table applies to whichever backend answered rather than to your migration.
+
+Since `migration` v0.5.1, `migrate` resolves its DSN in this order:
+
+1. `--dsn`
+2. `DATABASE_URL_UNPOOLED`
+3. `DATABASE_URL`
+4. the `DB_*` components
+
+So set both and the right endpoint is chosen for you:
+
+```shell
+DATABASE_URL=postgres://...-pooler.../db?sslmode=require
+DATABASE_URL_UNPOOLED=postgres://.../db?sslmode=require
+```
+
+An explicit `--dsn` still wins, including when you deliberately want the pooled
+endpoint. A present-but-empty `DATABASE_URL_UNPOOLED` does not shadow
+`DATABASE_URL`.
+
+The same applies to the application itself if it uses `lib/pq`: put the pooling
+in `database/sql`, which already holds connections open, and point the app at
+the direct endpoint.
+
+### Health checks
+
+`api` ships a health checker and three handlers, and **registers no routes** —
+mounting them is the application's job. A project from `lemmego new` does it in
+`internal/routes/health.go`:
+
+| Endpoint | Answers | Consumed by |
+|---|---|---|
+| `/livez` | the process is running | an orchestrator, to restart the container |
+| `/readyz` | this instance can serve traffic | a load balancer, to take it out of rotation |
+| `/health` | every check, including non-critical ones | a person or a scraper |
+
+The split matters. A liveness probe must not depend on anything external — one
+that fails when the database blinks will restart every instance of a healthy
+application. A readiness probe checks the critical dependencies and nothing
+else. `/health` is where a non-critical degradation shows up.
+
+That is what `Critical` on a check decides:
+
+```go
+checker := a.GetHealthChecker()
+checker.RegisterDefaultChecks()   // filesystem (non-critical), session (critical)
+
+checker.RegisterCheck("database", app.HealthCheck{
+    Name:        "database",
+    Description: "The application's database answers",
+    Critical:    true,
+    Timeout:     3 * time.Second,
+    CheckFunc: func(ctx context.Context) error {
+        conn, ok := db.Resolve(a)
+        if !ok || conn == nil {
+            return errors.New("no database is registered")
+        }
+        return conn.SQLDB().PingContext(ctx)
+    },
+})
+```
+
+Two things that are easy to get wrong:
+
+- **`RegisterDefaultChecks` covers only the filesystem and the session store.**
+  A database check is yours to add, and it is the one that makes `/readyz`
+  meaningful.
+- **Make it a real round trip.** A pool holding a connection object and a
+  server that has gone away look identical until something asks. `db.Resolve`
+  rather than your ORM's own handle keeps the check the same across connectors.
+
+Register nothing and the endpoints answer `healthy` having verified nothing,
+which is a green light wired to no sensor.
 
 ### Graceful Shutdown
 

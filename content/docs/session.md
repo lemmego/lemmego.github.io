@@ -59,7 +59,90 @@ config.Set("keyvalue", config.M{
 })
 ```
 
-Best for multi-server deployments and production use.
+Best for multi-server deployments where you already run Redis.
+
+### Database
+
+```go
+config.Set("session", config.M{"driver": "database"})
+```
+
+Sessions live in your own SQL database, in a `sessions` table. Available since
+`api` v0.6.5.
+
+It is the only durable store that costs a deployment nothing extra. `file`
+needs a writable volume that outlives the container, and `redis` needs a
+service — so on a container platform with neither, the remaining choice is
+`memory`, **which signs everybody out on every deploy**. If you already run a
+database, this is the one to use.
+
+The driver is named for the capability, not a product: it takes the dialect
+from the connection your SQL connector registered, so the same value works on
+**Postgres, MySQL and SQLite**.
+
+#### Two requirements
+
+**1. The provider must come after the database connector.** The driver
+resolves the connection through `db.Resolve`, and `Provide` runs in
+`LoadProviders` order — so a session provider listed first finds nothing:
+
+```go
+func LoadProviders() []app.Provider {
+    return []app.Provider{
+        &ormconnector.Provider{},   // registers db.Connection
+        &session.Provider{},        // ...so this must come after it
+    }
+}
+```
+
+It refuses to boot in that case rather than falling back, naming the fix. The
+fallback would be an application that looks healthy and signs everybody out,
+which is indistinguishable from a cookie problem.
+
+**2. The table is yours to migrate.** Each dialect has its own store writing
+its own SQL, so there is no portable definition — `expiry` in particular is
+read differently by each:
+
+{{< tabs >}}
+{{< tab name="Postgres" >}}
+```sql
+CREATE TABLE sessions (
+    token  TEXT        NOT NULL PRIMARY KEY,
+    data   BYTEA       NOT NULL,
+    expiry TIMESTAMPTZ NOT NULL
+);
+CREATE INDEX sessions_expiry_idx ON sessions (expiry);
+```
+{{< /tab >}}
+{{< tab name="MySQL" >}}
+```sql
+CREATE TABLE sessions (
+    token  CHAR(43) COLLATE utf8mb4_bin NOT NULL PRIMARY KEY,
+    data   BLOB         NOT NULL,
+    expiry TIMESTAMP(6) NOT NULL
+);
+CREATE INDEX sessions_expiry_idx ON sessions (expiry);
+```
+{{< /tab >}}
+{{< tab name="SQLite" >}}
+```sql
+CREATE TABLE sessions (
+    token  TEXT NOT NULL PRIMARY KEY,
+    data   BLOB NOT NULL,
+    expiry REAL NOT NULL
+);
+CREATE INDEX sessions_expiry_idx ON sessions (expiry);
+```
+{{< /tab >}}
+{{< /tabs >}}
+
+`lemmego new --session database` writes this migration for you, for the
+database you picked. The index keeps the periodic sweep of expired rows cheap;
+without it every sweep scans the table.
+
+Write it as raw `tx.Exec` rather than through the schema builder. The schema
+belongs to the store, not to your project: the builder would add an `id` and
+timestamps, and produce a table the store cannot query.
 
 ## Provider Registration
 
@@ -72,6 +155,9 @@ func LoadProviders() []app.Provider {
     }
 }
 ```
+
+With the `database` driver this must be listed **after** your SQL connector —
+see [Database](#database) above.
 
 ## Using Sessions
 

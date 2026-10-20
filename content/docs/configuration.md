@@ -159,7 +159,7 @@ means the dashboard refuses everyone.
 
 | Config Key | Env Variable | Default | Description |
 |-----------|-------------|---------|-------------|
-| `session.driver` | `SESSION_DRIVER` | `file` | Session store driver |
+| `session.driver` | `SESSION_DRIVER` | `file` | Session store driver (`memory`, `file`, `redis`, `database`) |
 | `session.lifetime` | `SESSION_LIFETIME` | `120` | Session lifetime (minutes) |
 | `session.cookie` | `SESSION_COOKIE` | `lemmego_session` | Cookie name |
 
