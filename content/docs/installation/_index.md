@@ -1,9 +1,9 @@
 ---
 title: Installation
 type: docs
-prev: docs/prologue
+prev: docs/glossary
 next: docs/quick-start/
-weight: 11
+weight: 12
 sidebar:
   open: true
 ---

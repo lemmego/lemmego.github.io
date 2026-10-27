@@ -3,7 +3,7 @@ title: Quick Start
 type: docs
 prev: docs/installation/
 next: docs/project-structure
-weight: 12
+weight: 13
 sidebar:
   open: true
 ---

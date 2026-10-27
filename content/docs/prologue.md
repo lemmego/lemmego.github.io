@@ -2,7 +2,7 @@
 title: Prologue
 type: docs
 prev: /docs
-next: docs/installation/
+next: docs/glossary
 weight: 10
 sidebar:
   open: true
@@ -15,6 +15,13 @@ types at compile time rather than behind `any`.
 
 This page is a map. If you would rather start typing,
 [install the CLI](/docs/installation/) and come back.
+
+{{< callout type="info" >}}
+**New to web frameworks?** The [Glossary](/docs/glossary) defines every term
+these docs use — route, handler, middleware, provider, migration, session — in
+plain language, saying what each thing is and why it exists. Keep it open in a
+tab; pages link into it on first use.
+{{< /callout >}}
 
 ## Start here
 

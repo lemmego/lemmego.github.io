@@ -28,6 +28,7 @@ DOCS = Path(__file__).resolve().parent.parent / "content" / "docs"
 ORDER: list[tuple[str, list[str]]] = [
     ("Getting started", [
         "prologue.md",
+        "glossary.md",
         "installation/_index.md",
         "quick-start/_index.md",
         "project-structure.md",

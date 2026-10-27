@@ -3,7 +3,7 @@ title: Configuration
 type: docs
 prev: docs/project-structure
 next: docs/http/
-weight: 14
+weight: 15
 sidebar:
   open: true
 ---

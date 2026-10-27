@@ -3,7 +3,7 @@ title: Project Structure
 type: docs
 prev: docs/quick-start/
 next: docs/configuration
-weight: 13
+weight: 14
 sidebar:
   open: true
 ---
