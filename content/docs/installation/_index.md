@@ -35,12 +35,6 @@ curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/install
 curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sudo sh
 ```
 
-Or with Homebrew (if available):
-
-```shell
-brew install lemmego/tap/lemmego
-```
-
 {{< /tab >}}
 {{< tab name="Windows" >}}
 
@@ -53,15 +47,27 @@ irm https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.ps1 
 {{< /tab >}}
 {{< /tabs >}}
 
-### Install via Go
+### Install from source
 
-If you have Go installed, you can also install the CLI directly:
+If you have Go installed, you can build the CLI yourself:
 
 ```shell
-go install github.com/lemmego/cli/cmd/lemmego@latest
+go install github.com/lemmego/cli/cmd@latest
 ```
 
+{{< callout type="warning" >}}
+This installs a binary called **`cmd`**, after the package's directory name.
+Rename it to `lemmego` before using the rest of these docs:
+
+```shell
+mv "$(go env GOPATH)/bin/cmd" "$(go env GOPATH)/bin/lemmego"
+```
+{{< /callout >}}
+
 Make sure `$GOPATH/bin` is in your `PATH`.
+
+A binary installed this way reports its module version; one built from a
+checkout reports `dev+<commit>`.
 
 ### Installer options
 

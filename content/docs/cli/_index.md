@@ -16,11 +16,8 @@ The `lemmego` CLI is your primary tool for creating projects, generating code, a
 # Via installer
 curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sudo sh
 
-# Via Go
-go install github.com/lemmego/cli/cmd/lemmego@latest
-
-# Via Homebrew (macOS)
-brew install lemmego/tap/lemmego
+# Via Go — installs a binary called `cmd`; rename it to `lemmego`
+go install github.com/lemmego/cli/cmd@latest
 ```
 
 Verify:
