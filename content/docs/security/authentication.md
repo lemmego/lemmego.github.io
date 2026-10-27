@@ -8,10 +8,20 @@ sidebar:
   open: true
 ---
 
-The `auth` package verifies who is making a request. It accepts two kinds of
-credential — a session cookie and a JWT — and both resolve to the same user
-object, because neither one carries the user. A credential carries an **id**,
-and `auth` reads the row back through a loader your application supplies.
+HTTP forgets you between requests. Each one arrives on its own, with no memory
+of the last, so "being signed in" is something you have to arrange: the
+visitor proves who they are once, and every later request carries a token
+proving they already did.
+
+That is **authentication** — working out *who* is asking. It is a different
+question from what they are allowed to do, which is
+[authorization](/docs/authz/) and lives elsewhere.
+
+The `auth` package handles the first question. It accepts two kinds of proof —
+a **session cookie**, which the browser sends automatically, and a **JWT**, a
+signed token an API client sends in a header — and both end up handing your
+handler the same user. Neither credential carries the user itself; both carry
+an **id**, and `auth` reads the row back through a loader you supply.
 
 [The current user](../current-user) covers what that means in your handlers;
 this page covers configuring it.

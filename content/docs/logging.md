@@ -8,8 +8,19 @@ sidebar:
   open: true
 ---
 
-Logging is `log/slog`. Lemmego does not wrap it, shadow it or ask you to import
-anything to use it:
+When something goes wrong in production you cannot put a breakpoint in it. All
+you have is whatever your application wrote down at the time — which is what
+**logs** are for, and why it is worth writing them deliberately rather than
+reaching for `fmt.Println`.
+
+Two things make a log useful later. **Levels**, so you can keep every detail
+in a file while showing only problems on a terminal: `debug`, `info`, `warn`,
+`error`. And **structure** — writing values as named fields rather than
+gluing them into a sentence, so you can search for every line about one user
+instead of grepping prose.
+
+In Lemmego, logging is just Go's own `log/slog`. There is nothing to wrap, and
+nothing new to import:
 
 ```go
 import "log/slog"

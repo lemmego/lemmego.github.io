@@ -8,7 +8,21 @@ sidebar:
   open: true
 ---
 
-The `encryption` package provides AES-256-GCM authenticated encryption for secure data storage. It uses a singleton pattern initialized from the `APP_KEY` environment variable.
+Sometimes you have to store something you must be able to read back, but
+nobody else should — an API token for a third-party service, say. Hashing is
+no good here, because hashing is one-way and you need the value again.
+**Encryption** is the tool: scramble it with a key, and only something holding
+that key can unscramble it.
+
+{{< callout type="warning" >}}
+**Passwords are not this.** Never encrypt a password — hash it. If you can
+decrypt it, so can whoever steals your database and your key. See
+[Authentication](/docs/security/authentication).
+{{< /callout >}}
+
+The `encryption` package gives you AES-256-GCM, which also detects tampering:
+if an encrypted value is altered, decrypting fails rather than returning
+something subtly wrong. It takes its key from `APP_KEY`.
 
 ## Configuration
 

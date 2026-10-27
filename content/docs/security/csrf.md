@@ -8,9 +8,22 @@ sidebar:
   open: true
 ---
 
-CSRF (Cross-Site Request Forgery) protection is built into Lemmego through the `middleware.VerifyCSRF` middleware. It uses a double-submit cookie pattern with session-based tokens.
+Here is the attack. Someone signs in to your site, so their browser now holds
+a session cookie for it. Later they visit a page somewhere else entirely, and
+that page quietly submits a form to *your* application — `POST /account/email`,
+say. The browser attaches your cookie, because browsers attach cookies by
+origin regardless of who asked, and your server sees a perfectly valid request
+from a signed-in user who never intended to make it.
 
-## How It Works
+That is **cross-site request forgery**, and the defence is to require
+something on every state-changing request that the other site cannot know: a
+random **token** your own pages include and an attacker's cannot read.
+
+Lemmego does this with `middleware.VerifyCSRF`, and a scaffolded project
+already has it installed. The usual way you meet it is a `419` when a form is
+submitted without a valid token.
+
+## How it works
 
 1. The first request in a session generates a random token with `crypto/rand` and
    stores it in the session under `_token`. Later requests reuse it — the token
