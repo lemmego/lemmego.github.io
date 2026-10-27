@@ -8,7 +8,25 @@ sidebar:
   open: true
 ---
 
-The **Lemmego ORM** is a SQL persistence layer built directly on `database/sql`. It is the default for new projects created with `lemmego new`.
+Your data lives in a database, in tables of rows and columns. Your Go code
+works in structs. Something has to carry values across that gap, and if you do
+it yourself you write SQL as strings, scan each column into each field by
+hand, and find your mistakes at runtime.
+
+An **ORM** — object-relational mapper — does that carrying for you. You write
+Go, and it writes the SQL:
+
+```go
+users, err := db.Model[User]().Where(orm.Eq("active", true)).All(ctx)
+```
+
+That becomes `SELECT * FROM users WHERE active = $1`, and the rows come back
+as `[]User` with every field already filled in. Note what the `[T]` buys you:
+you get `[]User`, not a bag of `any` you have to assert. Ask for a field that
+does not exist and your build fails rather than your page.
+
+The **Lemmego ORM** is the one `lemmego new` sets up by default, built
+directly on Go's own `database/sql`.
 
 It stands alone. Its only dependencies are `database/sql` and two small naming libraries, shared with the CLI and migration modules so that table names agree. It imports no other Lemmego package, and nothing about it requires the framework:
 

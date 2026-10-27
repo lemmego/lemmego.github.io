@@ -8,6 +8,14 @@ sidebar:
   open: true
 ---
 
+Reading is the common case; this page is the other direction — putting rows
+into your database and changing the ones already there.
+
+Four things happen here: **create** a row, **update** one, **upsert** (insert
+it, or update it if it already exists), and **delete**. The last of those has
+a twist worth reading about below, because deleting a row is often not what
+you want.
+
 ## Creating and updating
 
 ```go

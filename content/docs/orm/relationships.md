@@ -8,6 +8,26 @@ sidebar:
   open: true
 ---
 
+Rows refer to each other. A post has an author; a user has many posts; an
+article has many tags and each tag has many articles. In the database that is
+done with a **foreign key** — a column on one table holding another table's
+`id`.
+
+Writing those joins by hand gets tedious fast, and gets slow faster: fetch
+fifty posts, then fetch each author as you render them, and you have made
+fifty-one trips to the database to show one page. That is common enough to
+have a name, the **N+1 problem**.
+
+So you declare the relationship once on your struct, and then ask for related
+rows when you want them:
+
+```go
+posts, err := db.Model[Post]().With("Author").All(ctx)
+```
+
+`With` fetches every author in **one** extra query rather than one per post —
+that is called **eager loading**, and it is the fix for N+1.
+
 ## Declaring relationships
 
 Relationships are struct tags. The tag names the **field** that holds the foreign key, not the column:

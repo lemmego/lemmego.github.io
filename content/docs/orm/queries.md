@@ -8,6 +8,21 @@ sidebar:
   open: true
 ---
 
+Reading rows back out is most of what you do with a database, so this is the
+page you will return to.
+
+Every query starts the same way — name the model, describe what you want, then
+ask for it:
+
+```go
+users, err := db.Model[User]().Where(orm.Eq("active", true)).All(ctx)
+```
+
+Nothing touches the database until that last call. `Model` and `Where` only
+build up a description; `All` is what sends the SQL and waits for rows. That
+matters because it is what lets you assemble a query in pieces, across
+several `if` statements, and run it once at the end.
+
 ## Building a query
 
 `Model[T]` starts a query. Every builder method returns a copy, so a partially built query can be shared and branched without aliasing:
