@@ -8,7 +8,25 @@ sidebar:
   open: true
 ---
 
-The `fsys` package provides a unified file storage abstraction with multiple provider backends. The `api/fs` package integrates this into the framework with multi-disk management.
+Your application needs somewhere to put uploaded files. On your laptop that is
+a folder; in production it is usually S3 or Google Cloud Storage, because a
+container's own disk does not survive a deploy.
+
+You do not want that difference spread through your code. So you write against
+a **disk** — a named place to put files — and configure what each one actually
+is. `Put` and `Get` work the same either way, and moving from local storage to
+S3 is a configuration change rather than a rewrite:
+
+```go
+disk, err := a.FileSystem().Disk("public")
+if err != nil {
+    return err
+}
+err = disk.Write("avatars/42.jpg", data)
+```
+
+A project starts with a `local` disk pointed at `storage/`, and you add others
+as you need them.
 
 ## Architecture
 

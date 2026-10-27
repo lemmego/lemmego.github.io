@@ -10,7 +10,26 @@ aliases:
   - /docs/caching/
 ---
 
-The `cache` module gives an application several storage backends behind one
+Some answers are expensive to work out and do not change often. A dashboard
+that runs six queries, a list of countries, a rendered page — recomputing them
+for every visitor is work you have already done.
+
+A **cache** is somewhere fast to keep the answer so the next request skips the
+work:
+
+```go
+total, err := cache.Remember(ctx, "orders:count", time.Hour,
+    func(ctx context.Context) (int, error) {
+        return repo.CountOrders(ctx)   // only runs on a miss
+    })
+```
+
+Two ideas carry most of the use. A **miss** is when the value is not there, so
+you have to do the work; a **hit** is when it is. And a **TTL** — time to live
+— is how long an entry stays before it is thrown away, which is how you stop
+serving something stale forever.
+
+The `cache` module gives you that over several storage backends behind one
 API, with typed access, atomic locks, tagged invalidation and events.
 
 ```go

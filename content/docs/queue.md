@@ -8,9 +8,30 @@ sidebar:
   open: true
 ---
 
-Lemmego includes a built-in background job system (`tasker`) wrapped as a first-class service provider (`queue`). It supports multiple queues, worker pools, retries with backoff, scheduled jobs, batch operations, multi-node clustering, and a real-time web dashboard.
+Somebody signs up and you send them a welcome email. Your mail server takes
+four seconds. They sat and watched a loading spinner for four seconds, and if
+the mail server had been down they would have seen an error for something that
+worked.
 
-## Quick Start
+The fix is not to do it during the request. You write down that the email
+needs sending, answer immediately, and something else does the work a moment
+later. That list of things-to-do is a **queue**, each entry on it is a **job**,
+and the separate process that picks them up and runs them is a **worker**.
+
+```go
+queue.Dispatch(ctx, SendWelcomeEmail{UserID: user.ID})   // returns at once
+```
+
+{{< callout type="warning" >}}
+**A job does nothing until a worker is running.** The queue is just a list;
+`lemmego run tasker:work` is what empties it. If your jobs seem to vanish, the
+first thing to check is whether a worker is up.
+{{< /callout >}}
+
+Anything slow or failure-prone belongs here: email, image processing, calling
+somebody else's API, nightly cleanups.
+
+## Quick start
 
 The queue provider is already registered in new projects:
 
