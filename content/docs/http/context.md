@@ -2,9 +2,10 @@
 title: Context
 type: docs
 prev: docs/http/error-handling
+next: docs/frontend/
+weight: 26
 sidebar:
   open: true
-weight: 11
 ---
 
 ## Overview

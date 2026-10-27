@@ -3,9 +3,9 @@ title: Protecting routes
 type: docs
 prev: docs/oauth2/grants
 next: docs/oauth2/consent-screen
+weight: 125
 sidebar:
   open: true
-weight: 5
 ---
 
 ## Requiring a token
@@ -91,11 +91,9 @@ way and produces the same type. See
 {{< /callout >}}
 
 {{< callout type="warning" >}}
-`Provider.UserResolver` was removed in **v0.2.0**, along with the
-`oauth2.UserResolver` type. Configure `auth.Opts.UserLoader` instead: one
-loader now serves every kind of credential. Before v0.2.0, `Protect` wrote an
-`*oauth2.Principal` under auth's user key, so a handler asserting its own user
-type got `(nil, false)` and quietly rendered a signed-out page.
+Upgrading from `oauth2` v0.1.x? `Provider.UserResolver` was replaced by
+`auth.Opts.UserLoader` — see
+[Upgrade notes](/docs/appendix/upgrading#oauth2-v020--one-user-loader).
 {{< /callout >}}
 
 ## Combining with session authentication

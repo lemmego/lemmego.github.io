@@ -2,9 +2,10 @@
 title: Running Migrations
 type: docs
 prev: docs/migrations/writing-migrations
+next: docs/core-concepts/
+weight: 74
 sidebar:
   open: true
-weight: 34
 ---
 
 ## Commands
@@ -23,16 +24,12 @@ one the application is configured with.
 ## What `--step` counts
 
 **Migrations, on both commands.** `--step 2` on `down` reverts the two most
-recently applied migrations, not the two most recent batches.
+recently applied migrations.
 
-That is worth stating because it used to count batches, and the two are the
-same only when every batch holds one migration. A batch is one `migrate up`
-run, so on any project whose schema went up in a single command — every
-project on its first deploy — the latest batch is the entire schema, and
-asking to undo one migration undid all of them. Fixed in v0.1.24; if you are
-pinned below that, `down --step 1` is not what it says.
-
-With no `--step`, `down` reverts the whole of the latest batch.
+With no `--step`, `down` reverts the whole of the latest batch — everything
+applied by the most recent `migrate up`. On a project whose schema went up in
+one command, that is the entire schema, so prefer an explicit `--step` unless
+you mean it.
 
 ```shell
 lemmego run migrate down --step 1    # the last migration
@@ -97,8 +94,7 @@ Note `DB_PARAMS` is **separate** from the `options` map in
 
 ### Never migrate through a connection pooler
 
-`DATABASE_URL_UNPOOLED` sits above `DATABASE_URL` for a specific reason, added
-in `migration` v0.5.1.
+`DATABASE_URL_UNPOOLED` is checked first, and the ordering matters.
 
 Managed providers such as Neon and Supabase publish two URLs for one database:
 a pooled one fronted by PgBouncer in transaction mode, and a direct one. Their
@@ -115,9 +111,8 @@ through a deploy, reporting a statement nobody wrote:
 pq: bind message supplies 2 parameters, but prepared statement "" requires 1
 ```
 
-It is intermittent and happens in both directions. Measured on a real
-deployment: of 30 concurrent parameterised queries, **28 failed through the
-pooler and 0 failed direct**.
+It is intermittent, happens in both directions, and can leave a schema
+half-changed.
 
 Pooled connections are also session-less by design, so anything a migration
 does that outlives a single statement — an advisory lock, a `SET`, a

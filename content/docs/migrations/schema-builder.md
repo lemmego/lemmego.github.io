@@ -3,9 +3,9 @@ title: Schema Builder
 type: docs
 prev: docs/migrations/
 next: docs/migrations/column-types
+weight: 71
 sidebar:
   open: true
-weight: 31
 ---
 
 ## Why declare instead of writing SQL
@@ -276,10 +276,10 @@ refuses a row naming a user and a skill that are never paired, which is the
 invariant a pivot exists to hold. `Validate` refuses a key referencing a
 different number of columns than it carries.
 
-`Name` is opt-in. Without it the key is anonymous and the server derives one
-— which is what every key this package emitted before v0.5.0 did, so naming by
-default would rename all of them. Use it to restate a constraint that already
-exists.
+`Name` is opt-in. Without it the key is anonymous and the database derives a
+name of its own. Set it when you need a stable name to reference later — to
+drop the constraint by name in a later migration, or to match a name that
+already exists.
 
 ## Altering a table
 

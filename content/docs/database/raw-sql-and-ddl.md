@@ -3,9 +3,9 @@ title: Raw SQL & DDL
 type: docs
 prev: docs/database/transactions
 next: docs/database/providers/gorm
+weight: 57
 sidebar:
   open: true
-weight: 24
 ---
 
 ## Overview

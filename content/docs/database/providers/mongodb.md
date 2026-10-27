@@ -3,9 +3,9 @@ title: MongoDB Provider
 type: docs
 prev: docs/database/providers/bun
 next: docs/database/providers/redis
+weight: 60
 sidebar:
   open: true
-weight: 27
 ---
 
 ## Overview

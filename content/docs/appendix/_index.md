@@ -1,10 +1,11 @@
 ---
 title: Appendix
 type: docs
-prev: docs/mcp
+prev: docs/architecture/
+next: docs/appendix/upgrading
+weight: 141
 sidebar:
   open: true
-weight: 80
 ---
 
 ## Environment Variables

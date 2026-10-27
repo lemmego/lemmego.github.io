@@ -1,11 +1,11 @@
 ---
 title: Field Descriptors
 type: docs
-prev: docs/orm/writes
+prev: docs/orm/relationships
 next: docs/orm/gpa-adapter
+weight: 44
 sidebar:
   open: true
-weight: 17.4
 ---
 
 ## What they are

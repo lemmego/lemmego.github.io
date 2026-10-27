@@ -1,10 +1,11 @@
 ---
 title: Middleware
 type: docs
-prev: docs/http/
+prev: docs/http/routing
+next: docs/http/request-handling
+weight: 22
 sidebar:
   open: true
-weight: 7
 ---
 
 ## Overview

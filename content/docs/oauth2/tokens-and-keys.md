@@ -2,10 +2,10 @@
 title: Tokens and keys
 type: docs
 prev: docs/oauth2/consent-screen
-next: docs/filesystem
+next: docs/cli/
+weight: 127
 sidebar:
   open: true
-weight: 7
 ---
 
 ## What an access token is

@@ -3,9 +3,9 @@ title: Installation
 type: docs
 prev: docs/oauth2/
 next: docs/oauth2/configuration
+weight: 121
 sidebar:
   open: true
-weight: 1
 ---
 
 ## Install

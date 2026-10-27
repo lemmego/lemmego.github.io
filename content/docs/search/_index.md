@@ -3,9 +3,9 @@ title: Search
 type: docs
 prev: docs/media/
 next: docs/seo/
+weight: 112
 sidebar:
   open: true
-weight: 59
 ---
 
 ## Overview

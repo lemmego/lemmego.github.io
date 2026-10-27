@@ -1,11 +1,11 @@
 ---
 title: Relationships
 type: docs
-prev: docs/orm/queries
-next: docs/orm/writes
+prev: docs/orm/writes
+next: docs/orm/field-descriptors
+weight: 43
 sidebar:
   open: true
-weight: 17.2
 ---
 
 ## Declaring relationships

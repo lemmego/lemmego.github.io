@@ -3,9 +3,9 @@ title: Clients
 type: docs
 prev: docs/oauth2/configuration
 next: docs/oauth2/grants
+weight: 123
 sidebar:
   open: true
-weight: 3
 ---
 
 A client is an application allowed to ask for tokens. Which kind you register

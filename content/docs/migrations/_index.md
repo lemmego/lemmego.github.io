@@ -1,11 +1,11 @@
 ---
 title: Migrations
 type: docs
-prev: docs/database/gormconnector
+prev: docs/database/bunconnector
 next: docs/migrations/schema-builder
+weight: 70
 sidebar:
   open: true
-weight: 30
 ---
 
 ## Overview

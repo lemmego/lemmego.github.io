@@ -1,11 +1,11 @@
 ---
 title: "CLI & Generators"
 type: docs
-prev: docs/project-structure
-next: docs/http/
+prev: docs/oauth2/tokens-and-keys
+next: docs/testing/
+weight: 130
 sidebar:
   open: true
-weight: 4.5
 ---
 
 ## Overview
@@ -159,8 +159,7 @@ Runs the application via `go run ./cmd/app`.
   `migrate`, `rollback`, `key` and `inspire`, none of which serve a page
 - Passes any additional args to the Go binary
 - Forwards stdin, stdout and stderr, so a command can prompt, read a pipe, or
-  speak a protocol (**cli v0.5.5 and later**; before that stdin was not
-  forwarded, so anything reading it saw EOF immediately)
+  speak a protocol over stdio
 
 ### `lemmego dev`
 

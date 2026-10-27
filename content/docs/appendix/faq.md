@@ -1,10 +1,10 @@
 ---
 title: FAQ
 type: docs
-prev: docs/appendix/
+prev: docs/appendix/upgrading
+weight: 143
 sidebar:
   open: true
-weight: 90
 ---
 
 ## General

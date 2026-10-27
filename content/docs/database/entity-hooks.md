@@ -3,9 +3,9 @@ title: Entity Hooks
 type: docs
 prev: docs/database/query-system
 next: docs/database/transactions
+weight: 55
 sidebar:
   open: true
-weight: 22
 ---
 
 ## Overview

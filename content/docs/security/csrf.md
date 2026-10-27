@@ -3,9 +3,9 @@ title: CSRF Protection
 type: docs
 prev: docs/security/current-user
 next: docs/security/encryption
+weight: 93
 sidebar:
   open: true
-weight: 45
 ---
 
 ## Overview

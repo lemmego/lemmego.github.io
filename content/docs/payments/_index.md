@@ -2,10 +2,10 @@
 title: Payments
 type: docs
 prev: docs/seo/
-next: docs/appendix/
+next: docs/oauth2/
+weight: 114
 sidebar:
   open: true
-weight: 61
 ---
 
 ## Overview

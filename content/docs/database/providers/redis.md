@@ -2,9 +2,10 @@
 title: Redis Provider
 type: docs
 prev: docs/database/providers/mongodb
+next: docs/database/gormconnector
+weight: 61
 sidebar:
   open: true
-weight: 28
 ---
 
 ## Overview

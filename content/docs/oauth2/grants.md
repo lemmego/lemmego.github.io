@@ -3,9 +3,9 @@ title: Grants
 type: docs
 prev: docs/oauth2/clients
 next: docs/oauth2/protecting-routes
+weight: 124
 sidebar:
   open: true
-weight: 4
 ---
 
 ## Authorization code with PKCE

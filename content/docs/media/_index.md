@@ -1,11 +1,11 @@
 ---
 title: Media & Images
 type: docs
-prev: docs/broadcast/
+prev: docs/filesystem/
 next: docs/search/
+weight: 111
 sidebar:
   open: true
-weight: 58
 ---
 
 ## Overview

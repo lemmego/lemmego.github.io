@@ -2,9 +2,10 @@
 title: Response Handling
 type: docs
 prev: docs/http/request-handling
+next: docs/http/error-handling
+weight: 24
 sidebar:
   open: true
-weight: 9
 ---
 
 ## Response Types

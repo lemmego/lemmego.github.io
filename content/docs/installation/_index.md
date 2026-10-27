@@ -1,9 +1,11 @@
 ---
 title: Installation
 type: docs
-prev: /docs
+prev: docs/prologue
 next: docs/quick-start/
-weight: 1
+weight: 11
+sidebar:
+  open: true
 ---
 
 ## Prerequisites

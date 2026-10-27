@@ -2,10 +2,10 @@
 title: Deployment
 type: docs
 prev: docs/testing/
-next: docs/session
+next: docs/mcp
+weight: 132
 sidebar:
   open: true
-weight: 48
 ---
 
 ## Overview
@@ -105,12 +105,12 @@ a bug in your code:
 pq: bind message supplies 2 parameters, but prepared statement "" requires 1
 ```
 
-Measured on a real deployment: of 30 concurrent parameterised queries, **28
-failed through the pooler and 0 failed direct**. Pooled connections are also
-session-less by design, so an advisory lock, a `SET`, or a session-scoped temp
-table applies to whichever backend answered rather than to your migration.
+The failure is intermittent and can leave a schema half-changed. Pooled
+connections are also session-less by design, so an advisory lock, a `SET`, or
+a session-scoped temp table applies to whichever backend answered rather than
+to your migration.
 
-Since `migration` v0.5.1, `migrate` resolves its DSN in this order:
+`migrate` resolves its DSN in this order:
 
 1. `--dsn`
 2. `DATABASE_URL_UNPOOLED`

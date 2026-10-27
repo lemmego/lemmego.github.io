@@ -1,37 +1,90 @@
 ---
 title: Prologue
 type: docs
-weight: -1
+prev: /docs
+next: docs/installation/
+weight: 10
 sidebar:
   open: true
 ---
 
-Welcome to the Lemmego documentation. This guide covers everything you need to build full-stack web applications with Go using the Lemmego framework.
+Lemmego is a full-stack web framework for Go. You write handlers, models and
+migrations in Go; you render with Go templates, Templ, or React and Vue over
+Inertia; and you reach a database through a type-safe layer that keeps its
+types at compile time rather than behind `any`.
 
-## Getting Started
+This page is a map. If you would rather start typing,
+[install the CLI](/docs/installation/) and come back.
 
-If you're new here, start with [Installation](/docs/installation/) to set up the CLI, then follow the [Quick Start](/docs/quick-start/) guide to create your first project.
+## Start here
 
-## What is Lemmego?
-
-Lemmego is a modern, full-stack web framework for Go that combines the productivity of modern web frameworks with the type safety and performance of Go. Built around a plugin-based architecture and a powerful type-safe database abstraction layer (GPA), it enables rapid application development without sacrificing compile-time safety.
-
-Key features:
-
-- **Type-safe database layer** — GPA provides compile-time type safety across SQL, NoSQL, and KV stores with generic `Repository[T]`
-- **Plugin architecture** — Extend the framework through providers without modifying core code
-- **Multiple frontends** — Go Templates, Templ, or Inertia.js with React/Vue
-- **Full-featured HTTP layer** — Chi-based routing, two-level middleware, input validation, typed errors
-- **CLI tools** — Project scaffolding, code generators, migration management
-- **File storage** — Unified abstraction for local, S3, and GCS
-
-## Documentation Sections
+Read these five in order and you will have a running application you
+understand. It takes about half an hour.
 
 {{< cards >}}
-{{< card link="../installation" title="Installation" subtitle="Install the lemmego CLI" icon="terminal" >}}
-{{< card link="../quick-start" title="Quick Start" subtitle="Create and run your first project" icon="fire" >}}
-{{< card link="../http" title="HTTP Layer" subtitle="Routing, middleware, request/response handling" icon="annotation" >}}
-{{< card link="../database" title="Database" subtitle="GPA — the Go Persistence API" icon="database" >}}
-{{< card link="../migrations" title="Migrations" subtitle="Schema builder & database versioning" icon="folder-tree" >}}
-{{< card link="../frontend" title="Frontend" subtitle="Templ, Inertia, Go templates, Vite" icon="sparkles" >}}
+{{< card link="../installation" title="1. Installation" subtitle="Install the lemmego CLI" icon="terminal" >}}
+{{< card link="../quick-start" title="2. Quick start" subtitle="Create, run and hot-reload a project" icon="fire" >}}
+{{< card link="../project-structure" title="3. Project structure" subtitle="What each directory is for" icon="folder-tree" >}}
+{{< card link="../configuration" title="4. Configuration" subtitle="Config files, .env and defaults" icon="adjustments" >}}
+{{< card link="../http" title="5. The HTTP layer" subtitle="Routing, middleware, requests, responses" icon="annotation" >}}
 {{< /cards >}}
+
+## Then build something
+
+The sidebar runs in the order most people need things. Each page links to the
+next, so you can read straight through a section or jump to the one topic you
+came for.
+
+- **[Frontend](/docs/frontend/)** — pick a rendering approach and wire up Vite.
+- **[The ORM](/docs/orm/)** — queries, writes and relationships in plain Go
+  structs. Start here if your project uses the default SQL layer.
+- **[GPA and providers](/docs/database/)** — the provider-backed abstraction
+  underneath. Read it if you need GORM, Bun, MongoDB or Redis, or more than one
+  store at once.
+- **[Migrations](/docs/migrations/)** — a schema builder and a versioned,
+  reversible history.
+- **[How the framework fits together](/docs/core-concepts/)** — the bootstrap
+  pipeline, the service container and the provider system. Worth reading once
+  before you add a module, because every module arrives as a provider.
+
+## Reference while you work
+
+- **[Security](/docs/security/)** — authentication, the current user, CSRF,
+  sessions, authorization and rate limiting.
+- **[Modules](/docs/cache/)** — cache, queue, mail, notifications, realtime,
+  file storage, media, search, SEO and payments. Each is a separate Go module
+  you add only if you want it.
+- **[OAuth2 server](/docs/oauth2/)** — issue tokens to your own clients.
+- **[Tooling and shipping](/docs/cli/)** — the CLI, the test harness,
+  deployment, and the MCP server that lets an AI agent read your application's
+  live state.
+
+## What makes it different
+
+- **Types survive the database.** `Repository[T]` and `db.Model[T]()` return
+  `*User` and `[]Post`, not `interface{}` and a type assertion.
+- **Everything is a provider.** Modules register themselves through one
+  interface and reach the application through a container, so adding mail or
+  payments does not mean editing framework code.
+- **One CLI for the whole loop.** Scaffolding, code generation, migrations,
+  hot reload, a queue dashboard and a production build.
+- **Modules are opt-in.** A new project depends on the core and nothing else;
+  a part you decline — a cache, a queue, a database — is absent rather than
+  configured off.
+
+## Conventions in these docs
+
+Commands are shown as you would type them in a project directory:
+
+```shell
+lemmego run migrate
+```
+
+Go examples assume the imports a generated project already has. Where an
+import is not obvious, it is shown.
+
+{{< callout type="info" >}}
+Lemmego is pre-1.0 and under active development. Minor versions may change
+public APIs. [Upgrade notes](/docs/appendix/upgrading) lists every change that
+needs action on an existing project.
+{{< /callout >}}

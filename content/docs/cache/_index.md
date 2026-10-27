@@ -1,11 +1,11 @@
 ---
 title: Caching
 type: docs
-prev: docs/logging
+prev: docs/ratelimit/
 next: docs/cache/drivers
+weight: 100
 sidebar:
   open: true
-weight: 51
 aliases:
   - /docs/caching/
 ---

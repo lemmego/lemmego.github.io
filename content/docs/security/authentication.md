@@ -3,9 +3,9 @@ title: Authentication
 type: docs
 prev: docs/security/
 next: docs/security/current-user
+weight: 91
 sidebar:
   open: true
-weight: 43
 ---
 
 ## Overview

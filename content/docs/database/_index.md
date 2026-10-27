@@ -3,9 +3,9 @@ title: GPA Overview
 type: docs
 prev: docs/orm/gpa-adapter
 next: docs/database/provider-registry
+weight: 50
 sidebar:
   open: true
-weight: 18
 ---
 
 ## What is GPA?

@@ -3,9 +3,9 @@ title: Generic Repository
 type: docs
 prev: docs/database/connection-seam
 next: docs/database/query-system
+weight: 53
 sidebar:
   open: true
-weight: 20
 ---
 
 ## Overview

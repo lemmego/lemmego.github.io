@@ -3,9 +3,9 @@ title: GPA Adapter
 type: docs
 prev: docs/orm/field-descriptors
 next: docs/database/
+weight: 45
 sidebar:
   open: true
-weight: 17.5
 ---
 
 ## Running GPA code on the ORM

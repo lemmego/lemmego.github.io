@@ -2,144 +2,174 @@
 title: Rate Limiting
 type: docs
 prev: docs/authz/
-next: docs/filesystem/
+next: docs/cache/
+weight: 97
 sidebar:
   open: true
-weight: 46.6
 ---
 
-## Overview
+`lemmego/ratelimit` caps how often a caller can hit a route. Use it on
+anything a stranger can reach — sign-in, registration, password reset — and on
+signed-in actions that are cheap to repeat, such as voting or commenting.
 
-`lemmego/ratelimit` is a fixed-window rate limiter over the application's
-cache.
+It is a fixed-window counter stored in the application's cache.
 
-```go
-import "github.com/lemmego/ratelimit"
+## Install
 
-r.Post("/login", ratelimit.Middleware(ratelimit.PerIP(5, time.Minute)), handlers.Login)
-
-if ok, retryAfter, err := ratelimit.Allow(ctx, "vote:"+userID, 30, time.Minute); !ok {
-    …
-}
-```
-
-```bash
+```shell
 go get github.com/lemmego/ratelimit
 ```
 
-It needs `lemmego/cache` registered. Nothing else — there is no provider,
-because there is no state to build: the counters live in the cache and the
-middleware is a function.
+It needs [`lemmego/cache`](/docs/cache/) registered and nothing else. There is
+no provider to add: the counters live in the cache and the middleware is a
+plain function.
 
-## Read this before you deploy it
-
-{{< callout type="warning" >}}
-**It is a fixed-window counter over the cache, so it is shared across
-processes only when the cache is.** With the memory store and three instances
-behind a load balancer, a limit of 5 allows 15. With Redis it allows 5.
-
-That is not a bug to be fixed later; it is the honest consequence of where the
-counters live, and it is the first thing to check when a limit "isn't
-working".
-{{< /callout >}}
-
-| Cache store | Scope of a limit |
-|---|---|
-| memory | this process |
-| file | this host |
-| **redis** | **the cluster** |
-
-A fixed window also means a caller can send `limit` requests at the end of one
-window and `limit` again at the start of the next — up to twice the limit
-across a window boundary. For login and signup that is irrelevant. For
-anything where it matters, the honest answer is a sliding window, which this
-package deliberately does not implement.
-
-## The key strategies
+## Limit a route
 
 ```go
-ratelimit.PerIP(5, time.Minute)      // anonymous: login, register, password reset
-ratelimit.PerUser(30, time.Minute)   // signed-in actions: vote, comment, post
-&ratelimit.Opts{Limit: 10, Window: time.Minute, Key: myKey, Message: "…"}
+import (
+    "time"
+
+    "github.com/lemmego/ratelimit"
+)
+
+r.Post("/login", ratelimit.Middleware(ratelimit.PerIP(5, time.Minute)), handlers.Login)
 ```
 
-Both key on **the caller and the route together**, so each limit counts its
-own action.
+Five requests per minute per IP. A sixth gets a `429` and never reaches the
+handler.
 
-**Prefer `PerUser` for anything only a signed-in person can do.** An IP is
-shared by an office, a university and a mobile carrier's NAT; limiting those
-as one caller punishes the wrong people. `PerUser` falls back to the IP for an
-anonymous request, so it is safe on a mixed route.
+## Limit something that is not a route
 
-The route is the **matched pattern**, not the request path. That matters for
-any route carrying a parameter: keying on the path would give
-`/launch/a/upvote` and `/launch/b/upvote` separate counters, turning "20
-upvotes an hour" into "20 an hour per launch" — a limit an abuser steps around
-by choosing a different target.
-
-### Why the route is in the key
-
-It was not, until v0.1.1, and the gap was expensive. The window slot is part
-of the stored key, so every limit sharing a *window length* shared one counter
-while each route compared it against its own threshold.
-
-In the application this was found in, nine routes counted into one hourly
-bucket — a 120-an-hour feed limit and a 3-an-hour "resend my verification
-email" among them. Reading the feed six times locked the account out of
-confirming its own address, and the refusal quoted a limit of 3 against a
-counter it had not moved.
-
-A caller who genuinely wants one budget spanning several routes sets
-`Opts.Key` to something that does not vary by route, and should say in a
-comment why.
-
-## `X-Forwarded-For` is ignored until you say otherwise
+`Allow` takes a key you choose and returns whether to proceed, plus how long
+until the caller may retry:
 
 ```go
-ratelimit.TrustProxy(true)   // only when a proxy you control sets the header
+ok, retryAfter, err := ratelimit.Allow(c.RequestContext(), "vote:"+userID, 30, time.Minute)
+if err != nil {
+    // The cache could not be reached. See Behaviour when the cache is down.
+}
+if !ok {
+    c.SetHeader("Retry-After", strconv.Itoa(int(retryAfter.Seconds())))
+    return c.Error(http.StatusTooManyRequests, errors.New("too many votes"))
+}
 ```
 
-`ClientIP` reads `X-Forwarded-For` **only** after this is enabled, because the
-header is client-supplied. Trusting it unconditionally lets anyone bypass an
-IP limit by sending a different value on every request — which is worse than
-having no limiter, since it also looks like one is working.
+## Choosing a key strategy
 
-## A refusal says when to retry
+```go
+ratelimit.PerIP(5, time.Minute)       // anonymous: login, register, password reset
+ratelimit.PerUser(30, time.Minute)    // signed in: vote, comment, post
+
+&ratelimit.Opts{                      // anything else
+    Limit:   10,
+    Window:  time.Minute,
+    Key:     myKeyFunc,          // func(c app.Context) string; defaults to ClientIP
+    Message: "Slow down a moment.",
+}
+```
+
+`PerRoute` is an alias for `PerUser`, kept because it reads well at a call
+site.
+
+**Prefer `PerUser` wherever sign-in is required.** A single IP covers an
+office, a university and a mobile carrier's NAT, so limiting by IP there
+throttles a crowd for one person's behaviour. `PerUser` falls back to the IP
+for an anonymous request, which makes it safe on a route that serves both.
+
+### How keys are built
+
+Both strategies key on **the caller and the route together**, so each route
+counts its own budget. Two routes limited at 20 an hour give a caller 20 each,
+not 20 between them.
+
+The route in the key is the **matched pattern**, not the request path. On a
+route carrying a parameter, `/launch/{slug}/upvote` is one counter — so "20
+upvotes an hour" means twenty in total, not twenty per launch. Keying on the
+path would let a caller reset their budget by choosing a different target.
+
+For one budget spanning several routes, set `Opts.Key` to something that does
+not vary by route.
+
+## Trusting a proxy
+
+```go
+ratelimit.TrustProxy(true)
+```
+
+`ClientIP` ignores `X-Forwarded-For` until you enable this, because the header
+is supplied by the client. Enable it only when a proxy you control sets the
+header and strips any incoming copy. Behind a proxy without it, every request
+appears to come from the proxy and a per-IP limit throttles your whole site as
+one caller.
+
+## What a refused request looks like
 
 ```http
 HTTP/1.1 429 Too Many Requests
 Retry-After: 43
 ```
 
-That is not a courtesy. Without it a client that retries immediately turns one
-refused request into a tight loop, and the limiter becomes the load it was
-meant to prevent.
+`Retry-After` is always set. Send it on your own refusals too — a client that
+retries immediately turns one rejected request into a tight loop, which is the
+load the limiter exists to prevent.
 
-`Allow` returns the same information for a non-HTTP caller.
+To customise the body, set `Opts.Message`.
 
-## A cache failure allows the request
+## Scope and limits
 
-If the cache is unreachable, `Allow` returns `true` and logs. The alternative
-is a Redis outage turning into a total outage: every login, every signup,
-every vote refused because a counter could not be read.
+**A limit reaches exactly as far as your cache does.**
 
-This is a decision, not an oversight. If you are limiting something where
-failing open is unacceptable, check the error — it is returned, not swallowed.
+| Cache store | A limit counts across |
+|---|---|
+| `memory` | one process |
+| `file` | one host |
+| `redis` | the cluster |
 
-## A note on the window
+On the memory store with three instances behind a load balancer, a limit of 5
+admits 15. Use Redis for any limit that must hold across instances.
 
-`cache.Increment` takes no TTL, so a window cannot be created by incrementing.
-The window is seeded with `cache.Add(ctx, key, 0, window)` — which only writes
-if the key is absent — and then incremented. That ordering is what makes the
-window roll rather than extend: the TTL is set once, by whoever arrives first,
-and every later hit in that window inherits it.
+**A fixed window admits up to twice the limit across a boundary.** A caller
+can spend the whole limit at the end of one window and the whole limit again at
+the start of the next. For sign-in and registration this does not matter. If
+you need a strict rate, put the limiter behind something that enforces one.
 
-Every counter is stored under `ratelimit:` (`KeyPrefix`), so flushing the
-limiter cannot flush anything else.
+**Not implemented:** sliding windows, token buckets, per-route configuration
+files.
 
-## Deliberate omissions
+## Behaviour when the cache is down
 
-No sliding windows, no token buckets, no per-route configuration files. Each
-would be a reasonable addition; none is needed to stop the abuse a public form
-attracts on its first day, and the fixed-window counter is the version whose
-behaviour you can predict without reading it.
+If the cache cannot be reached, the request is **allowed** and the failure is
+logged. A Redis outage therefore degrades the limiter rather than taking down
+sign-in, registration and every limited action with it.
+
+`Allow` returns the error rather than swallowing it, so a caller that cannot
+accept failing open can check it and refuse:
+
+```go
+ok, _, err := ratelimit.Allow(c.RequestContext(), key, 10, time.Minute)
+if err != nil {
+    // Fail closed instead: refuse rather than admit an uncounted request.
+    return c.Error(http.StatusServiceUnavailable, err)
+}
+```
+
+The error is `ratelimit.ErrNoCache` when no cache is configured at all, which
+is a wiring mistake rather than an outage.
+
+## How a window is stored
+
+Each counter is seeded with `cache.Add(ctx, key, 0, window)`, which writes
+only if the key is absent, and then incremented. `cache.Increment` takes no
+TTL, so seeding is what gives the window an expiry — and because the seed only
+lands once, the window rolls rather than extending with every hit.
+
+Every key is stored under the `ratelimit:` prefix (`KeyPrefix`), so flushing
+the limiter cannot flush anything else.
+
+## Next steps
+
+- [Cache](/docs/cache/) — the store the counters live in, and how to point it
+  at Redis.
+- [Authentication](/docs/security/authentication) — the routes most worth
+  limiting.

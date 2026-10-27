@@ -1,53 +1,118 @@
 ---
 title: Session
 type: docs
-prev: docs/deployment/
-next: docs/logging
+prev: docs/security/encryption
+next: docs/authz/
+weight: 95
 sidebar:
   open: true
-weight: 49
 ---
 
-## Overview
+Sessions keep per-visitor state between requests — who is signed in, a flash
+message, a half-filled form. The `session` package provides them over four
+storage backends and supplies the store that
+[CSRF protection](/docs/security/csrf) keeps its token in.
 
-Session management is handled by the `session` package. It supports multiple storage backends and integrates with the framework's CSRF protection.
+Session data is loaded when a request starts and committed when the response
+completes. There is nothing to save by hand.
 
-## Configuration
+## Register the provider
 
-Session settings are in `internal/configs/session.go`:
+```go
+// bootstrap/providers.go
+func LoadProviders() []app.Provider {
+    return []app.Provider{
+        &ormconnector.Provider{},   // registers db.Connection
+        &session.Provider{},        // must come after it for the database driver
+    }
+}
+```
+
+Order only matters for the `database` driver, which borrows the application's
+connection. The other three can go anywhere.
+
+## Configure it
+
+Settings live in `internal/configs/session.go`:
 
 ```go
 config.Set("session", config.M{
-    "driver":   config.MustEnv("SESSION_DRIVER", "file"),
-    "lifetime": config.MustEnv("SESSION_LIFETIME", 120),
-    "cookie":   config.MustEnv("SESSION_COOKIE", "lemmego_session"),
-    "domain":   config.MustEnv("SESSION_DOMAIN", ""),
-    "path":     "/",
-    "secure":   config.MustEnv("SESSION_SECURE", false),
+    "driver":    config.MustEnv("SESSION_DRIVER", "file"),
+    "lifetime":  config.MustEnv("SESSION_LIFETIME", 120),   // minutes
+    "cookie":    config.MustEnv("SESSION_COOKIE", "lemmego_session"),
+    "domain":    config.MustEnv("SESSION_DOMAIN", ""),
+    "path":      "/",
+    "secure":    config.MustEnv("SESSION_SECURE", false),
     "http_only": true,
     "same_site": "lax",
 })
 ```
 
-## Storage Backends
+Set `SESSION_SECURE=true` in production so the cookie is only sent over HTTPS.
 
-### Memory
+## Read and write session data
+
+From a request:
+
+```go
+// Read
+val := c.Session("cart_id")
+str := c.SessionString("cart_id")
+
+// Write
+c.PutSession("cart_id", id)
+
+// Read and remove — flash messages
+val := c.PopSession("notice")
+str := c.PopSessionString("notice")
+```
+
+Outside a request, or for operations on the session itself, reach the manager:
+
+```go
+sess := app.Get[*session.Session](a)
+
+err := sess.RenewToken(ctx)
+err := sess.Destroy(ctx)
+userID := sess.GetString(ctx, "user_id")
+sess.Put(ctx, "last_activity", time.Now())
+```
+
+It embeds `scs.SessionManager`, so its whole API is available.
+
+## Choosing a driver
+
+| Driver | Survives a restart | Shared across instances | Needs |
+|---|---|---|---|
+| `memory` | no | no | nothing |
+| `file` | yes | no | a writable, persistent directory |
+| `redis` | yes | yes | a Redis server |
+| `database` | yes | yes | your SQL database and a table |
+
+`memory` signs everybody out whenever the process restarts, which on a
+container platform means every deploy. Use it for local development and
+tests.
+
+On a platform with no persistent volume and no Redis, `database` is the only
+durable option that costs nothing extra to run.
+
+### memory
 
 ```go
 config.Set("session", config.M{"driver": "memory"})
 ```
 
-Sessions are stored in memory. Best for development or single-server deployments.
-
-### File
+### file
 
 ```go
 config.Set("session", config.M{"driver": "file"})
 ```
 
-Sessions are persisted to disk (default: `storage/session/`). Includes automatic expiry cleanup.
+Sessions are written to `storage/session/`, with expired files cleaned up
+periodically. The directory must outlive the process — on a container
+platform that means a mounted volume.
 
-### Redis
+### redis
 
 ```go
 config.Set("session", config.M{"driver": "redis"})
@@ -59,52 +124,29 @@ config.Set("keyvalue", config.M{
 })
 ```
 
-Best for multi-server deployments where you already run Redis.
-
-### Database
+### database
 
 ```go
 config.Set("session", config.M{"driver": "database"})
 ```
 
-Sessions live in your own SQL database, in a `sessions` table. Available since
-`api` v0.6.5.
+Sessions live in a `sessions` table in your own database. The driver takes its
+dialect from the connection your SQL connector registered, so the same setting
+works on **PostgreSQL, MySQL and SQLite**.
 
-It is the only durable store that costs a deployment nothing extra. `file`
-needs a writable volume that outlives the container, and `redis` needs a
-service — so on a container platform with neither, the remaining choice is
-`memory`, **which signs everybody out on every deploy**. If you already run a
-database, this is the one to use.
+Two things are required.
 
-The driver is named for the capability, not a product: it takes the dialect
-from the connection your SQL connector registered, so the same value works on
-**Postgres, MySQL and SQLite**.
+**1. Register `&session.Provider{}` after your database connector.** It
+resolves the connection through `db.Resolve`, and providers run in
+`LoadProviders` order, so a session provider listed first finds nothing. It
+refuses to boot in that case and names the fix, rather than falling back to
+another store and signing everybody out.
 
-#### Two requirements
-
-**1. The provider must come after the database connector.** The driver
-resolves the connection through `db.Resolve`, and `Provide` runs in
-`LoadProviders` order — so a session provider listed first finds nothing:
-
-```go
-func LoadProviders() []app.Provider {
-    return []app.Provider{
-        &ormconnector.Provider{},   // registers db.Connection
-        &session.Provider{},        // ...so this must come after it
-    }
-}
-```
-
-It refuses to boot in that case rather than falling back, naming the fix. The
-fallback would be an application that looks healthy and signs everybody out,
-which is indistinguishable from a cookie problem.
-
-**2. The table is yours to migrate.** Each dialect has its own store writing
-its own SQL, so there is no portable definition — `expiry` in particular is
-read differently by each:
+**2. Create the table yourself.** Each dialect reads `expiry` differently, so
+there is no portable definition:
 
 {{< tabs >}}
-{{< tab name="Postgres" >}}
+{{< tab name="PostgreSQL" >}}
 ```sql
 CREATE TABLE sessions (
     token  TEXT        NOT NULL PRIMARY KEY,
@@ -136,81 +178,42 @@ CREATE INDEX sessions_expiry_idx ON sessions (expiry);
 {{< /tab >}}
 {{< /tabs >}}
 
-`lemmego new --session database` writes this migration for you, for the
-database you picked. The index keeps the periodic sweep of expired rows cheap;
-without it every sweep scans the table.
+`lemmego new --session database` writes this migration for the database you
+chose. Write it as raw `tx.Exec` rather than through the
+[schema builder](/docs/migrations/schema-builder): the builder would add an
+`id` and timestamp columns, producing a table the store cannot query.
 
-Write it as raw `tx.Exec` rather than through the schema builder. The schema
-belongs to the store, not to your project: the builder would add an `id` and
-timestamps, and produce a table the store cannot query.
+Keep the index. Without it, every sweep of expired rows scans the table.
 
-## Provider Registration
+{{< callout type="info" >}}
+The `database` driver needs `api` v0.6.5 or later. See
+[Upgrade notes](/docs/appendix/upgrading#minimum-versions).
+{{< /callout >}}
 
-The session provider is registered in `bootstrap/providers.go`:
+## Sessions and CSRF
 
-```go
-func LoadProviders() []app.Provider {
-    return []app.Provider{
-        &session.Provider{},
-    }
-}
-```
+The CSRF middleware stores its token in the session under `_token`. The token
+is generated on the session's first request and reused for the session's
+lifetime; [CSRF Protection](/docs/security/csrf) explains why it is not
+rotated per request.
 
-With the `database` driver this must be listed **after** your SQL connector —
-see [Database](#database) above.
+This ties the two together in ways worth knowing:
 
-## Using Sessions
+- **Destroying or regenerating a session invalidates its CSRF token.** The
+  next request is issued a fresh one.
+- **Signing in does not break the current page.** `auth.Login` rotates the
+  session id but carries the data across, so the token survives and the
+  request immediately after a sign-in is not rejected as expired.
+- **Signing out does.** `auth.Logout` destroys the session, so the next page
+  load issues a new token.
 
-### In Request Context
-
-```go
-// Read
-val := c.Session("key")
-str := c.SessionString("key")
-
-// Write
-c.PutSession("key", value)
-
-// Read and remove
-val := c.PopSession("key")
-str := c.PopSessionString("key")
-```
-
-### Via the Session Manager
-
-```go
-sess := app.Get[*session.Session](a)
-
-// Standard scs.SessionManager API
-err := sess.RenewToken(ctx)
-err := sess.Destroy(ctx)
-userID := sess.GetString(ctx, "user_id")
-sess.Put(ctx, "last_activity", time.Now())
-```
-
-## Session & CSRF
-
-The CSRF middleware keeps its token in the session, under `_token`. It is generated
-once — on the first request of a session — and reused for as long as that session
-lives, rather than being rotated per request; [CSRF Protection](/docs/security/csrf)
-explains why. Destroying or regenerating the session therefore also invalidates the
-CSRF token, and the next request issues a fresh one.
-
-Logging in rotates the session id (see [Session fixation](#session-fixation)),
-but carries the data across, so the CSRF token survives and the request right
-after a login is not rejected as expired. Logging out destroys the session, so
-the next page load issues a new token.
-
-## Session Fixation
+## Session fixation
 
 `auth.Login` rotates the session id before writing the user into the session,
-and `auth.Logout` destroys the session rather than only removing the user.
-Without the rotation, an attacker who can plant a session cookie in a victim's
-browser before they log in still holds a valid id afterwards, authenticated as
-them.
+and `auth.Logout` destroys the session rather than only clearing the user.
+Both are handled for you.
 
-Both are handled for you; there is nothing to call. If you manage sessions
-yourself, do the same at your own login boundary:
+If you manage sessions yourself, rotate at your own sign-in boundary:
 
 ```go
 sess := app.Get[*session.Session](a)
@@ -224,29 +227,31 @@ sess.Put(ctx, "user_id", user.ID)
 err := sess.Destroy(ctx)
 ```
 
-Applications configured with `DisableSession: true` authenticate with JWT and
-have no session to fixate — but note that they also have nothing to revoke:
-`auth.Logout` clears the cookie and a copy of the token taken beforehand stays
-valid until it expires. The fixation defence above and server-side logout are
-the same feature seen from two sides, and both are off together.
+Without the rotation, an attacker who can plant a session cookie in someone's
+browser before they sign in still holds a valid id afterwards, authenticated
+as them.
 
-## Lifecycle
-
-Session data is automatically loaded on request start and committed on response completion. You don't need to manually save session changes.
+{{< callout type="warning" >}}
+An application configured with `DisableSession: true` authenticates with JWT
+and has no session to fixate — but it also has nothing to revoke.
+`auth.Logout` clears the cookie, and a copy of the token taken beforehand
+stays valid until it expires. Server-side logout and the fixation defence are
+the same mechanism, and they are absent together.
+{{< /callout >}}
 
 ## When a session cannot be read
 
-A stored record sometimes cannot be decoded: the file is corrupt, or the
-record holds a `gob`-encoded type that the binary now running no longer
-registers — which is the ordinary case after a deploy that removed one.
+A stored session sometimes cannot be decoded — the file is corrupt, or the
+record holds a `gob`-encoded type the running binary no longer registers,
+which is the ordinary case after a deploy that removed one.
 
-Such a session is treated as **an absent session**, not a server error. The
-framework logs a warning, drops the cookie and serves the request anonymously,
-so the visitor is signed out and can sign back in.
+The framework treats such a session as **absent**: it logs a warning, drops
+the cookie and serves the request anonymously, so the visitor is signed out
+and can sign back in. No error page is shown.
 
-This is worth knowing because the underlying library does the opposite. `scs`
-calls its error handler and returns *without invoking your handler at all*;
-with no handler configured that is a bare `500`. The visitor would get a blank
-error page on every URL — **including `/login`** — for as long as the cookie
-lived, with nothing they could do about it. `api` v0.1.40 and later wrap the
-middleware to prevent that.
+## Next steps
+
+- [CSRF Protection](/docs/security/csrf) — the token that lives in the session.
+- [Authentication](/docs/security/authentication) — what writes a user into it.
+- [Deployment](/docs/deployment/#sessions-on-a-container-platform) — choosing a
+  driver for your platform.

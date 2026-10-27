@@ -1,11 +1,11 @@
 ---
 title: OAuth2 Server
 type: docs
-prev: docs/security/encryption
+prev: docs/payments/
 next: docs/oauth2/installation
+weight: 120
 sidebar:
   open: true
-weight: 44
 ---
 
 ## Overview

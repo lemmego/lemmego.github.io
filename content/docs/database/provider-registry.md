@@ -3,9 +3,9 @@ title: Provider Registry
 type: docs
 prev: docs/database/
 next: docs/database/connection-seam
+weight: 51
 sidebar:
   open: true
-weight: 19
 ---
 
 ## Overview

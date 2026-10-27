@@ -1,11 +1,11 @@
 ---
 title: Authorization
 type: docs
-prev: docs/security/
+prev: docs/session
 next: docs/ratelimit/
+weight: 96
 sidebar:
   open: true
-weight: 46.5
 ---
 
 ## Overview

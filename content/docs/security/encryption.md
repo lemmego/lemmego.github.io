@@ -2,10 +2,10 @@
 title: Encryption
 type: docs
 prev: docs/security/csrf
-next: docs/oauth2/
+next: docs/session
+weight: 94
 sidebar:
   open: true
-weight: 46
 ---
 
 ## Overview

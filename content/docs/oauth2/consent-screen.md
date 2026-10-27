@@ -3,9 +3,9 @@ title: Consent screen
 type: docs
 prev: docs/oauth2/protecting-routes
 next: docs/oauth2/tokens-and-keys
+weight: 126
 sidebar:
   open: true
-weight: 6
 ---
 
 ## The default

@@ -3,9 +3,9 @@ title: GORM Provider
 type: docs
 prev: docs/database/raw-sql-and-ddl
 next: docs/database/providers/bun
+weight: 58
 sidebar:
   open: true
-weight: 25
 ---
 
 ## Overview

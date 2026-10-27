@@ -3,9 +3,9 @@ title: Bun Provider
 type: docs
 prev: docs/database/providers/gorm
 next: docs/database/providers/mongodb
+weight: 59
 sidebar:
   open: true
-weight: 26
 ---
 
 ## Overview

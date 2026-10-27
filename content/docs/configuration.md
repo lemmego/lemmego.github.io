@@ -1,9 +1,11 @@
 ---
 title: Configuration
 type: docs
-prev: docs/quick-start/
-next: docs/project-structure/
-weight: 3
+prev: docs/project-structure
+next: docs/http/
+weight: 14
+sidebar:
+  open: true
 ---
 
 ## Overview

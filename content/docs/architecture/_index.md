@@ -2,9 +2,10 @@
 title: Architecture
 type: docs
 prev: docs/prompting
+next: docs/appendix/
+weight: 140
 sidebar:
   open: true
-weight: 85
 ---
 
 ## Overview

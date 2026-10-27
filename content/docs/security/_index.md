@@ -1,11 +1,11 @@
 ---
 title: Security
 type: docs
-prev: docs/cli/commands
-next: docs/authz/
+prev: docs/logging
+next: docs/security/authentication
+weight: 90
 sidebar:
   open: true
-weight: 42
 ---
 
 ## Overview

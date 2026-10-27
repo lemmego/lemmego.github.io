@@ -1,11 +1,11 @@
 ---
 title: Frontend
 type: docs
-prev: docs/migrations/running-migrations
+prev: docs/http/context
 next: docs/frontend/go-templates
+weight: 30
 sidebar:
   open: true
-weight: 35
 ---
 
 ## Overview

@@ -1,11 +1,11 @@
 ---
 title: Project Structure
 type: docs
-prev: docs/configuration/
-next: docs/cli/
+prev: docs/quick-start/
+next: docs/configuration
+weight: 13
 sidebar:
   open: true
-weight: 4
 ---
 
 ## Directory Anatomy

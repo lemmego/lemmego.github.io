@@ -3,9 +3,9 @@ title: Configuration
 type: docs
 prev: docs/oauth2/installation
 next: docs/oauth2/clients
+weight: 122
 sidebar:
   open: true
-weight: 2
 ---
 
 `lemmego run publish --tags=oauth2-config` writes `internal/configs/oauth.go`. Every

@@ -1,11 +1,11 @@
 ---
 title: CLI Prompting
 type: docs
-prev: docs/queue
-next: docs/mcp
+prev: docs/mcp
+next: docs/architecture/
+weight: 134
 sidebar:
   open: true
-weight: 53
 ---
 
 ## Overview

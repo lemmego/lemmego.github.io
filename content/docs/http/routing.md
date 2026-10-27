@@ -2,9 +2,10 @@
 title: Routing
 type: docs
 prev: docs/http/
+next: docs/http/middleware
+weight: 21
 sidebar:
   open: true
-weight: 6
 ---
 
 ## Route Definitions

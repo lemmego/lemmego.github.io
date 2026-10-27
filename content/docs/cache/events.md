@@ -3,9 +3,9 @@ title: Cache Events
 type: docs
 prev: docs/cache/tags
 next: docs/queue
+weight: 105
 sidebar:
   open: true
-weight: 51.5
 ---
 
 ## Listening

@@ -2,9 +2,10 @@
 title: Request Handling
 type: docs
 prev: docs/http/middleware
+next: docs/http/response-handling
+weight: 23
 sidebar:
   open: true
-weight: 8
 ---
 
 ## Input Parsing

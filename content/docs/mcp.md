@@ -1,11 +1,11 @@
 ---
 title: AI Agents (MCP)
 type: docs
-prev: docs/prompting
-next: docs/appendix/
+prev: docs/deployment/
+next: docs/prompting
+weight: 133
 sidebar:
   open: true
-weight: 54
 ---
 
 ## Overview
@@ -219,13 +219,10 @@ Update the CLI:
 go install github.com/lemmego/cli/cmd@latest
 ```
 
-Before **cli v0.5.5**, `lemmego run` forwarded stdout and stderr but not
-stdin. A child process with no stdin gets `os.DevNull`, so every read returns
-EOF immediately — the server started, read EOF, correctly treated it as the
-client disconnecting, and exited having written nothing.
-
-That affected any command reading stdin through `lemmego run`, not only this
-one.
+The server speaks over stdin, so it needs a CLI that forwards it —
+`cli` v0.5.5 or later. On an older CLI the server starts, reads EOF
+immediately, treats that as the client disconnecting and exits without
+writing anything, which the editor reports as a server that will not start.
 
 ### Nothing may write to stdout but protocol frames
 

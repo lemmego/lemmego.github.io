@@ -3,9 +3,9 @@ title: Typed Access
 type: docs
 prev: docs/cache/drivers
 next: docs/cache/locks
+weight: 102
 sidebar:
   open: true
-weight: 51.2
 ---
 
 ## Encoding

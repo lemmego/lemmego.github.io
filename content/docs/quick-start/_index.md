@@ -2,10 +2,10 @@
 title: Quick Start
 type: docs
 prev: docs/installation/
-next: docs/http/
+next: docs/project-structure
+weight: 12
 sidebar:
   open: true
-weight: 2
 ---
 
 ## Creating an Application

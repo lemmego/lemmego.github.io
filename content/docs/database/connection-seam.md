@@ -3,9 +3,9 @@ title: The connection seam
 type: docs
 prev: docs/database/provider-registry
 next: docs/database/generic-repository
+weight: 52
 sidebar:
   open: true
-weight: 1.5
 ---
 
 ## The problem it solves

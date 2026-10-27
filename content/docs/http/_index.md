@@ -1,11 +1,11 @@
 ---
 title: HTTP Lifecycle
 type: docs
-prev: docs/cli/
+prev: docs/configuration
 next: docs/http/routing
+weight: 20
 sidebar:
   open: true
-weight: 5
 ---
 
 ## Request Lifecycle

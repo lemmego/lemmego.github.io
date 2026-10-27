@@ -2,9 +2,10 @@
 title: Column Types Reference
 type: docs
 prev: docs/migrations/schema-builder
+next: docs/migrations/writing-migrations
+weight: 72
 sidebar:
   open: true
-weight: 32
 ---
 
 ## Methods

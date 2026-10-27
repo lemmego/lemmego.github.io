@@ -1,11 +1,11 @@
 ---
 title: Writes and Transactions
 type: docs
-prev: docs/orm/relationships
-next: docs/orm/field-descriptors
+prev: docs/orm/queries
+next: docs/orm/relationships
+weight: 42
 sidebar:
   open: true
-weight: 17.3
 ---
 
 ## Creating and updating

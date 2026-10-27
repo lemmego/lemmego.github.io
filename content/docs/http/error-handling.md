@@ -2,9 +2,10 @@
 title: Error Handling
 type: docs
 prev: docs/http/response-handling
+next: docs/http/context
+weight: 25
 sidebar:
   open: true
-weight: 10
 ---
 
 ## Typed HTTP Errors

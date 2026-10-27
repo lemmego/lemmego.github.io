@@ -3,9 +3,9 @@ title: SEO
 type: docs
 prev: docs/search/
 next: docs/payments/
+weight: 113
 sidebar:
   open: true
-weight: 60
 ---
 
 ## Overview

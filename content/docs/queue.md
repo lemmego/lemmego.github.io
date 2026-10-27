@@ -2,10 +2,10 @@
 title: Queue & Background Jobs
 type: docs
 prev: docs/cache/events
-next: docs/prompting
+next: docs/mail/
+weight: 106
 sidebar:
   open: true
-weight: 52
 ---
 
 ## Overview

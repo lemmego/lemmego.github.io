@@ -1,11 +1,11 @@
 ---
 title: ORM Overview
 type: docs
-prev: docs/core-concepts/event-system
+prev: docs/frontend/vite
 next: docs/orm/queries
+weight: 40
 sidebar:
   open: true
-weight: 17
 ---
 
 ## What is the Lemmego ORM?

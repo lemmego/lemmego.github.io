@@ -3,9 +3,9 @@ title: Application Bootstrap
 type: docs
 prev: docs/core-concepts/
 next: docs/core-concepts/service-container
+weight: 81
 sidebar:
   open: true
-weight: 13
 ---
 
 ## Bootstrapping Pipeline

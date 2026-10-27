@@ -2,10 +2,10 @@
 title: Queries
 type: docs
 prev: docs/orm/
-next: docs/orm/relationships
+next: docs/orm/writes
+weight: 41
 sidebar:
   open: true
-weight: 17.1
 ---
 
 ## Building a query

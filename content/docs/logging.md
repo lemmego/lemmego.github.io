@@ -1,11 +1,11 @@
 ---
 title: Logging
 type: docs
-prev: docs/session
-next: docs/cache/
+prev: docs/core-concepts/event-system
+next: docs/security/
+weight: 86
 sidebar:
   open: true
-weight: 50
 ---
 
 ## Overview

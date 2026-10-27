@@ -2,10 +2,10 @@
 title: Event System
 type: docs
 prev: docs/core-concepts/dependency-injection
-next: docs/orm/
+next: docs/logging
+weight: 85
 sidebar:
   open: true
-weight: 17
 ---
 
 ## Overview

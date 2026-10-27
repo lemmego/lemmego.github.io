@@ -3,9 +3,9 @@ title: Drivers
 type: docs
 prev: docs/cache/
 next: docs/cache/typed-access
+weight: 101
 sidebar:
   open: true
-weight: 51.1
 ---
 
 ## Choosing one

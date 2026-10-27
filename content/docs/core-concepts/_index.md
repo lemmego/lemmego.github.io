@@ -1,11 +1,11 @@
 ---
 title: Core Concepts
 type: docs
-prev: docs/project-structure/
+prev: docs/migrations/running-migrations
 next: docs/core-concepts/application-bootstrap
+weight: 80
 sidebar:
   open: true
-weight: 12
 ---
 
 ## Overview

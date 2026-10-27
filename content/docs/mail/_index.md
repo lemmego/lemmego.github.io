@@ -1,11 +1,11 @@
 ---
 title: Mail
 type: docs
-prev: docs/prompting/
+prev: docs/queue
 next: docs/notifications/
+weight: 107
 sidebar:
   open: true
-weight: 55
 ---
 
 ## Overview

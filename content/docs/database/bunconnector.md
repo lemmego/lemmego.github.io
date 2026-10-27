@@ -1,11 +1,11 @@
 ---
 title: Bun Connector
 type: docs
-prev: docs/database/providers/redis
-next: docs/database/gormconnector
+prev: docs/database/gormconnector
+next: docs/migrations/
+weight: 63
 sidebar:
   open: true
-weight: 29
 ---
 
 ## Overview

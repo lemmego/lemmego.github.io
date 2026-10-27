@@ -1,11 +1,11 @@
 ---
 title: Testing
 type: docs
-prev: docs/filesystem/
+prev: docs/cli/
 next: docs/deployment/
+weight: 131
 sidebar:
   open: true
-weight: 47
 ---
 
 ## Overview
