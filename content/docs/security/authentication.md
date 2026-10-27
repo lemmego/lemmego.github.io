@@ -8,15 +8,13 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `auth` package verifies who is making a request. It accepts two kinds of
 credential — a session cookie and a JWT — and both resolve to the same user
 object, because neither one carries the user. A credential carries an **id**,
 and `auth` reads the row back through a loader your application supplies.
 
-That is the whole design. [The current user](../current-user) covers what it
-means for your handlers; this page covers configuring it.
+[The current user](../current-user) covers what that means in your handlers;
+this page covers configuring it.
 
 ## Setup
 

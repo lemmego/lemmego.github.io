@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 An atomic lock stops the same work running twice — a nightly import triggered
 by three servers, a webhook delivered twice, a user double-clicking Submit.
 

@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The GORM provider (`github.com/lemmego/gpagorm`) is the production-ready SQL provider. It wraps [GORM](https://gorm.io/) to provide the full GPA `Repository[T]` interface with migration support.
 
 ## Setup

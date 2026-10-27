@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 `lemmego/migration` is version-controlled, bidirectional schema evolution for
 SQLite, MySQL and PostgreSQL, with a schema builder that renders the same
 declaration differently on each.

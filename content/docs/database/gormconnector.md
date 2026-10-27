@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `gormconnector` package provides an `app.Provider` that connects to SQL databases using GORM and optionally registers a GPA provider. It's used in the generated project's bootstrap.
 
 ## Usage in bootstrap/providers.go

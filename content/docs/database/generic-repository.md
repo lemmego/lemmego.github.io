@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `Repository[T]` interface is the primary data access API. It's parameterized with Go generics for compile-time type safety — every operation returns the concrete type, not `interface{}`.
 
 ## Creating Repositories

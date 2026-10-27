@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 `lemmego/mcp` serves your application's own state to an AI coding agent over the
 [Model Context Protocol](https://modelcontextprotocol.io), and installs the
 guidelines, skills and rules that give the agent context.
@@ -21,22 +19,22 @@ lemmego mcp:install
 A project created by `lemmego new` already has the server registered. For an
 existing project, see [Adding it to an existing project](#adding-it-to-an-existing-project).
 
-## The problem it solves
+## Start with these two tools
 
 An agent editing your project cannot see the routing table, the live schema,
-the resolved configuration, the migration state or the logs. So it guesses —
-and the expensive guesses are not about data, they are about **APIs**. It
-writes a call against a function that does not exist, and the mistake survives
-until somebody compiles it.
+the resolved configuration, the migration state or the logs, so it guesses.
+The costly guesses are about **APIs**: a call written against a function that
+does not exist survives until somebody compiles it.
 
-So the two tools to reach for first are not the database ones:
+Two tools address that directly, and they are worth naming in your agent's
+instructions:
 
-| Tool | What it does |
+| Tool | What it gives the agent |
 | --- | --- |
-| **`module-api`** | The **real** exported signatures of a lemmego module at the version your project pins, read from the compiled package. |
-| **`search-docs`** | The modules' own READMEs, which are the authoritative specification for each module. |
+| **`module-api`** | The real exported signatures of a lemmego module at the version your project pins, read from the compiled package |
+| **`search-docs`** | The modules' own READMEs, which are the authoritative specification for each module |
 
-Everything else is context. Those two are correction.
+The rest supply context about your running application.
 
 ## All tools
 
@@ -61,17 +59,16 @@ Everything else is context. Those two are correction.
 
 </div>
 
-### Deliberately absent
+### Not available
 
-- **No code execution.** Laravel Boost has a `tinker` tool; Go has no `eval`,
-  so there is no honest equivalent and a half-built one would be worse than
-  none.
-- **No browser logs.** That needs a JavaScript shim in the page.
-- **No HTTP transport.** See [Safety](#safety).
+- **Code execution.** Go has no `eval`, so there is no equivalent of a
+  `tinker` tool.
+- **Browser logs.** These need a JavaScript shim in the page.
+- **An HTTP transport.** See [Safety](#safety).
 
 ## Safety
 
-This is a local development tool and it is shaped like one.
+This is a local development tool.
 
 **stdio only.** An MCP server on a port is an unauthenticated connection to
 your database for anything that can reach it. There is no HTTP transport and
@@ -193,7 +190,7 @@ Three layers, loaded at different times and costing different amounts:
 
 </div>
 
-Guidelines are short on purpose: everything loaded upfront costs context on
+Guidelines are kept short, because everything loaded upfront costs context on
 every single request.
 
 Skills ship only for the modules your project depends on. Rules are recorded

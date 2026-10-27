@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Lemmego's template rendering system uses Go's `html/template` package with a caching layer and convention-based discovery of layouts and partials.
 
 ## Template Conventions

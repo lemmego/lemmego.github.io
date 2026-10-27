@@ -8,10 +8,9 @@ sidebar:
   open: true
 ---
 
-## Overview
-
-`lemmego/seo` gives you meta tags, JSON-LD, sitemaps, `robots.txt` and slugs —
-with the document head rendered **in Go**, so it survives an SSR outage.
+`lemmego/seo` gives you meta tags, JSON-LD, sitemaps, `robots.txt` and slugs.
+The document head is rendered **in Go**, which is what keeps it correct when
+server-side rendering fails.
 
 ```go
 func Show(c app.Context) error {
@@ -27,11 +26,13 @@ func Show(c app.Context) error {
 }
 ```
 
-```bash
+## Install
+
+```shell
 go get github.com/lemmego/seo
 ```
 
-## The one idea worth understanding
+## Why the head is rendered in Go
 
 {{< callout type="warning" >}}
 **Metadata emitted by a page component disappears exactly when you cannot see
@@ -43,22 +44,21 @@ page renders nothing, while the page still answers **200** and still looks
 correct to a person. Only a crawler notices, and only weeks later.
 {{< /callout >}}
 
-Rendering the head in Go makes it independent of the Node process: correct on
-a cold boot, with SSR down, during a deploy, and with Node not installed at
-all. Leave the page component owning `document.title` for client-side
-navigation, and nothing else.
+Rendering the head in Go makes it independent of the Node process, so it is
+correct on a cold boot, with SSR down, mid-deploy, and with Node not installed
+at all. With the SSR process stopped, a page's body degrades to client
+rendering while its title, canonical URL and JSON-LD all survive.
 
-This has been demonstrated rather than asserted: with the SSR process killed,
-a profile page's body degrades to client rendering while the title, the
-canonical URL and the `Person` block all survive.
+Leave your page component owning `document.title` for client-side navigation,
+and nothing else.
 
-## Wiring
+## Register the provider
 
 ```go
 &seo.Provider{
     Defaults: seo.Defaults{
         BaseURL:  config.MustEnv("APP_URL", "http://localhost:8080"),
-        SiteName: "Productshore",
+        SiteName: "Example",
         NoIndex:  config.MustEnv("APP_ENV", "development") != "production",
     },
     Sitemap: &seo.Sitemap{
@@ -85,27 +85,26 @@ Then register `seo.Middleware()` after the session middleware, so a handler
 that forgets to call `Share` still emits a title, a canonical URL and the
 right robots directive rather than nothing.
 
-## `Defaults` fills what a page leaves empty
+## Defaults
 
-The zero `Meta` still renders a title, a canonical URL and a robots directive.
-That is the point — a handler that sets nothing should produce a page a
-crawler reads correctly, not one with no canonical and an accidental `index`
-in staging.
+The zero `Meta` still renders a title, a canonical URL and a robots directive,
+so a handler that sets nothing produces a page a crawler reads correctly
+rather than one with no canonical and an accidental `index` in staging.
 
 {{< callout type="warning" >}}
 **Set `NoIndex: true` in every environment that is not production.** A staging
 deploy indexed alongside production splits its own ranking and is tedious to
 undo.
 
-Note this also means robots cannot be asserted from a test: outside production
-every page says `noindex`, whatever its `Meta` asked for. Test the `Meta`
-values where they are decided.
+One consequence for your tests: outside production every page reports
+`noindex` whatever its `Meta` asked for, so assert `Meta` values where they
+are set rather than against the rendered head.
 {{< /callout >}}
 
 `Canonical` may be a path; `BaseURL` is prepended. An already-absolute value is
 left alone, so an image on a CDN domain survives.
 
-## JSON-LD without a schema.org model
+## JSON-LD
 
 ```go
 seo.Meta{JSONLD: []any{
@@ -119,14 +118,15 @@ seo.Meta{JSONLD: []any{
 ```
 
 Each value is marshalled into its own `<script type="application/ld+json">`.
-This package deliberately does **not** model schema.org: pass your own structs
-or a map, so a new schema type never needs a release here.
 
-`JSONLD` escapes so a value cannot break out of the script element — there is a
-test named for exactly that, because `</script>` inside a string is the one way
-this becomes an XSS hole rather than a formatting bug.
+This package does not model schema.org. Pass your own structs or a map, so a
+schema type it has never heard of needs no release here.
 
-## Sitemaps that do not load your table into memory
+Values are escaped so they cannot break out of the script element — a
+`</script>` inside a string would otherwise be an XSS hole rather than a
+formatting bug.
+
+## Sitemaps
 
 ```go
 type Source interface {
@@ -136,9 +136,9 @@ type Source interface {
 }
 ```
 
-Paginating rather than returning a slice is the whole contract: a sitemap for a
-million profiles must not become a million-element slice, and the 50,000-URL
-limit per file means it never has to.
+`Page` paginates rather than returning a slice, so a sitemap for a million
+profiles never becomes a million-element slice. The 50,000-URL limit per file
+means it never needs to.
 
 | Path | Contents |
 |---|---|
@@ -146,16 +146,16 @@ limit per file means it never has to.
 | `/sitemap-profiles-1.xml` | One shard of one source |
 | `/robots.txt` | `Robots`, rendered |
 
-It is always an index because the shape of `/sitemap.xml` is then stable: a
-site that outgrows one file does not change the URL it has already submitted to
+`/sitemap.xml` is always an index so that its shape is stable: a site that
+outgrows one file does not have to change the URL it already submitted to
 every search engine.
 
-An empty source serves an **empty sitemap, not a 404** — a source with nothing
-in it yet is a normal state, and a 404 on a submitted sitemap URL is reported
-as an error for as long as it lasts.
+An empty source serves an **empty sitemap rather than a 404**, because a
+source with nothing in it yet is a normal state, and a 404 on a submitted
+sitemap URL is reported as an error for as long as it lasts.
 
-**`Sources` is a function, not a field**, because a source almost always needs
-a repository, a repository needs a connection, and neither exists where a
+`Sources` is a function rather than a field because a source needs a
+repository, a repository needs a connection, and neither exists where a
 provider literal is written — `LoadProviders` runs before anything is
 registered.
 
@@ -185,7 +185,7 @@ word reaches the database as a constraint violation at insert time — long
 after the person has finished writing.
 {{< /callout >}}
 
-## Reading somebody else's metadata: `seo/opengraph`
+## Unfurling a link: `seo/opengraph`
 
 ```go
 fetcher := opengraph.New(opengraph.Options{})
@@ -193,13 +193,14 @@ preview, err := fetcher.Fetch(ctx, submittedURL)
 // preview.Title, .Description, .Image, .SiteName, .Type, and .URL after redirects
 ```
 
-A page with no metadata returns an empty `Preview` and **no error** — that is
-an ordinary page, and the caller shows the URL it would have shown anyway.
+A page with no metadata returns an empty `Preview` and no error, since that is
+an ordinary page — show the URL you would have shown anyway.
 
-### This is an SSRF surface, and that is the whole design
+### SSRF protections
 
 Fetching a URL somebody typed means making a request from inside your network
-to a destination they chose.
+to a destination they chose. These are the protections that make it safe, and
+they are worth knowing if you ever write something similar yourself.
 
 - **The address is checked at dial time, not before.** A hostname is not a
   destination. Resolving a name, checking the result, and then handing the
@@ -222,7 +223,13 @@ for it until it is unmapped.
 It does not run JavaScript, so a page that writes its own meta tags from a
 script unfurls to whatever is in the served HTML.
 
-## Deliberate omissions
+## Limitations
 
-No OG image generation, no hreflang, no AMP. Each is a project rather than a
-feature, and none is needed for a public page to be indexed correctly.
+No Open Graph image generation, no `hreflang`, no AMP.
+
+## Next steps
+
+- [Inertia](/docs/frontend/inertia) — where `{{ .seoHead }}` goes in the root
+  template, and how SSR failure is detected.
+- [Deployment](/docs/deployment/) — setting `APP_URL` so canonical URLs are
+  right in production.

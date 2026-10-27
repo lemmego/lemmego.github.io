@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `Context` interface is the central request/response abstraction in Lemmego. Every handler receives a `Context` that provides access to the request, response, session, and application services.
 
 ```go

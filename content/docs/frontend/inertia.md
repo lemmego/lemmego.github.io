@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 [Inertia.js](https://inertiajs.com/) enables building modern SPAs using server-side routing and client-side rendering with React or Vue. Lemmego includes a first-class Inertia adapter through the `inertia` package.
 
 ## Setup

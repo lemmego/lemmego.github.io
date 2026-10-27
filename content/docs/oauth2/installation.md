@@ -52,7 +52,7 @@ lemmego run migrate up
 ```
 
 {{< callout type="info" >}}
-The tags are namespaced on purpose. `--tags` selects what gets published, so a
+The tags are namespaced. `--tags` selects what gets published, so a
 bare `migrations` would match every package that ships one, and `config`
 already means something to the queue and cache modules. Passing no tags at all
 publishes everything every registered provider offers.

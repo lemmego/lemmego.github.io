@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 [Templ](https://templ.guide/) provides type-safe HTML templates that are compiled to Go code. Lemmego includes a `templ` package that bridges Templ components with the framework's rendering pipeline.
 
 ## Setup

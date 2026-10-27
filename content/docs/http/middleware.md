@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Every incoming request passes through middleware before reaching your handler. Lemmego supports two middleware layers:
 
 1. **HTTP Middleware** — wraps the entire router at the `net/http` level
@@ -154,7 +152,7 @@ middleware.VerifyCSRF(&middleware.CSRFOpts{
 })
 ```
 
-The token is a per-session secret: it is stored in the session, mirrored into the `XSRF-TOKEN` cookie, and deliberately not rotated on each request. See [CSRF Protection](/docs/security/csrf).
+The token is a per-session secret: it is stored in the session, mirrored into the `XSRF-TOKEN` cookie, and not rotated on each request. See [CSRF Protection](/docs/security/csrf).
 
 ### Method Override
 

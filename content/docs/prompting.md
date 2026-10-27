@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `cmder` package provides fluent CLI prompting utilities for building interactive command-line interfaces. It wraps `github.com/manifoldco/promptui` for terminal UI.
 
 ## Basic Prompts

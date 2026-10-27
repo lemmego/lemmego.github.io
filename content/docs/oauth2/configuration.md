@@ -84,7 +84,7 @@ been revoked.
 | `cached` | One read per cache TTL | Reopens a revocation window that long |
 | `never` | None | Revoking does nothing until the token expires |
 
-`always` is the honest price of revocation meaning what it says. Choose
+`always` is the cost of revocation meaning what it says. Choose
 another only if you have decided that trade knowingly.
 
 ### `management_routes` — default `true`

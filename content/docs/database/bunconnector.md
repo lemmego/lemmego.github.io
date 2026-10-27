@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `bunconnector` package provides an `app.Provider` that connects to databases using [uptrace/bun](https://github.com/uptrace/bun) and optionally registers a GPA provider.
 
 ## Usage

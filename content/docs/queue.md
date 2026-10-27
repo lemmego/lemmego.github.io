@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Lemmego includes a built-in background job system (`tasker`) wrapped as a first-class service provider (`queue`). It supports multiple queues, worker pools, retries with backoff, scheduled jobs, batch operations, multi-node clustering, and a real-time web dashboard.
 
 ## Quick Start

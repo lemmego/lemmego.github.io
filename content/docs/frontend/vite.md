@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Lemmego uses [Vite](https://vitejs.dev/) as the frontend build tool, integrated through the Inertia adapter. It provides hot module replacement (HMR) during development and optimized production builds.
 
 ## Configuration

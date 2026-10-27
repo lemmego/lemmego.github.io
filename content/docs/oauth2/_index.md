@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `oauth2` module turns your application into an OAuth 2.0 **authorization
 server**: it issues and revokes the tokens other applications use to call your
 API, manages the clients that may ask for them, and runs the screen where a

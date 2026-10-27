@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Lemmego includes a simple pub/sub event system that allows you to hook into the application lifecycle and communicate between components without tight coupling.
 
 ## Using the EventEmitter

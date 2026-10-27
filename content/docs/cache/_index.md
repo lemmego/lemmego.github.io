@@ -10,8 +10,6 @@ aliases:
   - /docs/caching/
 ---
 
-## Overview
-
 The `cache` module gives an application several storage backends behind one
 API, with typed access, atomic locks, tagged invalidation and events.
 
@@ -57,7 +55,7 @@ has to know how a value is encoded.
 `Cache` sits above it and owns encoding, key namespacing and events. It is what
 almost all application code should use.
 
-`Cache` is a concrete type, and there is deliberately **no interface over it**.
+`Cache` is a concrete type, and there is **no interface over it**.
 Several of its methods declare their own type parameters — `GetAs[T]`,
 `RememberAs[T]` — which Go permits only on concrete types, because a method
 with type parameters can never satisfy an interface. Introducing a `Cacher`

@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Lemmego is built on a set of foundational patterns that work together to create a cohesive framework. Understanding these core concepts is essential for building applications effectively.
 
 {{< cards >}}

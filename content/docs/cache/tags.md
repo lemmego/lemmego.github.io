@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Tags group entries so they can be invalidated together:
 
 ```go

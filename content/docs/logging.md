@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Logging is `log/slog`. Lemmego does not wrap it, shadow it or ask you to import
 anything to use it:
 
@@ -21,7 +19,7 @@ slog.Warn("slow request", "duration", "2.5s")
 slog.Error("database connection failed", "error", err)
 ```
 
-There is deliberately no `logger.Info`. A package that logs should be able to
+There is no `logger.Info`. A package that logs should be able to
 import `log/slog` and nothing else, so it works outside an application too —
 in a test, in a command, in a library you later extract.
 

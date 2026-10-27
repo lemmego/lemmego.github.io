@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `fsys` package provides a unified file storage abstraction with multiple provider backends. The `api/fs` package integrates this into the framework with multi-disk management.
 
 ## Architecture

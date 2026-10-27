@@ -47,7 +47,7 @@ The `jti` is a row in `oauth_access_tokens`. The signature proves the token
 was issued; the row proves it still counts.
 
 Every authenticated request therefore costs one RSA verification and one
-indexed primary-key read. That read is the honest price of revocation meaning
+indexed primary-key read. That read is the cost of revocation meaning
 what it says — a self-contained token cannot be un-issued, so something has to
 be asked.
 

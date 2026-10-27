@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Lemmego provides built-in security features including authentication, CSRF protection, encryption, and input validation.
 
 {{< cards >}}

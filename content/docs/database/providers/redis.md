@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The Redis provider (`github.com/lemmego/gparedis`) wraps the [go-redis](https://github.com/redis/go-redis) client to provide GPA-compatible key-value storage. It supports TTL, batch operations, atomic counters, and pattern matching.
 
 ## Setup

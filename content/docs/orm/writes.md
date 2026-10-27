@@ -134,7 +134,7 @@ err := db.Transaction(ctx, func(tx *orm.Tx) error {
 
 It commits when the callback returns nil, rolls back on error, and recovers from a panic by rolling back before re-panicking.
 
-A transaction is deliberately **not** bound to one entity type, so a single unit of work spans as many models as it needs.
+A transaction is **not** bound to one entity type, so a single unit of work spans as many models as it needs.
 
 `DB.Begin` (and `DB.BeginTx` for isolation levels) returns a `*Tx` the caller must finish itself, for code that has to hand the handle around.
 

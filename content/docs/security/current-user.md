@@ -74,7 +74,7 @@ func Dashboard(c app.Context) error {
 
 Behind `auth.Protected` the request is already authenticated, so a false `ok`
 there means specifically "authenticated, but not as a person" — a machine
-token. 403 is the honest answer; 401 would invite it to try authenticating
+token. 403 is the correct answer; 401 would invite it to try authenticating
 again, which it already did successfully.
 
 Other accessors:

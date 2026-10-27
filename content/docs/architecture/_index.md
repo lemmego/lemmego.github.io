@@ -8,11 +8,11 @@ sidebar:
   open: true
 ---
 
-## Overview
+This page is a map of how a request moves through a Lemmego application and
+which layer owns which decision. It is reference material: if you are building
+something, the pages it links to are where the instructions are.
 
-Lemmego follows a layered, plugin-based architecture with clear separation of concerns. Understanding these architectural patterns helps you build maintainable, testable applications.
-
-## Application Layers
+## Request path
 
 ```
 HTTP Request
@@ -53,7 +53,7 @@ HTTP Request
 +------------------+
 ```
 
-## Key Patterns
+## Patterns you will meet
 
 ### Builder Pattern (Bootstrap)
 

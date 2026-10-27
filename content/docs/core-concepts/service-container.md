@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The service container is a lightweight registry that stores and retrieves services by their Go type. It's the simplest form of dependency injection in Lemmego, used internally by the framework and by your application code.
 
 ## Adding Services

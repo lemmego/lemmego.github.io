@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Lemmego uses a centralized configuration system that combines environment variables, `.env` files, and runtime configuration maps. The system supports dot-notation access, nested keys, and type-safe retrieval.
 
 ## The Config System

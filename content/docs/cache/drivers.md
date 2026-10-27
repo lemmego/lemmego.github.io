@@ -73,7 +73,7 @@ Laravel calls this driver `array`; that name is accepted as an alias.
 The only driver that works across machines, and the only one whose locks do.
 
 `Flush` scans for the configured prefix and deletes what it finds. It
-deliberately does **not** call `FLUSHDB`: a Lemmego application usually shares
+does **not** call `FLUSHDB`: a Lemmego application usually shares
 one Redis database between its cache, its sessions and its queue, and emptying
 the database would log every user out and drop queued work. Set
 `allow_flush_db` only when the database holds nothing else.

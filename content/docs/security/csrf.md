@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 CSRF (Cross-Site Request Forgery) protection is built into Lemmego through the `middleware.VerifyCSRF` middleware. It uses a double-submit cookie pattern with session-based tokens.
 
 ## How It Works
@@ -28,7 +26,7 @@ CSRF (Cross-Site Request Forgery) protection is built into Lemmego through the `
 ### The token is not rotated per request
 
 A CSRF token is a shared secret for the session, not a one-time nonce, and it is
-deliberately left in place after a successful write.
+left in place after a successful write.
 
 Rotating on every verified request rejects any client still holding the previous
 token — one whose request was already in flight, one that missed a `Set-Cookie`,
@@ -120,7 +118,7 @@ API clients should use token-based authentication (JWT or API keys) instead.
 - Tokens are generated using `crypto/rand`
 - Token comparison uses `subtle.ConstantTimeCompare`, so it leaks nothing through timing
 - The cookie carries the *same* value as the session token — that is the
-  double-submit pattern. It is deliberately not `HttpOnly`, because the point is
+  double-submit pattern. It is not `HttpOnly`, because the point is
   for JavaScript to read it and send it back in the `X-XSRF-TOKEN` header. The
   protection comes from the same-origin policy: a cross-site attacker can cause
   the cookie to be *sent*, but cannot *read* it to populate the header

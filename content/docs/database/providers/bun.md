@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The Bun provider (`github.com/lemmego/gpabun`) wraps [uptrace/bun](https://github.com/uptrace/bun) to provide GPA-compatible SQL access. It's a lighter alternative to GORM with a focus on SQL-first development.
 
 ## Setup

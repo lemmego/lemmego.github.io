@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `di` package provides a full-featured dependency injection container with support for three service lifetimes, automatic dependency resolution, circular dependency detection, and scoped containers.
 
 ## Service Lifetimes

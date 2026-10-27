@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The MongoDB provider (`github.com/lemmego/gpamongo`) wraps the official MongoDB Go driver to provide GPA-compatible document database access. It supports document-specific operations like aggregation, text search, and geospatial queries.
 
 ## Setup

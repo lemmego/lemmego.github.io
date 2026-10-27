@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The provider registry is a singleton that stores database provider instances by type and name. It uses Go generics for compile-time type inference.
 
 ## Architecture

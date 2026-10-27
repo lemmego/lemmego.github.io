@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Providers are the plugin mechanism for Lemmego. They allow packages to register services, routes, middleware, commands, and error handlers with the application during bootstrapping.
 
 ## The Provider Interface

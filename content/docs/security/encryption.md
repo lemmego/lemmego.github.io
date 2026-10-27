@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `encryption` package provides AES-256-GCM authenticated encryption for secure data storage. It uses a singleton pattern initialized from the `APP_KEY` environment variable.
 
 ## Configuration

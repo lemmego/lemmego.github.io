@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Lemmego applications compile to a single binary, making deployment straightforward across any platform that supports Go.
 
 ## Production Build

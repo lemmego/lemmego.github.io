@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Lemmego supports multiple frontend rendering approaches, from server-rendered HTML to modern SPAs. You can choose the approach that best fits your project, or combine them.
 
 ### Available Options

@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 GPA provides two ways to build queries: option-based (functional) and builder-based (fluent). Both produce the same `Query` object and support the same set of conditions.
 
 ## Conditions

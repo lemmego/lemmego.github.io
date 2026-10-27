@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 The `lemmego` CLI is your primary tool for creating projects, generating code, and managing the development workflow.
 
 ## Installation

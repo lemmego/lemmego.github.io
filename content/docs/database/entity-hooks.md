@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 Entities can implement lifecycle hooks that are automatically called during CRUD operations. This enables automatic behavior like validation, timestamp management, and data transformation.
 
 ## Available Hooks

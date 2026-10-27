@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 GPA supports transactions through the `Transaction[T]` interface, which extends `Repository[T]` with commit, rollback, and savepoint support.
 
 ## Basic Transactions

@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## Overview
-
 SQL providers (GORM, Bun) support raw SQL execution and DDL operations directly through the repository.
 
 ## Raw Queries
