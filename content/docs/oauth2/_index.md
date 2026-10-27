@@ -45,7 +45,7 @@ side and is a different, much smaller thing this module does not do.
 | Device authorization | A CLI, a TV app, anything that cannot open a browser |
 | Personal access tokens | A token a user creates for themselves, like an API key |
 
-## What it deliberately does not support
+## What it does not support
 
 **The implicit grant** returned tokens directly in a redirect, where they
 landed in browser history and referrer headers. It is obsolete; the
@@ -65,8 +65,6 @@ that tries gets an answer rather than a puzzle:
   "error_description": "the password grant is not supported; use the authorization code grant with PKCE"
 }
 ```
-
-Passport dropped both as well.
 
 ## Standards
 
@@ -90,14 +88,14 @@ It works with any SQL connector — the Lemmego ORM, GORM or Bun, with or
 without GPA — because it resolves the connection through
 [`api/db`](/docs/database/connection-seam) rather than through an ORM.
 
-## A word on hand-rolled protocol code
+## Implementation notes
 
-This is a hand-written implementation, not a wrapper around an audited library
-such as `ory/fosite`. That is a deliberate trade: the API stays
-Lemmego-shaped, and there is no second framework's vocabulary leaking through.
+This is a hand-written implementation rather than a wrapper around a library
+such as `ory/fosite`, which keeps the API Lemmego-shaped and avoids a second
+framework's vocabulary in your code.
 
-The cost is that protocol mistakes here are security bugs. The module carries
-an adversarial test suite covering code replay, code and redirect
+The trade-off is that a protocol mistake here is a security bug. The module
+carries an adversarial test suite covering code replay, code and redirect
 substitution, PKCE downgrade and stripping, refresh reuse, scope elevation,
 `alg:none`, algorithm confusion, `kid` injection, `typ` confusion and a forged
 `jti`. That suite proves those specific attacks are blocked. It does not prove

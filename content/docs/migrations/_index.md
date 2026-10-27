@@ -76,10 +76,9 @@ gives you per driver, [Writing Migrations](/docs/migrations/writing-migrations)
 for the shape of a file and the one-transaction rule, and
 [Running Migrations](/docs/migrations/running-migrations) for the CLI.
 
-## Three things that catch people
+## Common pitfalls
 
-They are repeated in context, but they are the ones worth knowing before you
-write a line:
+Each is covered again in context. These three are worth knowing up front:
 
 - **`TimestampTz(name, 0)`** — any other precision emits
   `TIMESTAMP WITH TIME ZONE(6)`, which PostgreSQL rejects.

@@ -8,25 +8,22 @@ sidebar:
   open: true
 ---
 
-## The problem it solves
+## When to use it
 
-A framework package that needs to store something — a queue, an OAuth2 server,
-anything with tables of its own — has to answer a question the application
-already answered: *which database is this?*
-
-Until `api/db` there was no single place to ask.
+Reach for `api/db` when you are writing a package that needs its own tables —
+a queue, an OAuth2 server, a session store — and cannot know which SQL layer
+the application chose.
 
 The service container keys on a concrete type, so resolving "the database"
-meant naming `*orm.DB` or `*gorm.DB` or `*bun.DB` at compile time — and a
-package cannot know which of the three a project chose. The GPA registry keys
-on a vendor string, is off by default, and under GORM and Bun makes the
-provider and the native handle mutually exclusive, so a package depending on
-it would break the default project.
+would mean naming `*orm.DB`, `*gorm.DB` or `*bun.DB` at compile time. The GPA
+registry keys on a vendor string, is off by default, and under GORM and Bun
+makes the provider and the native handle mutually exclusive, so depending on
+it breaks a default project.
 
-So packages did the only thing left: re-derived a DSN from configuration and
-opened a second connection. That is how the queue came to run against a
-different database from the rest of the application and lose every job on
-restart — two independent readings of one config tree drifted apart.
+The seam exists so such a package does not fall back to re-deriving a DSN from
+configuration and opening a second connection. Two independent readings of one
+config tree drift, and the result is a package quietly running against a
+different database from the rest of the application.
 
 ## The seam
 
@@ -47,12 +44,12 @@ name := conn.Name()        // the sql.connections key it was built from
 Every SQL connector registers one during bootstrap — `ormconnector`,
 `gormconnector` and `bunconnector` alike, and in both GPA and non-GPA mode.
 
-## What it deliberately does not carry
+## What it does not cover
 
-Quoting, upserts, `RETURNING`, locking hints. Those live in `orm.Dialect` and
-in the queue's own dialect layer, which are genuinely different interfaces
-serving different needs. Merging them here would produce a union that serves
-neither well and turn a connection seam into a SQL-generation library.
+Quoting, upserts, `RETURNING` and locking hints are not here. Those live in
+`orm.Dialect` and in the queue's own dialect layer, which serve different
+needs; merging them would turn a connection seam into a SQL-generation
+library.
 
 What a package writing one `INSERT` actually needs is the pool, the dialect,
 and parameter placeholders:

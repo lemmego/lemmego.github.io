@@ -25,31 +25,17 @@ If you only need the identifier, skip the lookup:
 id, ok := auth.UserID(c)
 ```
 
-## Why it works
+## How it resolves
 
-A credential does not carry the user. It carries an **id**, and `auth`
-resolves that id through the `UserLoader` you configured in
-[Setup](../authentication#setup). One loader, one code path, one type — no
-matter how the request authenticated.
-
-This used to be otherwise, and it is worth knowing what changed, because the
-old shapes are still in a lot of tutorials:
-
-| How the request authenticated | What `AuthUser` used to return |
-|---|---|
-| Session | `*models.User` |
-| JWT | `map[string]any`, with `id` as a `float64` |
-| OAuth2 | `*oauth2.Principal` |
-
-Every handler that wanted a user had to type-switch over that, and getting it
-wrong was quiet: the assertion failed, the page rendered as though nobody was
-signed in, and nothing was logged.
+A credential does not carry the user. It carries an **id**, which `auth`
+resolves through the `UserLoader` you configured in
+[Setup](../authentication#setup). One loader, one code path, one type,
+whichever way the request authenticated — a session cookie, a JWT and an
+OAuth2 bearer token all arrive in your handler as the same `*models.User`.
 
 ## What it costs
 
-**One indexed lookup per authenticated request.** That is the honest price,
-and it is stated here rather than buried because it is a real cost on a hot
-path.
+**One indexed lookup per authenticated request.**
 
 What it buys is that the user is *current*. A token is a claim about the past —
 it says who you were when it was minted. Resolving through storage means a

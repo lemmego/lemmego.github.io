@@ -8,11 +8,16 @@ sidebar:
   open: true
 ---
 
-## Overview
+`lemmego/mail` sends transactional email — a verification link, a password
+reset, a weekly digest. A *mailable* describes the message, a renderer builds
+the HTML and text bodies, a transport sends it, and
+[`tasker`](/docs/queue) keeps it off the request.
 
-`lemmego/mail` is transactional email: a mailable describes the message, a
-renderer builds both bodies, a transport sends it, and `tasker` takes it off
-the request.
+## Install
+
+```shell
+go get github.com/lemmego/mail
+```
 
 ```go
 import "github.com/lemmego/mail"
@@ -26,7 +31,7 @@ func (w Welcome) Build(ctx mail.Context, r mail.Renderer) (*mail.Message, error)
     }
     return &mail.Message{
         To:      []mail.Address{{Name: w.User.Name, Email: w.User.Email}},
-        Subject: "Welcome to Productshore",
+        Subject: "Welcome to Example",
         HTML:    html,
         Text:    text,
     }, nil
@@ -36,30 +41,26 @@ func (w Welcome) Build(ctx mail.Context, r mail.Renderer) (*mail.Message, error)
 return mail.Queue(c.RequestContext(), Welcome{User: user})
 ```
 
-```bash
-go get github.com/lemmego/mail
-```
-
-## Registering
+## Register the provider
 
 ```go
 &mail.Provider{
-    From: mail.Address{Name: "Productshore", Email: "hello@productshore.com"},
+    From: mail.Address{Name: "Example", Email: "hello@example.com"},
 }
 ```
 
 {{< callout type="info" >}}
-**With no `Transport` set, mail is written to the log rather than sent.** That
-default is deliberate: the alternative is a framework that emails real people
-from somebody's laptop the first time a test fixture is seeded. It warns in
-production so the default cannot be the reason nothing arrives.
+**With no `Transport` set, mail is written to the log rather than sent.** This
+keeps a fresh checkout from emailing real people the first time a fixture is
+seeded. It warns in production, so an unset transport cannot quietly become
+the reason nothing arrives.
 {{< /callout >}}
 
 To actually send, pass a transport:
 
 ```go
 &mail.Provider{
-    From: mail.Address{Name: "Productshore", Email: "hello@productshore.com"},
+    From: mail.Address{Name: "Example", Email: "hello@example.com"},
     Transport: smtp.New(smtp.Config{
         Host:     config.MustEnv("MAIL_HOST", ""),
         Port:     config.MustEnv("MAIL_PORT", 587),
@@ -69,12 +70,11 @@ To actually send, pass a transport:
 }
 ```
 
-The provider does **not** build an SMTP transport from configuration on your
-behalf. `mail/smtp` imports `mail`, so `mail` cannot import it back — but the
-cycle is not the only reason: defaulting to a real relay means a misconfigured
-`MAIL_HOST` is discovered by whoever receives the mail.
+The provider does not build an SMTP transport from configuration on your
+behalf. Pass one explicitly: a transport that defaults itself into existence
+means a misconfigured `MAIL_HOST` is discovered by whoever receives the mail.
 
-## `Send` on the request, `Queue` off it
+## Sending and queueing
 
 ```go
 mail.Send(ctx, mailable)    // delivers on the calling goroutine
@@ -136,7 +136,11 @@ not supply one, via `mail.TextFromHTML`. It keeps link targets — a text part
 reading "click here" with no URL is worse than no text part — and collapses
 whitespace, which HTML has plenty of and a text email should not.
 
-## A message is validated before a transport is dialled
+## Validation
+
+A message is checked before a transport is dialled, so a bug surfaces as an
+error in your logs rather than as a connection to a relay that rejects it —
+or accepts it.
 
 | Refused | Why |
 |---|---|
@@ -145,9 +149,6 @@ whitespace, which HTML has plenty of and a text email should not.
 | **Neither body** | An empty message is always a bug, and a relay that accepts it has published the bug to a real person |
 | Invalid recipient address | Caught here rather than mid-conversation |
 | No sender anywhere | Not the mailable's, not the mailer's default |
-
-Validating first means a bug surfaces as an error in your logs rather than as
-a connection to a relay that then rejects it — or worse, accepts it.
 
 Non-ASCII headers are RFC 2047 encoded, so a subject with an em dash or a name
 with an accent arrives readable rather than as mojibake.
@@ -231,9 +232,13 @@ process. If nothing appears after a sign-up, check that a worker is running
 before suspecting the mailer.
 {{< /callout >}}
 
-## Deliberate omissions
+## Limitations
 
-One transport. No multi-transport routing, no attachments, no notification
-abstraction, no bounce handling. None is needed to send a verification link or
-a weekly digest, which is what this exists for — and each changes the shape of
-`Message`, so adding one later is a smaller change than guessing at it now.
+One transport at a time. No multi-transport routing, no attachments, no bounce
+handling. For multi-channel delivery — an email *and* an in-app record from one
+call — see [Notifications](/docs/notifications/).
+
+## Next steps
+
+- [Queue](/docs/queue) — the worker that `mail.Queue` hands messages to.
+- [Notifications](/docs/notifications/) — sending over several channels at once.

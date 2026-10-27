@@ -38,24 +38,21 @@ The `...As` suffix follows `session.GetAs` and `config.LookupAs`: a typed
 variant of a method that also exists untyped. The package-level functions take
 the plain names — `cache.Get[T]`, `cache.Remember[T]` — matching `app.Get[T]`.
 
-### Why there is a bool
+### The `found` return
 
 ```go
 value, found, err := c.GetAs[int](ctx, "count")
 ```
 
-A cached `0` and an absent key are both the zero value of `int`. Without the
-bool they would be indistinguishable, and the same holds for `false` and `""`.
+Check `found`, not the value. A cached `0` and an absent key are both the zero
+value of `int`, and the same applies to `false` and `""`.
 
-Returning the miss as an error instead would be worse: a miss is the normal
-case for a cache, and a caller that writes `if err != nil { return err }` should
-not be propagating it as a failure. So `err` means a store that broke or a
-value that would not decode, and nothing else.
+`err` means the store broke or the value would not decode. A miss is not an
+error, so `if err != nil { return err }` will not propagate one.
 
-At the driver layer the convention is the opposite — `Store.Get` returns
-`cache.ErrMiss`. It composes with `errors.Is` through the decorators a store
-may be wrapped in, and a `found bool` threaded through those would eventually
-be dropped.
+At the driver layer the convention is reversed: `Store.Get` returns
+`cache.ErrMiss`, which composes with `errors.Is` through any decorators a
+store is wrapped in.
 
 ## Stampede protection
 

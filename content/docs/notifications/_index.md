@@ -8,12 +8,21 @@ sidebar:
   open: true
 ---
 
-## Overview
+`lemmego/notify` delivers one notification over several channels at once —
+storing a row your application can list, sending an email, and pushing to an
+open browser connection, from a single `Send` call.
 
-`lemmego/notify` delivers one notification over several channels. A
-notification is a type that names the channels it goes out on; each channel
-then asks, by type assertion, whether that notification implements the one
-optional interface the channel understands.
+A notification is a type that names the channels it goes out on. Each channel
+then asks, by type assertion, whether the notification implements the one
+interface that channel needs.
+
+## Install
+
+```shell
+go get github.com/lemmego/notify
+```
+
+## Define a notification
 
 ```go
 type Followed struct {
@@ -37,73 +46,64 @@ func (f Followed) ToBroadcast(context.Context, notify.Notifiable) (any, error) {
     return map[string]any{"type": "followed"}, nil
 }
 
-// Compile-time, one line, and it catches a method whose signature drifted.
+// Assert the pairing at compile time — one line per channel.
 var _ database.Storable       = Followed{}
 var _ broadcast.Broadcastable = Followed{}
 ```
+
+`Via` receives the recipient, so a notification can return different channels
+for different people — or none at all, which is how notification preferences
+live in your application rather than here.
+
+**The order of `Via` is the order of delivery.** List `database` first: it is
+the record, while `mail` and `broadcast` only announce that the record exists.
+
+## Send it
 
 ```go
 notify.Send(ctx, user, Followed{ActorID: actor.ID, ActorHandle: actor.Handle})
 ```
 
-```bash
-go get github.com/lemmego/notify
-```
-
-## Send after the transaction commits, never inside it
-
 {{< callout type="warning" >}}
-This is the one rule that cannot be enforced from inside the library.
+**Send after the transaction commits, never inside it.**
 
 Inside a transaction, the broadcast fires before the row is visible, so a
-client that refetches finds nothing — and if the transaction then rolls back,
+client that refetches finds nothing. If the transaction then rolls back,
 somebody has been told about a notification that does not exist.
+
+No ordering guarantee inside `Send` can protect a caller from this, so it is
+the one rule the library cannot enforce for you.
 {{< /callout >}}
 
-And fire only on a real state transition. An upsert written
+**Send only on a real state transition.** An upsert written
 `ON CONFLICT DO NOTHING` discards whether anything changed, so a notification
-at that call site re-fires on every double-tap. Return whether a row was
-actually inserted and send on that.
-
-## The runtime hole, and how it is closed
-
-Go has no duck typing, so a `Via` that names a channel its notification cannot
-satisfy is a **runtime** failure. Three things close it:
-
-1. **Channel names are constants in the channel packages**, so `database.Name`
-   is checked by the compiler and a typo is a build error. The core defines no
-   channel names at all.
-2. **A channel returns a named error**, never a silent skip:
-   `*Followed says via "mail" but does not implement mail.Mailable (missing
-   ToMail)`.
-3. **`notifytest.Contract`** moves the check into your suite. This is the test
-   an application owes itself the moment it defines a second notification:
+at that call site fires again on every repeat. Have the write report whether a
+row was actually inserted, and send on that:
 
 ```go
-func TestNotificationsSatisfyTheirChannels(t *testing.T) {
-    notifytest.Contract(t, notifier, notifytest.User{ID: "1"},
-        notifications.All()...)
+created, err := repo.Follow(ctx, followerID, followeeID)
+if err != nil {
+    return err
+}
+if created {
+    notify.Send(ctx, followee, Followed{...})
 }
 ```
-
-`All()` is three lines in your own notifications package, returning a zero
-value of every type. A notification missing from it is not checked, which is
-why the list and the types live together where a reviewer sees both.
 
 ## Channels
 
 | Channel | Package | Needs |
 |---|---|---|
-| `database` | `notify/channel/database` | a `Store`; stdlib only |
+| `database` | `notify/channel/database` | a `Store`; standard library only |
 | `database` (SQL) | `notify/channel/database/sqlstore` | an `api/db.Connection` |
 | `mail` | `notify/channel/mail` | a `*mail.Mailer` |
 | `broadcast` | `notify/channel/broadcast` | a four-primitive `Publisher` |
 
-`database` is the record. `mail` and `broadcast` say it is there — which is
-why a notification lists `database` first: the order in `Via` is the order of
-delivery.
+Channel names are constants in the channel packages, so `database.Name` is
+checked by the compiler and a typo is a build error. The core package defines
+no channel names.
 
-## Wiring
+## Wire it up
 
 ```go
 conn, _ := db.Resolve(a)
@@ -118,58 +118,100 @@ store, err := sqlstore.New(conn)
 }
 ```
 
-Channels are constructed by the application and handed over, exactly as
-`mail.Provider` takes its `Transport`. That is what keeps this module from
+Your application constructs the channels and hands them over, the same way
+`mail.Provider` takes its `Transport`. This is what keeps the module from
 importing a SQL driver, an SMTP client or a WebSocket library in order to
-offer them.
+offer them — an application that wants only in-app notifications compiles no
+SMTP client.
 
-```bash
+Then publish the migration:
+
+```shell
 lemmego publish --tags=notify-migrations
 ```
 
-The schema is yours to read, edit and roll back; creating tables at boot would
-put tables in your database that nothing in your project mentions.
+The schema arrives as a migration in your project rather than being created at
+boot, so it is yours to read, edit and roll back.
 
-## Deliberate decisions
+## Test that every notification can be delivered
 
-**The root package is standard library only**, and a test enforces it. The
-first version of that test forbade a list of heavy imports and immediately
-caught `api/app` reaching a Postgres driver through `api/db` — which is why
-`Provider` lives in `notify/provider`. An application that wants in-app
-notifications should compile no SMTP client.
+Go has no duck typing, so a `Via` naming a channel its notification does not
+satisfy fails at **runtime**, when a real person was supposed to be told
+something. Two things catch it earlier.
 
-**`Send` is synchronous.** The only slow channel is mail, and `mail.Queue`
-already renders on the calling goroutine and enqueues a self-contained
-message, so the deferral happens at the boundary that needed it. A
-`notify.Queue` would have to serialise an arbitrary notification, which means
-a name-to-type registry in both directions.
+A channel returns a named error rather than skipping silently:
 
-**The unread count is a capped query, not a counter column.** It reads at most
-`MaxUnread+1` entries from a partial index whose entire size is the number of
-unread notifications in the system, so it is O(1) in the worst case forever. A
-counter column cannot express `col = col + 1` through the ORM, needs raw SQL
-at every write, and drifts the first time anybody prunes or deletes a row by
-hand — and the symptom is a badge reading 3 forever that no log shows.
+```text
+*Followed says via "mail" but does not implement mail.Mailable (missing ToMail)
+```
 
-**Do not cache it.** An unread badge is state, not discovery, and it is the
-thing the person just clicked.
+And `notifytest.Contract` moves the check into your test suite. Add it when
+you define your second notification:
 
-**The store's methods are transitions, not CRUD.** Marking something read is
-one conditional update whose affected row count is the answer, so two taps on
-one bell cannot both report a change — and the owner is in every condition, so
-one person cannot touch another's notifications even if a handler forgets to
+```go
+func TestNotificationsSatisfyTheirChannels(t *testing.T) {
+    notifytest.Contract(t, notifier, notifytest.User{ID: "1"},
+        notifications.All()...)
+}
+```
+
+`All()` is a short function in your own notifications package returning a zero
+value of every type. A notification missing from that list is not checked, so
+keep the list beside the types where a reviewer sees both.
+
+## The unread count
+
+Read it with a capped query rather than keeping a counter column:
+
+```sql
+SELECT count(*) FROM (
+    SELECT 1 FROM notifications
+     WHERE notifiable_type = $1 AND notifiable_id = $2 AND read_at IS NULL
+     LIMIT 101
+) t
+```
+
+The cap is what makes this cheap forever: it reads at most `MaxUnread+1`
+entries from a partial index whose entire size is the number of *unread*
+notifications in the system, and a badge shows "99+" past that anyway.
+
+**Do not cache it.** An unread badge is the thing the person just clicked, so
+a stale one is the most noticeable bug a notification system can have.
+
+A counter column is the tempting alternative and it goes wrong: `col = col + 1`
+is not expressible through the ORM, so it needs raw SQL at every write, and it
+drifts the first time anyone prunes a row or deletes one by hand. The symptom
+is a badge stuck at 3 that no log explains.
+
+## Store behaviour
+
+The store's methods are **transitions, not CRUD**. Marking a notification read
+is one conditional update whose affected row count is the answer, so two taps
+on one bell cannot both report a change. The owner is part of every condition,
+so one person cannot touch another's notifications even if a handler forgets to
 check.
 
-**`jsonb` does not preserve your key order**, because it stores a parsed form
-— the same property that makes it indexable. Every key and value survives,
-numbers included; a payload with duplicate keys is collapsed, so do not build
-one.
+`jsonb` does not preserve the key order of your payload, because it stores a
+parsed form — the same property that makes it indexable. Every key and value
+survives, numbers included. A payload with duplicate keys is collapsed, so do
+not build one.
 
-## Not built
+## Limitations
 
-Notification preferences (`Via` takes the recipient, so they can live in your
-application where the product decisions are) · digests and grouping (the
-`dedupe_key` column is sized to double as a collapse key later) ·
-`notify.Queue` · routes and an inbox UI (`database.Inbox` gives you the five
-methods; the page is yours) · MySQL DDL, refused by name rather than emitted
-untested · channel-level retry (`tasker`'s `ShouldRetry` owns that).
+- **Notification preferences** — `Via` takes the recipient, so they belong in
+  your application alongside the product decisions.
+- **Digests and grouping** — the `dedupe_key` column is sized to serve as a
+  collapse key when you need one.
+- **`notify.Queue`** — `Send` is synchronous. The only slow channel is mail,
+  and [`mail.Queue`](/docs/mail/) already renders on the calling goroutine and
+  enqueues a self-contained message, so deferral happens where it is needed.
+- **Routes and an inbox UI** — `database.Inbox` gives you the five methods;
+  the page is yours.
+- **MySQL DDL** — refused by name rather than emitted untested.
+- **Channel-level retry** — [`tasker`'s](/docs/queue) `ShouldRetry` owns that.
+
+## Next steps
+
+- [Broadcasting](/docs/broadcast/) — the live connection the `broadcast`
+  channel publishes to.
+- [Mail](/docs/mail/) — configuring the transport the `mail` channel uses.

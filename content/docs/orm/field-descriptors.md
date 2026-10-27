@@ -87,9 +87,13 @@ Note what is absent: `Posts` is a relationship, not a column, so it gets no desc
 
 The generator handles embedded structs by inlining their columns, honours `orm:"-"`, falls back to `db` tags, dereferences pointers for the value type, and reads a literal `TableName()` override off the source.
 
-## Why generated rather than reflected
+## How column names are resolved
 
-The generator calls the ORM's own naming and tag rules rather than reimplementing them, so a descriptor always resolves to the same column the runtime does. A second, slightly different copy of those rules is what once let the ORM look for `categorys` while the migration created `categories`.
+The generator calls the ORM's own naming and tag rules rather than
+reimplementing them, so a descriptor always resolves to the same column the
+runtime queries. This is why descriptors are generated rather than written by
+hand: a second copy of the naming rules can disagree with the first, and the
+symptom is a query against a table that does not exist.
 
 ## Available operators
 

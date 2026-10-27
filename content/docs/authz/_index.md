@@ -8,39 +8,20 @@ sidebar:
   open: true
 ---
 
-## Overview
+`lemmego/authz` decides what a request is allowed to do. You register typed
+policies once at boot and ask them per request.
 
-`lemmego/authz` decides what a request may do: typed policies, registered once
-at boot and asked per request.
+It is separate from [`lemmego/auth`](/docs/security/authentication), which
+establishes *who* is asking. Authorization answers *what they may do*, so an
+application can authenticate without authorizing anything, and a policy can be
+written against a request that something other than `lemmego/auth`
+authenticated.
 
-```go
-import "github.com/lemmego/authz"
+## Install
 
-// at boot
-authz.Register(r, "launch.update", authz.OwnedBy[*models.User, *models.Launch](
-    func(l *models.Launch) string { return strconv.FormatUint(l.UserID, 10) },
-))
-
-// in a handler
-if err := authz.Authorize(c, "launch.update", launch); err != nil {
-    return err // 403, or 401 if nobody is signed in
-}
-```
-
-```bash
+```shell
 go get github.com/lemmego/authz
 ```
-
-## Why it is separate from `auth`
-
-`auth` establishes **who** is making a request. `authz` decides **what they
-may do**, which is a separate question with a separate answer.
-
-Keeping them apart means an application can authenticate without authorising
-anything, and a rule can be written against a request that something other
-than `lemmego/auth` authenticated.
-
-## Registering
 
 ```go
 func LoadProviders() []app.Provider {
@@ -51,9 +32,8 @@ func LoadProviders() []app.Provider {
 }
 ```
 
-`Policies` is called once, at boot, with the registry — so every rule in the
-application is reachable from one function and the whole set is reviewable in
-one place.
+`Policies` is called once at boot with the registry, so every policy in the
+application is declared in one reviewable place:
 
 ```go
 // internal/policies/policies.go
@@ -64,37 +44,9 @@ func Register(r *authz.Registry) {
 }
 ```
 
-## Two kinds of ability
+## Write a policy
 
-|  | Registered with | Asked with | For |
-|---|---|---|---|
-| **Resource** | `Register[U, R]` | `Can`, `Explain`, `Authorize` | "may you edit *this* launch" |
-| **Gate** | `Gate[U]` | `Allowed`, `ExplainGate`, `AuthorizeGate` | "may you create launches at all" |
-
-The two are **not interchangeable**, deliberately. Asking a resource ability
-through `AuthorizeGate` is refused rather than silently passed a nil resource,
-because a rule written to inspect a resource and handed none would read as a
-denial of everything — or, worse, as a pass.
-
-## Decisions carry a reason
-
-```go
-type Decision struct {
-    Allowed bool
-    Reason  string
-}
-
-authz.Allow()
-authz.Deny("only the author can edit a launch")
-```
-
-The reason travels with the decision so a 403 can say something true.
-"Forbidden" is a wasted response: the person reading it already knows that
-much, and the developer reading the log learns nothing.
-
-## Writing a rule
-
-A rule is a function receiving the context, the **typed** user and the
+A policy is a function taking the context, the **typed** user and the
 **typed** resource:
 
 ```go
@@ -108,41 +60,37 @@ func launchOwner(c app.Context, u *models.User, l *models.Launch) authz.Decision
 authz.Register(r, "launch.update", launchOwner)
 ```
 
-The type parameters are inferred from the function, and the registry stores
-the types alongside the rule. A resource of the wrong type is **denied, not
-panicked** — a bug in a route table should be a 403 in one place, not a 500
-across the application.
+Type parameters are inferred from the function signature, and the registry
+stores the types alongside the policy.
 
-### Combinators
+The reason on a `Deny` travels with the decision, so a 403 can say something
+specific instead of just "Forbidden".
 
-```go
-authz.OwnedBy[*models.User, *models.Launch](ownerID)  // compares ids, no query
-authz.AnyOf(isOwner, isModerator)                     // first Allow wins
-authz.AllOf(isOwner, isPublished)                     // first Deny wins
-```
-
-`OwnedBy` takes a function returning the owner's id as a string and compares
-it to `auth.UserID`. It issues **no query**: the resource is already loaded,
-so ownership costs nothing. It refuses an empty identifier on either side,
-because `"" == ""` would make an unsaved resource owned by an anonymous
-visitor.
-
-### `Before` for an administrator
+## Check it in a handler
 
 ```go
-authz.Before(r, func(c app.Context, u *models.User) (authz.Decision, bool) {
-    if u.IsAdmin {
-        return authz.Allow(), true // true: stop here
-    }
-    return authz.Decision{}, false // false: carry on to the rule
-})
+if err := authz.Authorize(c, "launch.update", launch); err != nil {
+    return err
+}
 ```
 
-The second return is what makes this usable in both directions: `true` means
-the decision stands, so a `Before` can grant everything to an administrator
-**or** deny everything during a read-only maintenance window.
+The returned error carries its own status, which the framework's error mapping
+turns into **403** — or **401** when nobody is signed in, so an anonymous
+visitor is prompted to sign in rather than told they are forbidden.
 
-## Asking
+## Resource abilities and gates
+
+|  | Register with | Ask with | Answers |
+|---|---|---|---|
+| **Resource** | `Register[U, R]` | `Can`, `Explain`, `Authorize` | "may you edit *this* launch" |
+| **Gate** | `Gate[U]` | `Allowed`, `ExplainGate`, `AuthorizeGate` | "may you create launches at all" |
+
+The two are not interchangeable. Asking a resource ability through
+`AuthorizeGate` is refused rather than passed a nil resource, because a policy
+written to inspect a resource and handed none would answer for the wrong
+reason.
+
+### Ways to ask
 
 | Call | Returns | Use when |
 |---|---|---|
@@ -152,22 +100,55 @@ the decision stands, so a `Before` can grant everything to an administrator
 | `Allowed(c, ability)` | `bool` | Gate, in a template |
 | `AuthorizeGate(c, ability)` | `error` | Gate, guarding a write |
 
-`Authorize` returns an error carrying its own status, so the framework's error
-mapping turns it into **403** — or **401** for an anonymous request, because
-telling someone who is not signed in that they are forbidden invites them to
-give up rather than sign in.
-
-`Can` never fails the request, which is what makes it safe in a props builder:
+`Can` never fails the request, which makes it safe in a props builder:
 
 ```go
 props["can_edit"] = authz.Can(c, "launch.update", launch)
 ```
 
-## Middleware
+```go
+type Decision struct {
+    Allowed bool
+    Reason  string
+}
 
-When the resource comes from a route parameter, `Owns` is better than calling
-`Authorize` in the handler — because **the middleware's load is the handler's
-load**:
+authz.Allow()
+authz.Deny("only the author can edit a launch")
+```
+
+## Composing policies
+
+```go
+authz.OwnedBy[*models.User, *models.Launch](ownerID)  // compares ids, no query
+authz.AnyOf(isOwner, isModerator)                     // first Allow wins
+authz.AllOf(isOwner, isPublished)                     // first Deny wins
+```
+
+`OwnedBy` takes a function returning the owner's id as a string and compares
+it to `auth.UserID`. It issues no query — the resource is already loaded — and
+it refuses an empty identifier on either side, so an unsaved resource is never
+owned by an anonymous visitor.
+
+### Granting or denying everything at once
+
+```go
+authz.Before(r, func(c app.Context, u *models.User) (authz.Decision, bool) {
+    if u.IsAdmin {
+        return authz.Allow(), true   // true: this decision stands
+    }
+    return authz.Decision{}, false   // false: fall through to the policy
+})
+```
+
+The second return value works in both directions: a `Before` can grant
+everything to an administrator, or deny everything during a read-only
+maintenance window.
+
+## Authorize from the route table
+
+When the resource comes from a route parameter, use `Owns` instead of calling
+`Authorize` in the handler. The middleware's load *is* the handler's load, so
+the check costs one query per request rather than two:
 
 ```go
 r.Put("/launch/{slug}",
@@ -182,30 +163,34 @@ func UpdateLaunch(c app.Context) error {
 }
 ```
 
-That keeps an ownership check at **one query per request** instead of two. A
-load error is returned as-is, so a missing row becomes whatever the
-repository's not-found maps to — usually 404, which is the right answer and
-not something `authz` should be deciding.
+A load error is returned unchanged, so a missing row becomes whatever your
+repository's not-found maps to — usually a 404, which `authz` leaves alone.
 
-`Gated` is the resourceless form, and belongs after `auth.Protected`:
+`Gated` is the resourceless form, and goes after `auth.Protected`:
 
 ```go
 r.Post("/launch", auth.Protected, authz.Gated("launch.create"), handlers.CreateLaunch)
 ```
 
-## Failure modes
+## Failure behaviour
 
 | Situation | Result |
 |---|---|
-| Ability never registered | Denied, and logged. Not allowed — a typo must not open a route. |
-| No registry (provider not registered) | **500**, not 403: the application's mistake, not the caller's. |
-| Resource of the wrong type | Denied, with a reason naming both types. Never a panic. |
-| Typed nil subject (`(*User)(nil)`) | Not authenticated → 401. A non-nil interface holding a nil pointer is the classic Go trap and is checked for explicitly. |
-| Same ability registered twice | **Panics at boot.** Two rules for one name means one of them never runs, and finding out in production is worse than not starting. |
+| Ability never registered | Denied, and logged — a typo cannot open a route |
+| Provider not registered | **500**, not 403: the application is misconfigured, the caller did nothing wrong |
+| Resource of the wrong type | Denied, with a reason naming both types. Never a panic |
+| Typed nil subject (`(*User)(nil)`) | Treated as unauthenticated → 401 |
+| Same ability registered twice | **Panics at boot** — one of the two policies would never run |
 
-## Deliberate omissions
+## Limitations
 
-No roles or permissions tables, no ABAC, no policy caching. A rule is a Go
-function over data you have already loaded; the moment it needs its own
-storage it stops being a policy and becomes a feature, and it should live in
-the application where it can be migrated and tested like anything else.
+No roles or permissions tables, no ABAC, no policy caching. A policy is a Go
+function over data you have already loaded. Once a rule needs its own storage
+it belongs in your application, where it can be migrated and tested like any
+other feature.
+
+## Next steps
+
+- [Authentication](/docs/security/authentication) — establishing who is asking.
+- [The current user](/docs/security/current-user) — the type policies receive.
+- [Middleware](/docs/http/middleware) — where `Owns` and `Gated` sit in the chain.

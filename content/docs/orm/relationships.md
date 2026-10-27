@@ -110,6 +110,6 @@ err := db.Transaction(ctx, func(tx *orm.Tx) error {
 
 A relationship joins on a single column. A model with a composite primary key must therefore name which one with `references:`, or eager loading reports the problem rather than guessing.
 
-## Not implemented
+## Limitations
 
 `hasOneThrough`, `hasManyThrough` and polymorphic relationships are not available.

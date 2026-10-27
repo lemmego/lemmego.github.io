@@ -8,7 +8,7 @@ sidebar:
   open: true
 ---
 
-## Why declare instead of writing SQL
+## What the builder gives you
 
 A migration is `func(tx *sql.Tx) error`, so `tx.Exec` with hand-written SQL
 always works. The reason to declare a table instead is that the same
