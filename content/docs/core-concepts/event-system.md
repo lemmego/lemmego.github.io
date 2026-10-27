@@ -8,7 +8,28 @@ sidebar:
   open: true
 ---
 
-Lemmego includes a simple pub/sub event system that allows you to hook into the application lifecycle and communicate between components without tight coupling.
+Sometimes something happens in one part of your application and two unrelated
+parts care. A user signs up, and you want to send a welcome email *and* add
+them to a mailing list. You could call both from the sign-up handler, but then
+the handler has to know about every consequence, and it grows every time you
+add one.
+
+An **event system** inverts that. The handler announces what happened — "a
+user registered" — and anything interested listens. The announcer does not
+know who is listening, and you add a new consequence without touching the
+handler.
+
+```go
+a.Dispatch("user.registered", user)   // the handler says what happened
+a.On("user.registered", sendWelcome)  // something else cares
+```
+
+{{< callout type="warning" >}}
+Listeners run **on the same goroutine as the dispatcher**, one after another,
+so the request waits for all of them. Keep them short — if the work is slow,
+have the listener put a job on the [queue](/docs/queue) instead of doing it
+there.
+{{< /callout >}}
 
 ## Using the EventEmitter
 

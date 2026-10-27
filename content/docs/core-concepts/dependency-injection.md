@@ -8,9 +8,24 @@ sidebar:
   open: true
 ---
 
-The `di` package provides a full-featured dependency injection container with support for three service lifetimes, automatic dependency resolution, circular dependency detection, and scoped containers.
+**Dependency injection** sounds grander than it is. It means: when a piece of
+code needs something, hand it in from outside rather than letting it build its
+own.
 
-## Service Lifetimes
+The reason is substitution. A handler that constructs its own mail client can
+only ever send real email, so testing it sends real email. A handler that is
+*given* one takes a real client in production and a fake in a test, and the
+handler itself does not change.
+
+The [service container](../service-container) covers the simple case — put a
+thing in, take it out by type. This page is the fuller `di` package, which you
+want when something needs building rather than just storing: when a service
+has its own dependencies, or when you need a fresh one per request rather than
+one shared for the life of the process.
+
+## Service lifetimes
+
+A **lifetime** answers: when is this built, and how long does it live?
 
 Three lifetimes determine when a service instance is created and how long it lives:
 

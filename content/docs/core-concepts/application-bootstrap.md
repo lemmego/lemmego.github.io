@@ -8,9 +8,21 @@ sidebar:
   open: true
 ---
 
-## Bootstrapping Pipeline
+Before your application can answer a single request, a lot has to be true:
+configuration read, a database connected, routes registered, middleware
+installed. **Bootstrapping** is that startup sequence, and this page is the
+order it happens in.
 
-Every Lemmego application starts with a builder pattern in `cmd/app/main.go`:
+It is worth knowing because the order has consequences. A provider that needs
+a database connection must run after the one that opens it — get that wrong
+and it silently finds nothing. Most of the time the generated
+`bootstrap/providers.go` already has it right, and you only come here when you
+are adding something of your own.
+
+## The bootstrapping pipeline
+
+It starts in `cmd/app/main.go`, where each `With…` call adds one more piece
+before `Run` starts listening:
 
 ```go
 func main() {

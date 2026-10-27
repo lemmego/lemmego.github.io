@@ -8,9 +8,30 @@ sidebar:
   open: true
 ---
 
-The service container is a lightweight registry that stores and retrieves services by their Go type. It's the simplest form of dependency injection in Lemmego, used internally by the framework and by your application code.
+Your handler needs to send an email. The mail transport was built at startup,
+in a completely different file. How does your handler get hold of it?
 
-## Adding Services
+You could pass it down through every function between the two, which means
+every function in the middle takes an argument it does not use. Or you could
+build a new one inside the handler, which means a new connection per request
+and no way to swap it for a fake in a test.
+
+The **service container** is the third option: a box you put ready-made things
+into at startup and take them out of wherever you need them, keyed by their
+Go type.
+
+```go
+// at startup, in a provider
+app.AddService(mailer)
+
+// later, in a handler
+mailer := app.Get[*mail.Mailer](a)
+```
+
+Because the key is the type, you get a `*mail.Mailer` back — no casting, and a
+typo is a compile error.
+
+## Adding services
 
 Register services via `app.AddService()`:
 

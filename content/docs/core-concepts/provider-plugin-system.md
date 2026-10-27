@@ -8,9 +8,31 @@ sidebar:
   open: true
 ---
 
-Providers are the plugin mechanism for Lemmego. They allow packages to register services, routes, middleware, commands, and error handlers with the application during bootstrapping.
+Adding a feature to your application usually means several small things at
+once: open a connection, put something in the container, maybe add a route and
+a CLI command. A **provider** is where all of that for one feature lives.
 
-## The Provider Interface
+It is a struct with a `Provide` method. At startup the framework hands it your
+application, and it registers whatever it contributes:
+
+```go
+func LoadProviders() []app.Provider {
+    return []app.Provider{
+        &ormconnector.Provider{},
+        &session.Provider{},
+        &mail.Provider{...},
+    }
+}
+```
+
+That list in `bootstrap/providers.go` is, in effect, what your application is
+made of. Adding a module from these docs means adding a line to it; removing
+the line removes the feature, with nothing left behind in framework code.
+
+Your own code can be a provider too, and that is the usual way to set up
+something at startup that your handlers need later.
+
+## The provider interface
 
 Every provider implements this interface:
 
