@@ -8,9 +8,19 @@ sidebar:
   open: true
 ---
 
-Lemmego applications compile to a single binary, making deployment straightforward across any platform that supports Go.
+Deploying means getting your application onto a machine where other people can
+reach it, and keeping it running.
 
-## Production Build
+Go makes the first part unusually easy: `go build` produces **a single
+executable file** with everything compiled in. There is no runtime to install
+on the server, no dependency directory to copy, nothing to install alongside
+it — you move one file and run it. That is why most of this page is about
+configuration and process management rather than packaging.
+
+Two things do travel separately, and both are covered below: your built
+frontend assets, and your environment variables.
+
+## Production build
 
 ### Build the Application
 

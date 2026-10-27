@@ -8,6 +8,21 @@ sidebar:
   open: true
 ---
 
+{{< callout type="info" >}}
+**Most applications never need this.** It is for letting *other* people's
+applications call your API on your users' behalf. If you only want your own
+users to sign in, [Authentication](/docs/security/authentication) is the page
+you want.
+{{< /callout >}}
+
+**OAuth2** is how one application gets permission to use another on somebody's
+behalf, without being told their password. You have been on the user's side of
+it: an app asks to access your Google Drive, Google asks you whether that is
+all right, and the app receives a **token** — a key that opens some of your
+account, and only the parts you agreed to.
+
+This module puts your application in Google's position in that story.
+
 The `oauth2` module turns your application into an OAuth 2.0 **authorization
 server**: it issues and revokes the tokens other applications use to call your
 API, manages the clients that may ask for them, and runs the screen where a

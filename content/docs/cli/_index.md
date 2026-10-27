@@ -8,7 +8,12 @@ sidebar:
   open: true
 ---
 
-The `lemmego` CLI is your primary tool for creating projects, generating code, and managing the development workflow.
+The `lemmego` command is how you do everything around your application that
+is not writing code: create a project, run it while you work with your changes
+picked up automatically, generate the boilerplate for a new model or handler,
+apply database changes, and build for production.
+
+Everything here runs from inside your project directory.
 
 ## Installation
 

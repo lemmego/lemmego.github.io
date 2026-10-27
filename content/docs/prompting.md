@@ -8,9 +8,15 @@ sidebar:
   open: true
 ---
 
-The `cmder` package provides fluent CLI prompting utilities for building interactive command-line interfaces. It wraps `github.com/manifoldco/promptui` for terminal UI.
+When you write your own `lemmego run …` command, you sometimes need to ask the
+person running it a question — which database to target, whether to really
+delete something, a name for the thing being generated.
 
-## Basic Prompts
+The `cmder` package gives you those prompts: a line of text, a yes/no, a
+multiple choice, a hidden password field. It is the same toolkit `lemmego new`
+uses to ask you about your project.
+
+## Basic prompts
 
 ### Ask
 

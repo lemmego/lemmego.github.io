@@ -8,7 +8,13 @@ sidebar:
   open: true
 ---
 
-The `bunconnector` package provides an `app.Provider` that connects to databases using [uptrace/bun](https://github.com/uptrace/bun) and optionally registers a GPA provider.
+If you chose Bun as your SQL layer, this is the
+[provider](/docs/core-concepts/provider-plugin-system) that opens the
+connection at startup from your config files and makes it available to the
+rest of your application — so you add one line to `bootstrap/providers.go`
+instead of writing connection code.
+
+It connects using [uptrace/bun](https://github.com/uptrace/bun) and optionally registers a GPA provider.
 
 ## Usage
 

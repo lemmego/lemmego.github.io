@@ -8,7 +8,24 @@ sidebar:
   open: true
 ---
 
-The `Context` interface is the central request/response abstraction in Lemmego. Every handler receives a `Context` that provides access to the request, response, session, and application services.
+Every handler you write takes one argument — `c app.Context` — and that single
+value is how you do everything. It is the request and the response in one
+object: you read from it to find out what was asked, and you call methods on
+it to answer.
+
+```go
+func Show(c app.Context) error {
+    id := c.Param("id")           // reading: what was asked for
+    return c.JSON(app.M{"id": id}) // answering
+}
+```
+
+Through `c` you reach the URL parameters, the query string, the body, uploaded
+files, headers and cookies, the session, the signed-in user, and every way of
+replying. You will not often need to import anything else inside a handler.
+
+This page is the full list, so treat it as reference rather than something to
+read through — the pages before it cover the parts you need first.
 
 ```go
 type Context interface {
