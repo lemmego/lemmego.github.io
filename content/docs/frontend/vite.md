@@ -8,7 +8,20 @@ sidebar:
   open: true
 ---
 
-Lemmego uses [Vite](https://vitejs.dev/) as the frontend build tool, integrated through the Inertia adapter. It provides hot module replacement (HMR) during development and optimized production builds.
+Browsers cannot read your TypeScript, and they should not download forty
+separate files. So something has to turn your source into a few small files a
+browser can use — compiling TypeScript to JavaScript, resolving imports,
+bundling it together and shrinking it. That job is called **building your
+assets**, and Lemmego uses [Vite](https://vitejs.dev/) to do it.
+
+Vite also runs while you work, and that is the part you will notice. Save a
+component and the change appears in the browser immediately, without a
+refresh and without losing what you had typed into the form. That is **hot
+module replacement**: Vite swaps just the module you changed into the running
+page.
+
+You get two commands. `lemmego dev` runs Vite alongside your Go application
+while you work; `lemmego build` produces the optimised files you deploy.
 
 ## Configuration
 

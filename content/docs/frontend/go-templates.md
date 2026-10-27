@@ -8,11 +8,20 @@ sidebar:
   open: true
 ---
 
-Lemmego's template rendering system uses Go's `html/template` package with a caching layer and convention-based discovery of layouts and partials.
+A **template** is an HTML file with holes in it. You write the page once, mark
+where the data goes, and your handler supplies the values — so one file serves
+every user, every post, every search result.
 
-## Template Conventions
+Lemmego uses Go's own `html/template` for this, so there is no new language to
+learn, and it adds two things on top: your templates are read once and kept in
+memory rather than re-read per request, and it works out which file is a page
+and which is a wrapper from the filename.
 
-Templates follow a naming convention that determines their role:
+That last part is worth knowing first, because it is why the naming matters.
+
+## Template conventions
+
+Three kinds of file, told apart by their suffix:
 
 | Suffix | Purpose | Example |
 |--------|---------|---------|

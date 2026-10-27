@@ -8,7 +8,26 @@ sidebar:
   open: true
 ---
 
-[Inertia.js](https://inertiajs.com/) enables building modern SPAs using server-side routing and client-side rendering with React or Vue. Lemmego includes a first-class Inertia adapter through the `inertia` package.
+If you want React or Vue in your pages, the usual price is building two
+applications: a Go API that returns JSON, and a JavaScript app with its own
+router, its own data fetching and its own idea of what URL you are on. You
+then keep those two in agreement forever.
+
+[Inertia](https://inertiajs.com/) removes that second application. You keep
+routing and data loading in Go exactly as you have been, and your handler
+finishes by naming a component and handing it some data:
+
+```go
+return inertia.Respond(c, "Posts/Show", app.M{"post": post})
+```
+
+Inertia renders `Posts/Show.tsx` with that data as its **props**. There is no
+API to design, no client-side router to keep in sync, and no duplicated URL
+list — your routes are still the ones in `internal/routes/`.
+
+What you get in return is that clicking a link does not reload the page.
+Inertia fetches the next page's props over the network and swaps the
+component, so the browser never goes blank.
 
 ## Setup
 

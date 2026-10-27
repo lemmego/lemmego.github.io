@@ -8,11 +8,22 @@ sidebar:
   open: true
 ---
 
-[Templ](https://templ.guide/) provides type-safe HTML templates that are compiled to Go code. Lemmego includes a `templ` package that bridges Templ components with the framework's rendering pipeline.
+With ordinary templates, a mistake is invisible until somebody loads the
+page: rename a struct field and the template keeps referring to the old name,
+printing nothing where the value should be. Nothing fails, nothing is logged,
+and the page is just quietly wrong.
+
+[Templ](https://templ.guide/) fixes that by **compiling your templates into Go
+code**. A component becomes a Go function taking typed arguments, so a renamed
+field is a compile error in the same build as the rest of your application.
+The cost is a generation step: after editing a `.templ` file you run
+`templ generate`, or let `lemmego dev` watch and do it for you.
 
 ## Setup
 
-The generated project includes Templ support out of the box. If you selected Templ as your frontend during `lemmego new`, the necessary files and configuration are already in place.
+If you chose Templ when you ran `lemmego new`, everything here is already in
+place — the files, the configuration and the watcher. There is nothing for you
+to set up.
 
 ## Rendering a Templ Component
 
