@@ -8,22 +8,42 @@ sidebar:
   open: true
 ---
 
-## Creating an Application
+## Creating an application
 
-Now that you have installed the `lemmego` CLI, you can create a new project:
+With the `lemmego` CLI installed, create your project:
 
 ```shell
 lemmego new my-project
 ```
 
+This writes you a complete, working application — directories, configuration,
+a route file, a home page — rather than an empty folder. Generating files like
+this is called **scaffolding**, and it means your first `lemmego run` serves a
+real page.
+
 The first question asks how much you want to be asked:
 
-- **Quick start** takes four answers — module name, preset, whether to scaffold
-  authentication, and the frontend if this is an MVC project — and uses
-  sensible defaults for the rest: SQLite, the [Lemmego ORM](/docs/orm/), a file
-  cache, a SQL queue, file sessions and local storage.
-- **Customise** pages through a driver for each part: the database, the SQL
-  layer, the cache, the queue, sessions and storage.
+- **Quick start** wants four answers and picks sensible defaults for
+  everything else.
+- **Customise** walks you through each part and lets you choose.
+
+If you take Quick start, here is what you are agreeing to. Don't worry about
+getting these right now — every one of them can be changed later, and each
+links to the page that explains it:
+
+| | Default | What it is |
+|---|---|---|
+| Database | SQLite | A database kept in a single file, so there is no server for you to install or run |
+| SQL layer | [the Lemmego ORM](/docs/orm/) | Lets you query in Go — `db.Model[User]()` — instead of writing SQL by hand |
+| [Cache](/docs/cache/) | file | Keeps the results of slow work so you don't repeat it, here in files on disk |
+| [Queue](/docs/queue) | SQL | Holds work to be done later, so a slow job doesn't make your visitor wait |
+| [Sessions](/docs/session) | file | How your app remembers who is signed in between requests |
+| Storage | local | Where uploaded files go — your own disk, rather than S3 |
+
+The other two answers are your **module name** (your Go import path, like
+`github.com/you/my-project`) and a **preset** — the overall shape of the
+project. `mvc` gives you a server-rendered site with pages and templates;
+`rest_api` gives you JSON endpoints and no frontend at all.
 
 The database, cache and queue can each be set to **None**, which leaves that
 part out of the project entirely — no dependency, no provider, no config file.

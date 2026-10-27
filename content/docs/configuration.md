@@ -8,15 +8,30 @@ sidebar:
   open: true
 ---
 
-Lemmego uses a centralized configuration system that combines environment variables, `.env` files, and runtime configuration maps. The system supports dot-notation access, nested keys, and type-safe retrieval.
+Your application needs to know things that are not code: which database to
+connect to, which port to listen on, the password for your mail server. Those
+answers differ between your laptop and your production server, and the
+password must not be committed to git. **Configuration** is where they live.
 
-## The Config System
+Lemmego keeps them in two places, and the split is the thing to understand:
 
-Configuration is managed via the `config` package (`github.com/lemmego/api/config`). It follows a singleton pattern and is auto-loaded at application startup.
+- **`internal/configs/*.go`** — the *shape* of your configuration, in Go. Here
+  you say "there is a database setting, and its driver is whatever
+  `DB_DRIVER` says, or `sqlite` if nothing says". You commit these files.
+- **`.env`** — the *values* for this one machine. Here you say
+  `DB_DRIVER=postgres`. You never commit this file; it is in `.gitignore`
+  already.
 
-### Setting Configuration
+That way the structure is shared and reviewable, while the secrets and the
+per-machine details stay out of your repository. An **environment variable**
+is simply a named value handed to your program by whatever starts it, and a
+`.env` file is a convenient way to set a pile of them while you work locally.
 
-In your generated project, configuration is defined in `internal/configs/` files using Go `init()` functions:
+## Reading and writing configuration
+
+You'll find your settings in `internal/configs/`, defined in `init()`
+functions — Go runs these automatically when the package loads, so there is
+nothing for you to call:
 
 ```go
 // internal/configs/app.go

@@ -8,9 +8,28 @@ sidebar:
   open: true
 ---
 
-## Directory Anatomy
+`lemmego new` gives you a lot of directories, and the names only make sense
+once somebody tells you the rule behind them. Here it is: **each directory
+holds one kind of decision**, and the ones that change most often are kept
+away from the ones that change least.
 
-A generated Lemmego project follows a Clean Architecture layout:
+So your business rules do not live in the same file as your HTTP handling, and
+neither lives in the file that wires the application together at startup. When
+you come back in six months to change how a price is calculated, you want one
+place to look.
+
+Three names worth knowing before the tree below:
+
+- **`bootstrap/`** — runs once at startup, before any request. It is the list
+  of what your application is made of.
+- **`internal/`** — your actual application. Go treats the name specially:
+  nothing outside your module can import anything under it, so this code is
+  yours alone and you can rearrange it freely.
+- **`resources/`** — things that are *not* Go: templates, TypeScript, CSS.
+  They get compiled or bundled into `public/`, which is what visitors
+  download.
+
+## Directory anatomy
 
 ```
 my-project/

@@ -8,18 +8,31 @@ sidebar:
   open: true
 ---
 
+You'll be installing one thing: the `lemmego` command. It is the tool you use
+to create a project, run it while you work on it, generate files and apply
+database changes — so everything else in these docs starts with it being on
+your PATH.
+
 ## Prerequisites
 
-Lemmego is a Go framework. You should have basic familiarity with Go and have the following installed:
+You'll want to be comfortable with Go. Beyond that:
 
-- [Go 1.27+](https://go.dev/dl/) — the ORM uses generic methods, which need 1.27
-- [Node.js](https://nodejs.org/en/download/package-manager) (for frontend tooling)
-- [Air](https://github.com/air-verse/air) (for hot reloading)
-- [Templ](https://templ.guide/quick-start/installation) (optional, for type-safe Go templates)
+- **[Go 1.27 or newer](https://go.dev/dl/)** — required, not optional. The ORM
+  uses generic methods, which only exist from 1.27.
+- **[Node.js](https://nodejs.org/en/download/package-manager)** — only if you
+  are building a frontend with JavaScript or CSS. Lemmego bundles those with
+  Vite, which runs on Node. A Go-templates-only project does not need it.
+- **[Air](https://github.com/air-verse/air)** — watches your `.go` files and
+  rebuilds and restarts your application when you save one, so you are not
+  stopping and starting it by hand. Only needed for `lemmego dev`.
+- **[Templ](https://templ.guide/quick-start/installation)** — optional. A
+  template language that compiles your templates into Go code, so a typo in a
+  field name is a build error rather than a blank space on the page. Skip it
+  unless you choose a Templ frontend.
 
-## Installation
+## Installing the CLI
 
-Once you have all the prerequisites installed, install the Lemmego CLI using this command:
+With those in place, install the CLI:
 
 {{< tabs >}}
 {{< tab name="Linux" >}}
