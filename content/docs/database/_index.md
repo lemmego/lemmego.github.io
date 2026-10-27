@@ -8,9 +8,13 @@ sidebar:
   open: true
 ---
 
-## What is GPA?
+**GPA** (Go Persistence API) is a provider-backed persistence layer offering one
+type-safe API across SQL, MongoDB, Redis and other stores.
 
-**GPA** (Go Persistence API) is the database abstraction layer at the heart of Lemmego. It provides a unified, type-safe persistence API across SQL, NoSQL, Key-Value, and Graph databases through a plugin-based adapter pattern.
+Reach for it when you need a backend the [ORM](/docs/orm/) does not cover —
+GORM, Bun, MongoDB or Redis — or more than one store in one application. For a
+SQL-only project, the ORM is the shorter path and is what `lemmego new`
+configures.
 
 ### Key Features
 

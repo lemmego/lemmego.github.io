@@ -8,7 +8,13 @@ sidebar:
   open: true
 ---
 
-Lemmego is built on a set of foundational patterns that work together to create a cohesive framework. Understanding these core concepts is essential for building applications effectively.
+By this point you have written handlers, rendered a page and queried a
+database. This section covers the wiring underneath all three: how an
+application boots, how services find each other, and how a module adds itself
+to your project.
+
+Read it before you add your first module from the next section — every one of
+them arrives as a provider, and the pages here are what a provider is.
 
 {{< cards >}}
 {{< card link="application-bootstrap" title="Application Bootstrap" subtitle="The app lifecycle and bootstrapping pipeline" >}}

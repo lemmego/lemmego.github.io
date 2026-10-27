@@ -66,6 +66,12 @@ jobs:
             echo "version=$version" >> "$GITHUB_OUTPUT"
           fi
 
+      # The reading order — sidebar weights and the prev/next chain — is
+      # generated from scripts/spine.py, so a page added without being placed
+      # in ORDER fails here rather than quietly dead-ending the chain.
+      - name: Check the documentation spine
+        run: python3 scripts/spine.py --check
+
       - name: Build with Hugo
         env:
           # For maximum backward compatibility with Hugo modules

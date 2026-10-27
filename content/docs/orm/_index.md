@@ -8,8 +8,6 @@ sidebar:
   open: true
 ---
 
-## What is the Lemmego ORM?
-
 The **Lemmego ORM** is a SQL persistence layer built directly on `database/sql`. It is the default for new projects created with `lemmego new`.
 
 It stands alone. Its only dependencies are `database/sql` and two small naming libraries, shared with the CLI and migration modules so that table names agree. It imports no other Lemmego package, and nothing about it requires the framework:

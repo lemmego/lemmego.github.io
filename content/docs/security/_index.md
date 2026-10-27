@@ -8,7 +8,11 @@ sidebar:
   open: true
 ---
 
-Lemmego provides built-in security features including authentication, CSRF protection, encryption, and input validation.
+How a request proves who it is, and what it may then do.
+
+Start with **Authentication** to set up sign-in, then **The current user** for
+reading the signed-in user in a handler. **CSRF protection** is already on in
+a scaffolded project; read it when a form starts returning 419.
 
 {{< cards >}}
 {{< card link="authentication" title="Authentication" subtitle="Session & JWT auth with middleware" >}}
