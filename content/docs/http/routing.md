@@ -10,31 +10,32 @@ sidebar:
 
 ## What a route is
 
-When somebody opens a page, their browser sends your server a short message.
-Stripped of everything else, it amounts to two pieces of information:
+When someone visits your site, their browser sends your application a short
+message. Stripped of everything else, it comes down to two pieces of
+information:
 
 ```text
 GET /users/42
 ```
 
-A **method** — `GET` — saying what kind of action this is, and a **path** —
-`/users/42` — saying what it concerns. That is almost all your program is
-given, and from it alone it must decide which of your Go functions should
-answer.
+A **method** — `GET` — telling you what kind of action this is, and a
+**path** — `/users/42` — telling you what it concerns. That is very nearly all
+you are given, and from it you have to decide which of your Go functions
+should answer.
 
-A **route** is one line in that decision. It pairs a method and a path with a
-function to run:
+A **route** is how you write down one of those decisions. It pairs a method
+and a path with a function to run:
 
 > `GET` + `/hello` → run this function
 
-Nothing more. A web application is, at bottom, a list of such pairings, and
-the **router** is the thing that holds the list and looks up the right one
+That is all a route is. Your whole application is, underneath, a list of these
+pairings, and the **router** is what holds the list and finds the right one
 when a request arrives. The function it picks is called a **handler**, because
 it handles the request.
 
-If no route matches, there is nothing to run, and the server answers `404 Not
-Found` — which is not an error in your code, just the absence of a matching
-line.
+If nothing matches, there is no function to run, so your visitor gets a `404
+Not Found`. That is not a bug in your code — just the absence of a line
+covering that address.
 
 ### Methods
 
@@ -48,13 +49,15 @@ The method is a verb describing intent, and the convention is near-universal:
 | `PATCH` | change part of something | editing one field |
 | `DELETE` | remove something | deleting a record |
 
-Nothing in HTTP enforces this; a `GET` route *could* delete a record. It is a
-promise, and browsers, caches and crawlers rely on it — which is why a `GET`
-should never change data.
+Nothing in HTTP stops you breaking these meanings — you *could* delete a
+record from a `GET` route. But browsers, caches and crawlers all assume you
+have not, and they will happily re-request a `GET` on their own. So keep
+`GET` for reading, always.
 
 ## Writing routes
 
-Routes live in `internal/routes/`. Each method on the router registers one:
+You'll write your routes in `internal/routes/`. Each method on the router
+registers one:
 
 ```go
 // internal/routes/web.go
@@ -73,36 +76,37 @@ func WebRoutes(a app.App) {
 }
 ```
 
-Read the first one as: *when a `GET` arrives for `/hello`, run this function.*
+Read that first one as: *when a `GET` arrives for `/hello`, run this
+function.*
 
-The handler takes one argument, `c app.Context`, and returns an `error`. That
-argument carries everything about the request and is also how you reply —
-`c.Text` sends plain text, `c.JSON` sends JSON. Returning `nil` means the
-request was answered; returning an error hands it to the framework to turn
-into an error page or a JSON error.
+Your handler takes one argument, `c app.Context`, and returns an `error`. That
+argument carries everything about the request, and it is also how you answer —
+`c.Text` sends plain text, `c.JSON` sends JSON. Return `nil` and you are
+saying the request is answered; return an error and the framework turns it
+into an error page or a JSON error for you, so you don't have to build one.
 
-`app.M` is shorthand for `map[string]any`, so that second handler sends
+`app.M` is just shorthand for `map[string]any`, so that second handler sends
 `{"status":"ok"}`.
 
-The router has a method for every HTTP method: `Get`, `Post`, `Put`, `Patch`,
+There is a method for every HTTP method: `Get`, `Post`, `Put`, `Patch`,
 `Delete`, `Head`, `Options`, `Connect` and `Trace`.
 
 ## Route parameters
 
-Most addresses are not fixed. `/users/42` and `/users/43` are different pages,
-and you cannot register a route per user — you do not know their ids, and
-there may be millions.
+Most of your addresses won't be fixed. `/users/42` and `/users/43` are
+different pages, and you obviously can't write a route for each one — you
+don't know your users' ids yet, and there may be millions of them.
 
-So a path pattern can contain a **hole** with a name on it:
+So a path pattern can have a **hole** in it, with a name:
 
 ```text
 /users/{id}
 ```
 
-This matches `/users/42`, `/users/43` and `/users/anything-without-a-slash`.
-The part that fell into the hole — `42` — is the **route parameter**, and the
-router keeps it for you under the name you gave it. `c.Param("id")` reads it
-back:
+That matches `/users/42`, `/users/43`, and `/users/` followed by anything
+without a slash in it. Whatever lands in the hole — `42` — is the **route
+parameter**, and the router keeps it for you under the name you chose. You
+read it back with `c.Param("id")`:
 
 ```go
 r.Get("/users/{id}", func(c app.Context) error {
@@ -111,19 +115,19 @@ r.Get("/users/{id}", func(c app.Context) error {
 })
 ```
 
-So one route serves every user, and the parameter tells the handler which one
-was asked for.
+One route now serves every user, and the parameter tells your handler which
+one was asked for.
 
-Two things to know about the value:
+Two things to keep in mind about that value:
 
-- **It is always a string**, because a URL is text. `/users/42` gives you
-  `"42"`, and turning it into a number is yours to do — with
-  `strconv.Atoi`, which also tells you when somebody asked for
-  `/users/banana`.
-- **It is typed by a stranger.** Anyone can request `/users/999999` or
-  `/users/'%20OR%201=1`. Treat it as input to be checked, never as a fact.
+- **You always get a string**, because a URL is text. `/users/42` hands you
+  `"42"`, so converting it is up to you — use `strconv.Atoi`, which also tells
+  you when somebody has asked for `/users/banana`.
+- **Somebody else typed it.** Anyone can request `/users/999999` or
+  `/users/'%20OR%201=1`, so treat it as input you need to check, never as a
+  fact about your data.
 
-A pattern can have several parameters, and a parameter fills exactly one path
+You can have several parameters in one pattern, and each fills exactly one
 segment — it stops at the next `/`:
 
 ```go
@@ -135,23 +139,28 @@ r.Get("/launch/{slug}/comments/{commentID}", handlers.ShowComment)
 `/@{handle}` are not, because there the fixed text and the hole share one
 segment, and Go's router cannot split a segment in two.
 
-A URL of that shape — `/@alice`, say — is therefore built by rewriting the
-path in [HTTP middleware](/docs/http/middleware) before matching happens:
-the request arrives for `/@alice`, the middleware turns it into `/u/alice`,
-and an ordinary `/u/{handle}` route answers it.
+If you want a URL of that shape — `/@alice`, say — rewrite the path in
+[HTTP middleware](/docs/http/middleware) before matching happens: the request
+arrives for `/@alice`, your middleware turns it into `/u/alice`, and an
+ordinary `/u/{handle}` route answers it.
 {{< /callout >}}
 
 ## Route groups
 
-A **group** is not a thing that exists when your program runs. It is a way of
-writing: a small object holding a path prefix and a list of middleware, which
-it attaches to every route you register through it. Register
-`api.Get("/users", …)` on a group whose prefix is `/api`, and what lands in
-the router is an ordinary route for `/api/users`. Afterwards there is no group
-left — only routes, exactly as if you had typed them out in full.
+Sometimes you'll have twenty routes that all start with `/api`, and fifteen
+that all need the same sign-in check. A **group** lets you say either of those
+things once.
 
-So a group buys you nothing at runtime. What it buys is that the prefix and
-the rule are written **once**:
+It helps to know what a group actually is, because it is less than it sounds:
+it is a small object holding a path prefix and a list of middleware, and it
+sticks both onto each route as you register it. When you call
+`api.Get("/users", …)` on a group whose prefix is `/api`, what reaches the
+router is an ordinary route for `/api/users`. Once your routes are registered
+there is no group left at all — just routes, exactly as if you had typed each
+one out in full.
+
+So a group costs you nothing while your application runs. What you get is
+writing the prefix and the rule **once**:
 
 ```go
 api := r.Group("/api")
@@ -163,14 +172,14 @@ admin.UseBefore(auth.Protected)          // applies to every route below
 admin.Get("/dashboard", handlers.AdminDashboard)
 ```
 
-Every route in the `admin` group now requires a signed-in user, because
-`UseBefore` attaches that check to the group rather than to each route.
+Every route in that `admin` group now needs a signed-in user, because
+`UseBefore` attached the check to the group instead of to each route.
 
-This is the real reason to reach for one. Repeating `auth.Protected` on thirty
-admin routes works right up until somebody adds the thirty-first and forgets,
-and that single unprotected route looks exactly like the others in the file.
-Stated on the group, it cannot be forgotten by a route that did not mention
-it.
+That is the real reason to reach for a group. Repeating `auth.Protected` on
+thirty admin routes works fine until the day you add the thirty-first and
+forget — and that one unprotected route will look exactly like its thirty
+neighbours in the file. Put it on the group and a new route cannot forget
+something it never had to mention.
 
 Groups nest, and the prefixes join:
 
@@ -181,34 +190,36 @@ v1.Get("/products", handlers.ProductIndex)   // → /api/v1/products
 
 ## Middleware on a route
 
-**Middleware** is a function that runs *before* the handler and can decide
-whether the handler runs at all — a checkpoint on the way in. Authentication
-is the usual example: look at the request, and either let it through or answer
-it yourself with a redirect to the sign-in page.
+**Middleware** is a function that runs *before* your handler and gets to
+decide whether your handler runs at all — a checkpoint on the way in. Checking
+that somebody is signed in is the usual example: look at the request, then
+either wave it through or answer it yourself with a redirect to the sign-in
+page.
 
-In Lemmego, middleware is not a special type. It is an ordinary handler listed
-before the one that answers:
+The good news is that there is nothing new to learn here. Middleware in
+Lemmego is not a special type — it is an ordinary handler, listed before the
+one that answers:
 
 ```go
 r.Get("/search", auth.OptionalAuth, handlers.SearchIndex)
 r.Post("/posts", auth.Protected, handlers.PostStore)
 ```
 
-Each runs in turn. A handler passes control onward by calling `c.Next()`, and
-simply returning without calling it stops the chain there — which is how
-`auth.Protected` refuses an anonymous request.
+Each one runs in turn. To pass control along, a handler calls `c.Next()`; to
+stop the chain, it simply returns without calling it. That is how
+`auth.Protected` turns away a visitor who is not signed in.
 
-`auth.Protected` is `func(c app.Context) error`, exactly like your own
-handlers. That is the whole contract, and there is no separate middleware
-interface to satisfy.
+And `auth.Protected` is `func(c app.Context) error`, exactly like the handlers
+you write. That is the entire contract — there is no middleware interface for
+you to satisfy.
 
 [Middleware](/docs/http/middleware) covers writing your own, and the second
 kind that wraps the entire router.
 
 ## Registering your route files
 
-Writing a function full of routes does not run it. `bootstrap/routes.go` lists
-the functions the application should call at startup:
+Writing a function full of routes is not quite enough — something has to call
+it. You'll find that list in `bootstrap/routes.go`:
 
 ```go
 // bootstrap/routes.go
@@ -222,9 +233,12 @@ func LoadRoutes() []app.RouteCallback {
 }
 ```
 
-A `RouteCallback` is just `func(a app.App)` — a function handed the running
-application, which it uses to reach `a.Router()` and register. A new route
-file is a new function in this list.
+A `RouteCallback` is just `func(a app.App)` — a function that gets handed your
+running application and uses it to reach `a.Router()`. When you add a new route
+file, add its function here too.
+
+Don't worry about creating this file: `lemmego new` writes it for you, with
+`WebRoutes` and `ApiRoutes` already listed.
 
 ## Router reference
 
@@ -252,10 +266,10 @@ type Router interface {
 `Handle` and `HandleFunc` mount a plain `net/http` handler, for reusing code
 written against the standard library.
 
-To see every route your application actually registered, including the ones
-modules added for you, use the `list-routes` tool on the
-[MCP server](/docs/mcp) — it reports each route's method, resolved path and
-handler from the running application.
+Want to see everything you have registered, including the routes modules
+added on your behalf? The `list-routes` tool on the [MCP server](/docs/mcp)
+reports every route's method, resolved path and handler from your running
+application.
 
 ## Next steps
 

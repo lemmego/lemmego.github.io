@@ -8,14 +8,47 @@ sidebar:
   open: true
 ---
 
-Every incoming request passes through middleware before reaching your handler. Lemmego supports two middleware layers:
+**Middleware** is a function that sits between an arriving request and the
+handler that answers it. It sees the request first, and it decides one of two
+things: wave it through, or answer it itself and stop there.
 
-1. **HTTP Middleware** — wraps the entire router at the `net/http` level
-2. **App Middleware** — operates on the Lemmego `Context` at the application level
+That is the whole idea. It earns its place because some questions get asked by
+a lot of routes — "is this person signed in?" is the same check on fifty
+pages. Write it once as middleware and each route opts in by listing it.
 
-## HTTP Middleware
+Chain a few together and you have a series of checkpoints:
 
-HTTP middleware uses the standard `func(http.Handler) http.Handler` signature. These run first, before any routing.
+```text
+request → log it → is it signed in? → is it under the rate limit? → handler → response
+```
+
+Any link can refuse, and if one does, the links after it and your handler
+never run at all.
+
+You get two layers of this, and they differ in *where* they sit:
+
+1. **HTTP middleware** wraps the entire router. It runs before Lemmego has
+   worked out which route matches, so it sees every request including ones
+   that will 404.
+2. **Application middleware** runs after a route has matched, and receives
+   Lemmego's `Context` rather than raw `net/http` values.
+
+Reach for the first when something must apply to absolutely everything —
+recovering from a panic, logging a request. Reach for the second when your
+check needs to know about your application: who is signed in, whether a form
+token is valid, whether this person may edit this post.
+
+Don't worry about setting either of these up to begin with: a project from
+`lemmego new` already installs panic recovery, logging and CSRF for you.
+
+## HTTP middleware
+
+HTTP middleware uses the standard library's own shape,
+`func(http.Handler) http.Handler` — a function that takes the next handler and
+returns one wrapping it. That is deliberate: any middleware you already have
+for `net/http`, or find in somebody else's library, works here unchanged.
+
+These run first, before any routing happens.
 
 ### Built-in HTTP Middleware
 

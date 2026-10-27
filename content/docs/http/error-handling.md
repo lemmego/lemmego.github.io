@@ -8,9 +8,21 @@ sidebar:
   open: true
 ---
 
-## Typed HTTP Errors
+Sometimes you can't answer a request. The record isn't there, the visitor
+isn't signed in, the input makes no sense. HTTP has a status code for each of
+those, and it matters which one you send — a `404` and a `500` mean quite
+different things to a browser, a crawler, a cache and your own monitoring.
 
-Lemmego provides pre-defined sentinel errors for common HTTP status codes:
+The good news is that you don't have to build those responses yourself. Your
+handler just **returns an error**, and the framework turns it into the right
+status in the right format — an HTML error page for a browser, JSON for an API
+client — in one place, the same way every time. That is why your handlers
+return `error`.
+
+## Typed HTTP errors
+
+These are error values standing for a status code. Return one and the
+framework knows what to send:
 
 ```go
 app.ErrUnauthorized          // 401

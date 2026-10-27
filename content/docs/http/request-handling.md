@@ -8,13 +8,27 @@ sidebar:
   open: true
 ---
 
-## Input Parsing
+When somebody submits a form on your site, the fields they typed arrive in the
+request's **body**. So does a JSON document sent by a script. Either way you
+get bytes, and what you actually want is a Go struct with the fields filled
+in — so something has to read those bytes, work out which value belongs to
+which field, and populate it. That step is called **binding**, and it is the
+first half of this page.
 
-The `req` package provides functions for parsing request data into Go structs.
+The second half is **validation**: making sure what arrived is usable before
+you act on it. Binding gets the data into shape; validation decides whether
+you can trust it. You want both, because whoever sent the request wrote that
+body, and nothing stops them sending anything they like.
+
+## Binding a body to a struct
 
 ### ParseInput
 
-Parses the request body into a struct. The `Content-Type` header picks the decoder, and the decoder picks which struct tag it reads:
+`ParseInput` reads the request body into a struct you supply. The `Content-Type` header picks the decoder, and the decoder picks which struct tag it reads:
+
+If you haven't met them: a **struct tag** is that string in backticks after a
+field — ``json:"email"`` — which tells a decoder what the incoming value is
+called. Each decoder reads only its own tag, and that matters below.
 
 | Content-Type | Decoder | Tag |
 |---|---|---|

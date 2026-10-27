@@ -16,11 +16,51 @@ what changed between two releases.
 
 ## Voice
 
-Write instructions, in the present tense, addressed to "you".
+Write to the reader, in the present tense, in the second person. The subject
+of most sentences is **you** — not "the application", "a caller", "somebody"
+or "the developer".
 
 - **Say what to do, then show it.** A sentence of context, then code.
 - **Lead with the common case.** The edge case goes after it, or in a callout.
 - **One idea per heading.** A heading is a task or a thing, not an argument.
+
+### Speak to the person reading
+
+Anticipate the situation they are in and name it. Reassure them where the
+framework has already done the work. These are the moves:
+
+| Instead of | Write |
+|---|---|
+| "A caller that needs a strict rate must…" | "If you need a strict rate, you can…" |
+| "The application resolves the user through…" | "Your handler receives the user, resolved through…" |
+| "A session is created on first write." | "Don't worry about creating a session — one is created for you on the first write." |
+| "It is possible to override the directory." | "Sometimes you'll want the templates somewhere else. Override it with…" |
+| "Two copies of a price eventually disagree." | "Keep one copy of the price. Two will disagree eventually, and then…" |
+| "Configuration is read from `internal/configs/`." | "You'll find your configuration in `internal/configs/`." |
+
+Use "we" only for walking through something together — "let's add a route" —
+never for the framework's authors or the project.
+
+### Define a term the first time you use it
+
+Assume the reader has never used a web framework. A page that opens "Routes
+are defined in `internal/routes/` using the application's `Router` interface"
+teaches only somebody who already knows what a route is.
+
+So before the syntax, say what the thing **is**, in terms the reader already
+has, and why it exists at all:
+
+> When someone visits your site, their browser sends your application a short
+> message: a method, like `GET`, and a path, like `/users/42`. From those two
+> things your application has to pick the Go function that answers. A route is
+> one line in that decision — `GET` + `/hello` → run this function.
+
+Then the code. Keep the definition concrete: a browser sending bytes, a row in
+a table, a file on disk. Avoid defining one unfamiliar word with three others.
+
+Terms used across many pages live in
+[the glossary](content/docs/glossary.md) and are linked on first use rather
+than redefined. A term a page is *about* is defined on that page.
 
 ### Headings are labels, not opinions
 

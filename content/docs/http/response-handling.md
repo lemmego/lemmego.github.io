@@ -8,9 +8,19 @@ sidebar:
   open: true
 ---
 
-## Response Types
+Answering a request means sending back three things: a **status code** saying
+how it went, **headers** describing what is coming, and a **body** — the
+content itself.
 
-Lemmego's `Context` provides several response methods.
+You rarely set those by hand. Each method below fills in all three for you:
+call `c.JSON` and you have sent a `200`, a `Content-Type:
+application/json` header, and your data encoded as JSON.
+
+One rule to keep in mind: you answer **once**. Each of these methods writes
+the whole response and returns, so pick the one that fits and return it. Call
+a second and there is nothing left for it to write to.
+
+## Response types
 
 ### JSON
 
