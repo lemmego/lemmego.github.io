@@ -178,33 +178,42 @@ slog.SetDefault(slog.New(log.NewFanout(
 `lemmego/log` depends on nothing but the standard library, which is the point:
 a package that formats text should not cost its importers a cloud SDK.
 
+## Seeing what a request did
+
+A log file tells you what happened; it cannot tell you which request each
+line belongs to. When you need that — every query a page ran, with timings,
+and the log lines between them — reach for
+[`lemmego/observe`](https://github.com/lemmego/observe).
+
+```go
+// bootstrap/providers.go
+&logger.Provider{Options: log.Options{
+    // Log lines land under the request that produced them.
+    Extra: []slog.Handler{observeslog.Handler()},
+}},
+&observeprovider.Provider{
+    DashboardAuth: func(c app.Context) bool { return isStaff(c) },
+},
+```
+
+It records requests, SQL statements, cache operations, jobs and mail, and it
+reads three ways: a dashboard at `/observe`, `lemmego run observe:last` in a
+terminal, and a set of MCP tools so an agent can ask the same questions.
+
+Set `OBSERVE_ENABLED=true` to turn it on — it is off by default, because the
+entries hold request headers, bound query parameters and SQL.
+
+{{< callout type="warning" >}}
+**`DashboardAuth` is not optional.** Leaving it nil is not "no
+authentication", it is "no access": the dashboard answers 401 to everything
+until you give it a predicate. That default is deliberate, because the
+alternative is a page that hands anybody who can reach it your headers and
+your statements.
+{{< /callout >}}
+
 ## Metrics
 
-The `observability` package includes a metrics collector, separate from
-logging:
-
-```go
-import "github.com/lemmego/api/observability"
-
-metrics := observability.NewMetricsCollector(observability.MetricsConfig{
-	Enabled: true,
-})
-
-// Record HTTP request metrics
-observability.RecordHTTPRequest("GET", "/api/users", 200, 45*time.Millisecond)
-
-// Custom metrics
-metrics.IncrementCounter("page_views", 1)
-metrics.SetGauge("active_users", 42)
-metrics.RecordHistogram("response_time_ms", 145)
-```
-
-Metrics middleware records HTTP request metrics automatically:
-
-```go
-app.Use(observability.MetricsMiddleware)
-```
-
-`observability` also carries a logger of its own, predating this one. Prefer
-`slog` and `logger.Provider`; `observability.NewLogger` remains for the
-field-enrichment API some projects are built on.
+There is no metrics collector in the framework. `lemmego/observe` records what
+individual requests did, which is a different job from counting them — export
+to Prometheus or OpenTelemetry from your own middleware when you need
+aggregates.
