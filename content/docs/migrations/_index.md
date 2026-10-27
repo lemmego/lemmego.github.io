@@ -8,14 +8,27 @@ sidebar:
   open: true
 ---
 
-`lemmego/migration` is version-controlled, bidirectional schema evolution for
-SQLite, MySQL and PostgreSQL, with a schema builder that renders the same
-declaration differently on each.
+Your database has a shape — which tables exist, which columns they have. That
+shape has to change as you build, and it has to change the same way on your
+laptop, on your colleague's, and on the server. Doing it by hand means somebody
+eventually runs the wrong statement, or forgets one, and finds out when the
+application breaks against a database that is subtly different.
 
-A migration is a Go file with an up and a down function, both
-`func(tx *sql.Tx) error`. The builder is there so that what all three drivers
-can do is written once; `tx.Exec` is there, as a first-class escape hatch,
-for what only one of them can.
+A **migration** is that change written down as a file: one function to apply
+it, one to undo it. You commit those files alongside your code, so the shape
+of your database has a history exactly like the rest of your project, and any
+machine can be brought up to date by running them in order.
+
+```go
+func Up(tx *sql.Tx) error   // add the table
+func Down(tx *sql.Tx) error // remove it again
+```
+
+`lemmego/migration` runs them for you against SQLite, MySQL or PostgreSQL, and
+gives you a **schema builder** so a column you declare once is rendered
+correctly for whichever of the three you are on. Where a database can do
+something the other two cannot, `tx.Exec` lets you write the SQL directly —
+that is expected, not a workaround.
 
 ```go
 func mig_20250706000001_create_users_table_up(tx *sql.Tx) error {

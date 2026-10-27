@@ -8,15 +8,31 @@ sidebar:
   open: true
 ---
 
-**GPA** (Go Persistence API) is a provider-backed persistence layer offering one
-type-safe API across SQL, MongoDB, Redis and other stores.
+{{< callout type="info" >}}
+**If you are building an ordinary SQL application, you can skip this
+section.** [The ORM](/docs/orm/) is what `lemmego new` sets up, and it is the
+shorter path. Come back when one of the reasons below applies to you.
+{{< /callout >}}
 
-Reach for it when you need a backend the [ORM](/docs/orm/) does not cover —
-GORM, Bun, MongoDB or Redis — or more than one store in one application. For a
-SQL-only project, the ORM is the shorter path and is what `lemmego new`
-configures.
+Different databases are not alike. A SQL database has tables and joins; Redis
+is keys and values with no query language to speak of; MongoDB stores
+documents. Normally that means your code is written against whichever one you
+picked, and swapping it later means rewriting the parts that touch it.
 
-### Key Features
+**GPA** (Go Persistence API) puts one set of operations in front of all of
+them. You ask a `Repository[User]` to find, create or delete, and a
+**provider** underneath translates that into GORM calls, Bun calls, Redis
+commands or Mongo queries:
+
+```go
+user, err := userRepo.FindByID(ctx, 42)   // same line, whichever store
+```
+
+Reach for it when you want a backend the ORM does not cover — GORM, Bun,
+MongoDB or Redis — or when one application talks to more than one store at
+once, such as Postgres for your records and Redis for a leaderboard.
+
+### Key features
 
 - **Compile-time type safety** — Generic `Repository[T]` returns `*T` and `[]*T` directly, no `interface{}` casting
 - **Unified API** — Same CRUD operations across SQL, MongoDB, Redis, and more

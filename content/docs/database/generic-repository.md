@@ -8,9 +8,21 @@ sidebar:
   open: true
 ---
 
-The `Repository[T]` interface is the primary data access API. It's parameterized with Go generics for compile-time type safety — every operation returns the concrete type, not `interface{}`.
+A **repository** is an object that holds all the database operations for one
+kind of record. You get a `Repository[User]` and ask *it* for users, rather
+than writing queries wherever you happen to need one. Your SQL — or whatever
+the store underneath speaks — ends up in one place, and your handlers stay
+about HTTP.
 
-## Creating Repositories
+The `[User]` part is what keeps it pleasant to use. `FindByID` on a
+`Repository[User]` hands you a `*User`, not something you have to convert:
+
+```go
+userRepo := gpagorm.GetRepository[User]()
+user, err := userRepo.FindByID(ctx, 42)   // *User
+```
+
+## Creating repositories
 
 ```go
 // From the provider registry (recommended)

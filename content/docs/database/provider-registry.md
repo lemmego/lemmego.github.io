@@ -8,7 +8,24 @@ sidebar:
   open: true
 ---
 
-The provider registry is a singleton that stores database provider instances by type and name. It uses Go generics for compile-time type inference.
+A **provider** is the piece that knows how to talk to one particular database
+— there is a GORM provider, a Bun provider, a Redis provider. You set one up
+at startup, and from then on your code asks for it by name instead of passing
+a connection through every function.
+
+The **registry** is where they are kept. Think of it as a labelled shelf: you
+put the Postgres provider on it under the name `"primary"` and the Redis one
+under `"cache"`, and anywhere in your application you can take either back
+down.
+
+What makes it worth having is that you get the right *type* back, not a
+`Provider` you have to assert:
+
+```go
+gpa.Register[*gpagorm.Provider]("primary", gormDB)
+
+primary := gpa.MustGet[*gpagorm.Provider]("primary")   // already the right type
+```
 
 ## Architecture
 
