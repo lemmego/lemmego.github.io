@@ -19,7 +19,7 @@ func TestAProfileIsPublic(t *testing.T) {
         apptest.WithConfig(configs.All()),
         apptest.WithProviders(bootstrap.LoadProviders()...),
         apptest.WithRoutes(bootstrap.LoadRoutes()...),
-        apptest.WithPostgres(),
+        apptest.WithScratchDB(),
     )
 
     a.Get("/@grace").Send().
@@ -48,8 +48,8 @@ application cannot boot.
 | `WithMiddlewares(...)` | Application middleware |
 | `WithHTTPMiddlewares(...)` | `net/http`-level middleware |
 | `WithErrMap(...)` | So a test sees the statuses and pages the application really returns |
-| `WithPostgres()` | A scratch database, migrated, then dropped |
-| `WithPostgresNoMigrate()` | For testing the migrator itself |
+| `WithScratchDB()` | A scratch database, migrated, then dropped |
+| `WithScratchDBNoMigrate()` | For testing the migrator itself |
 | `WithStrictSSR()` | A failed server-side render becomes a 500 |
 | `WithoutCSRFToken()` | Send unsafe requests with no token, to assert the protection exists |
 | `WithSharedCache()` | Opt out of per-App cache isolation |
@@ -159,23 +159,24 @@ model.
 
 ## A Postgres database per test
 
-```bash
-export APPTEST_POSTGRES_DSN="host=localhost user=you dbname=postgres sslmode=disable"
-```
+`WithScratchDB()` creates a uniquely named database on the server your
+application is already configured to use, points the configuration at it, runs
+every migration registered with `migration.GetMigrator`, and drops it when the
+test ends. Your tests do not see each other's rows and can run in any order.
 
-`WithPostgres()` creates a uniquely named database beside the one in the DSN,
-rewrites the configuration the application boots with so its connector opens
-that one, runs every migration registered with `migration.GetMigrator`, and
-drops it when the test ends. Tests do not see each other's rows and can run in
-any order.
+**The server comes from your own configuration**, which under a test binary
+means `.env.test`. There is no separate environment variable naming a
+database, and that is the point: two ways to say which server to use is two
+things that can disagree. Point `.env.test` at a Postgres you are running.
 
 {{< callout type="warning" >}}
-**With `APPTEST_POSTGRES_DSN` unset, the test skips rather than fails**, so
-`go test ./...` still passes for somebody with no server running.
+**It fails rather than skipping** when that server is unreachable. Skipping
+looks kinder and costs more: a skipped package and a passing one are identical
+in the exit code, so the only thing that tells them apart is the clock. A test
+that needs a database and has none has not passed.
 
-That means a skipped package and a passing one look identical in the exit
-code. The giveaway is the runtime: a package taking 1.3s where it usually
-takes 190s ran nothing. Check the duration before calling a suite green.
+The habit is still worth keeping for every other `t.Skip` in a suite — if a
+package that boots your application finishes in a second, it did nothing.
 {{< /callout >}}
 
 A scratch database per test is heavier than a transaction rolled back at the
@@ -265,5 +266,5 @@ GOWORK=off go test ./...   # as a published module would resolve it
 
 - [Inertia](/docs/frontend/inertia#testing) — asserting on props rather than
   on rendered HTML.
-- [Migrations](/docs/migrations/running-migrations) — what `WithPostgres()`
+- [Migrations](/docs/migrations/running-migrations) — what `WithScratchDB()`
   runs against the scratch database.
