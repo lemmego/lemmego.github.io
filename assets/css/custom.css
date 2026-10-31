@@ -131,16 +131,39 @@
   The first thing somebody wants from a framework's landing page is the
   command, so it is in the hero rather than three clicks into Installation.
   A <code> rather than a styled div: it is text to be selected and copied.
+
+  inline-block, not inline-flex. The box still shrink-wraps its content on a
+  wide screen, but inside it the prompt and the command are ordinary inline
+  text, so they share the first line. A flex container breaks lines before it
+  shrinks items, which left the $ stranded on a row of its own above a wrapped
+  command.
 */
 .hero-install {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
+  display: inline-block;
+  /*
+    The command is one long URL, and a URL offers no break opportunity. Left
+    alone this box sized itself to that URL — 693px, measured — and rendered
+    that wide at every phone width, where the hero clipped it: most of the
+    command was off screen, and because the overflow is clipped rather than
+    scrolled it could not even be selected.
+
+    `anywhere` rather than `break-word`, and the difference is the whole fix:
+    only `anywhere` lets the URL count as breakable when the browser computes
+    min-content, which is what allows max-width to take effect. `break-word`
+    wraps the text and leaves the box its original width.
+
+    Measured at a 375px viewport: 693px wide before, 327px after.
+  */
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  /* The hero centres its children, and centred ragged lines read badly. */
+  text-align: left;
   margin-top: 1.75rem;
   border-radius: 0.6rem;
   padding: 0.6rem 1rem;
   font-family: var(--hx-default-mono-font-family, ui-monospace, monospace);
   font-size: 0.875rem;
+  line-height: 1.7;
   border: 1px solid var(--hx-color-gray-200);
   background: var(--hx-color-gray-50);
   color: var(--hx-color-gray-800);
@@ -153,6 +176,8 @@
 }
 
 .hero-install .prompt {
+  /* Was the flex gap, which inline-block does not have. */
+  margin-right: 0.6rem;
   color: var(--hx-color-primary-600);
   user-select: none;
 }

@@ -21,7 +21,7 @@
     {{ with .Params.subtitle }}<p>{{ . }}</p>{{ end }}
 
     {{ with .Params.install }}
-      <div><code class="hero-install"><span class="prompt">$</span>{{ . }}</code></div>
+      <div><code class="hero-install"><span class="prompt">$</span><span class="command">{{ . }}</span></code></div>
     {{ end }}
 
     <div class="hero-actions">
