@@ -163,13 +163,28 @@ Runs the application via `go run ./cmd/app`.
 
 ### `lemmego dev`
 
-Starts the development server with hot reload. Orchestrates up to three parallel processes:
+Starts the development server with hot reload. Orchestrates up to four parallel processes:
 
-1. **air** — Go hot reload on `:8080`
-2. **templ generate --watch** — Templ file watcher (if `.templ` files exist)
-3. **vite dev** — Frontend dev server (if `package.json` exists)
+1. **the Inertia renderer** — `node bootstrap/ssr/ssr.js` on `:13714` (if that bundle exists)
+2. **vite dev** — Frontend dev server (if `package.json` exists)
+3. **air** — Go hot reload on `:8080`
+4. **templ generate --watch** — Templ file watcher (if `.templ` files exist)
 
-Output is color-coded with `[air]`, `[templ]`, `[vite]` prefixes.
+Output is color-coded with `[ssr]`, `[vite]`, `[air]` and `[templ]` prefixes.
+
+Build the renderer's bundle once and `dev` uses it from then on:
+
+```shell
+pnpm build:ssr
+```
+
+Without it your pages are rendered by the Vite dev server instead, which
+compiles them on demand — so the first page you open after starting `dev`
+takes a while. `dev` tells you so, and tells you the command above. See
+[Inertia](/docs/frontend/inertia) for the difference between the two
+renderers, and for the one thing to remember: the bundle is only as current
+as your last `pnpm build:ssr`, so rebuild it when you want a component change
+to show up in the server-rendered HTML.
 
 ### `lemmego build`
 

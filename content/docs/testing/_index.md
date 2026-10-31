@@ -52,7 +52,7 @@ application cannot boot.
 | `WithScratchDBNoMigrate()` | For testing the migrator itself |
 | `WithStrictSSR()` | A failed server-side render becomes a 500 |
 | `WithoutCSRFToken()` | Send unsafe requests with no token, to assert the protection exists |
-| `WithSharedCache()` | Opt out of per-App cache isolation |
+| `WithSharedCache()` | Opt out of per-App cache isolation, keeping your configured prefix and directory |
 | `WithWorkingDir(dir)` / `WithoutChdir()` | Override the chdir to the project root |
 
 Without `WithConfig` the application gets only the minimum needed to boot,
@@ -186,6 +186,33 @@ trigger, a generated column or a deferred constraint.
 `Ctx()` is the test's own context for seeding a fixture or asserting against a
 row afterwards. It is cancelled when the test ends, so a query left running by
 a failed assertion does not outlive it.
+
+## A cache namespace per test
+
+Every App gets its own cache namespace, so your tests do not read each other's
+entries. You rarely have to think about it, and there are two cases where it
+helps to know it is happening.
+
+A rate limiter is the clearest one. A limit of five per minute is consumed by
+your whole suite rather than by each test, so without isolation the third test
+to exercise it gets a `429` it did not earn — and the failure moves around
+depending on which tests ran first.
+
+The other is the file cache. Each namespace gets its own directory, and
+without isolation those land in your project under `storage/framework/cache`
+and stay there. Your App's namespace is a `t.TempDir()` instead, which the
+testing package removes when the test ends, so a suite leaves nothing behind.
+
+```go
+a := apptest.New(t, apptest.WithProviders(bootstrap.LoadProviders()...))
+
+a.CachePrefix() // the namespace this App's entries live under
+a.CacheDir()    // where a file-backed cache keeps them
+```
+
+Reach for `WithSharedCache()` when a test is deliberately checking what two
+applications see of each other. It leaves both the prefix and the directory
+exactly as your configuration set them.
 
 ## Server-side rendering in tests
 

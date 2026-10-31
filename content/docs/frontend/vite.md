@@ -57,7 +57,29 @@ Run the dev server:
 npm run dev
 ```
 
-This starts Vite's dev server. The `lemmego dev` command automatically detects `package.json` and starts Vite alongside air and templ.
+This starts Vite's dev server. The `lemmego dev` command automatically detects `package.json` and starts Vite alongside air, templ and — for an Inertia project with a built SSR bundle — the Inertia renderer.
+
+### Server-side rendering and the dev server
+
+Vite can render your Inertia pages itself, on `/__inertia_ssr`. It is
+convenient, because there is nothing to build, and slow, because it compiles
+your pages on demand the first time anyone asks.
+
+So when something else is already rendering, the generated `vite.config.js`
+turns that endpoint off:
+
+```js
+inertia(command === "build" || !process.env.INERTIA_SSR_URL ? {} : { ssr: false })
+```
+
+`lemmego dev` sets `INERTIA_SSR_URL` when it starts the standalone renderer,
+so this looks after itself. Leaving the endpoint on costs more than an unused
+route: Vite loads every page component when the dev server starts, on the same
+thread that serves your stylesheet, and your first page load waits behind it.
+
+The `command === "build"` half matters too — the plugin is what builds
+`bootstrap/ssr/ssr.js` in the first place, so it stays fully enabled for
+`vite build --ssr`.
 
 ### Hot Module Replacement
 
@@ -118,11 +140,35 @@ The Inertia root layout is in `resources/views/root.html`:
 The generated project includes Tailwind CSS v4 configured via the Vite plugin. Styles are in `resources/css/app.css`:
 
 ```css
-@import "tailwindcss";
+@import "tailwindcss" source("../");
 
 .input { @apply border rounded px-3 py-2; }
 .btn-primary { @apply bg-blue-500 text-white px-4 py-2 rounded; }
 ```
+
+### Where Tailwind looks for class names
+
+`source("../")` is doing real work, so leave it there. Without it Tailwind
+scans your whole project for class names, and a Lemmego project fills up with
+files it has no reason to read — the file cache driver writes one per entry
+under `storage/`, and a real application reached 83,000 of them. Tailwind read
+all of them on every stylesheet build, which in development means every time
+Vite invalidates the module. Measured at a 375px viewport: **9.6 seconds per
+build, against 0.054 seconds with the scan narrowed.**
+
+If your stylesheet suddenly takes seconds to load in development, this is the
+first thing to check.
+
+Keep classes somewhere outside `resources/`? Add it:
+
+```css
+@import "tailwindcss" source("../");
+@source "../../internal/views";
+```
+
+Reaching for `@source not` to exclude a directory won't help — it filters what
+the scan returns rather than stopping the scan, and measures slower than doing
+nothing.
 
 ## Package Manager
 
