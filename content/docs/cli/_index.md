@@ -19,7 +19,7 @@ Everything here runs from inside your project directory.
 
 ```shell
 # Via installer
-curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sudo sh
+curl -fsSL https://get.lemmego.org | sudo sh
 
 # Via Go — installs a binary called `cmd`; rename it to `lemmego`
 go install github.com/lemmego/cli/cmd@latest

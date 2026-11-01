@@ -38,14 +38,14 @@ With those in place, install the CLI:
 {{< tab name="Linux" >}}
 
 ```shell
-curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sudo sh
+curl -fsSL https://get.lemmego.org | sudo sh
 ```
 
 {{< /tab >}}
 {{< tab name="macOS" >}}
 
 ```shell
-curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sudo sh
+curl -fsSL https://get.lemmego.org | sudo sh
 ```
 
 {{< /tab >}}
@@ -95,7 +95,7 @@ checksum. Two environment variables override that:
 ```shell
 # Pin a version, and install without sudo
 LEMMEGO_VERSION=v0.4.1 LEMMEGO_INSTALL_DIR=$HOME/.local/bin \
-  curl -fsSL https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.sh | sh
+  curl -fsSL https://get.lemmego.org | sh
 ```
 
 ## Verify Installation
