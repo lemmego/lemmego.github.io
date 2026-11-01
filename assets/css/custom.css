@@ -16,6 +16,62 @@
 /* ---------------------------------------------------------------- hero -- */
 
 /*
+  The gopher sits behind everything in the hero, so the content needs a
+  stacking context of its own — without this the watermark paints over the
+  headline rather than under it.
+*/
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+  Decoration, and priced like it: no pointer events, no place in the reading
+  order, and faint enough that it is texture rather than a second thing to
+  look at. It bleeds off the right edge deliberately, which is why .hero
+  already carries overflow: hidden — the shape is cropped rather than
+  widening the page.
+
+  The two fills come from the same knob as everything else, so turning
+  --primary-hue turns the gopher with it. Its eyes, teeth and outlines keep
+  their own black and white: those are features, not brand surface, and a
+  flat tint over all of them is how a gopher becomes a blob.
+*/
+.hero-gopher {
+  position: absolute;
+  z-index: 0;
+  right: -3.5rem;
+  bottom: -2rem;
+  width: 15rem;
+  opacity: 0.07;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-gopher .g-body {
+  fill: var(--hx-color-primary-600);
+}
+
+.hero-gopher .g-skin {
+  fill: color-mix(in srgb, var(--hx-color-primary-500) 30%, #fff);
+}
+
+/* Dark mode swallows a 7% tint, so it gets a little more to work with. */
+.dark .hero-gopher {
+  opacity: 0.11;
+}
+
+@media (min-width: 768px) {
+  .hero-gopher {
+    right: -2rem;
+    bottom: -3rem;
+    width: 26rem;
+    opacity: 0.09;
+  }
+}
+
+
+/*
   Full-bleed, which is the one thing the theme's own hero shortcodes cannot
   do: they render inside the content column. Everything else about it comes
   from the theme.
@@ -316,4 +372,48 @@
   align-items: center;
   gap: 0.75rem;
   margin-top: 2rem;
+}
+
+/* ----------------------------------------------------------- page gopher -- */
+
+/*
+  One gopher per documentation section, floated so the prose wraps around it
+  rather than being pushed down the page. It sits in Hextra's page-begin hook,
+  which is above the breadcrumb, so the float covers the breadcrumb, the
+  heading and the opening paragraphs — which is the shape that reads as an
+  illustrated page rather than a logo stuck on top of one.
+
+  Full colour, deliberately. These are shaded scenes of twenty-odd colours;
+  the hero gopher is two flat fills and is the one that follows the brand.
+*/
+.page-gopher {
+  float: right;
+  width: 7rem;
+  height: auto;
+  margin: 0 0 1rem 1.5rem;
+  /* Decoration should not compete with the first paragraph. */
+  opacity: 0.85;
+  pointer-events: none;
+  user-select: none;
+}
+
+/*
+  Below 640px the content column is the whole screen, so a 7rem float takes a
+  third of every line and the text ragged-wraps around it for three lines.
+  Smaller, and out of the way.
+*/
+@media (max-width: 639px) {
+  .page-gopher {
+    width: 4.5rem;
+    margin: 0 0 0.5rem 1rem;
+  }
+}
+
+/*
+  The illustrations are drawn for a light page. On a dark one their white
+  highlights glare, so they are dimmed rather than inverted — inverting a
+  picture of an animal produces a different animal.
+*/
+.dark .page-gopher {
+  opacity: 0.7;
 }

@@ -1,0 +1,87 @@
+{{/*
+  A gopher per documentation section, chosen to match what the section is
+  about. Hextra calls this hook at the top of every docs page, which is why
+  none of the theme's own templates had to be copied to get it here.
+
+  An <img> rather than an inlined <svg>, and the reason is weight: these are
+  Inkscape illustrations of twenty-odd colours each, 40-64KB even after
+  svgo. Inlined, every page would carry its gopher again in its own HTML.
+  As an image it is one request, cached across the whole site, and it costs
+  a page that is already open nothing at all.
+
+  The trade is that CSS cannot reach inside an <img>, so these keep their own
+  colours rather than following --primary-hue the way the hero gopher does.
+  That is the right outcome regardless: the hero gopher is two flat fills and
+  tints cleanly, while these are shaded scenes with props, and a crimson wash
+  over one is not a brand, it is a ruined drawing.
+
+  The map is keyed by section, so a new page in a section already covered
+  needs nothing. A page that wants its own gopher sets `gopher: <name>` in
+  front matter, and a section with no entry simply renders nothing.
+*/}}
+
+{{- $bySection := dict
+  "_index"              "hiking"
+  "prologue"            "hiking"
+  "installation"        "soldering"
+  "quick-start"         "surfing"
+  "project-structure"   "network-side"
+  "architecture"        "network"
+  "core-concepts"       "sage"
+  "configuration"       "vim-go"
+  "cli"                 "emacs-go"
+  "http"                "grpc-web"
+  "database"            "with-book"
+  "database/providers"  "hugging-docker"
+  "orm"                 "witch-learning"
+  "migrations"          "lifting-1tb"
+  "cache"               "power-to-the-masses"
+  "queue"               "mistake"
+  "security"            "zorro"
+  "session"             "umbrella"
+  "authz"               "knight"
+  "oauth2"              "king"
+  "frontend"            "upright"
+  "testing"             "crash-dummy"
+  "mail"                "heart-balloon"
+  "notifications"       "birthday"
+  "broadcast"           "music-broadcast"
+  "seo"                 "liberty"
+  "search"              "monkfish"
+  "media"               "music-party"
+  "filesystem"          "stovepipe-hat"
+  "ratelimit"           "too-much-candy"
+  "payments"            "heart-hug"
+  "logging"             "go-fuzz"
+  "mcp"                 "docker"
+  "deployment"          "jet-pack"
+  "prompting"           "gamer"
+  "glossary"            "empire-silhouette"
+  "appendix"            "stovepipe-hat-front"
+-}}
+
+{{- $name := "" -}}
+{{- with .File -}}
+  {{- $rel := strings.TrimPrefix "docs/" .Path -}}
+  {{- $dir := path.Dir $rel -}}
+  {{/* A page directly under docs/ has no directory to key on, so it keys on
+       its own filename: docs/configuration.md -> "configuration". */}}
+  {{- $key := cond (eq $dir ".") (path.BaseName $rel) $dir -}}
+  {{- $name = index $bySection $key | default "" -}}
+{{- end -}}
+{{- with .Params.gopher }}{{ $name = . }}{{ end -}}
+
+{{- with $name -}}
+  {{- $file := printf "gophers/%s.svg" . -}}
+  {{- with resources.Get $file -}}
+    {{- $size := index site.Data.gophers $name -}}
+    {{- $w := 120 -}}
+    {{- $h := 120 -}}
+    {{- with $size -}}{{ $h = math.Round (mul 120 (div .h .w)) }}{{- end -}}
+    {{/* Decorative: alt is empty and it is hidden from assistive software,
+         because it illustrates the page rather than saying anything the
+         prose does not. */}}
+    <img class="page-gopher" src="{{ .RelPermalink }}" alt="" aria-hidden="true"
+         width="{{ $w }}" height="{{ $h }}" loading="lazy" decoding="async">
+  {{- end -}}
+{{- end -}}

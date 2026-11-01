@@ -10,7 +10,8 @@
   hex colours and an inline style attribute that dark mode could not reach.
 */}}
 <div class="hero">
-  <div class="hx:max-w-[90rem] hx:mx-auto hx:px-6 hx:text-center">
+  {{ partial "custom/gopher.html" . }}
+  <div class="hero-content hx:max-w-[90rem] hx:mx-auto hx:px-6 hx:text-center">
     <a href="https://github.com/lemmego/cli/releases/latest" class="hero-badge">
       {{ partial "utils/icon.html" (dict "name" "sparkles" "attributes" "height=14") }}
       {{ with site.Params.latestRelease }}{{ . }}{{ else }}{{ site.Params.version }}{{ end }}

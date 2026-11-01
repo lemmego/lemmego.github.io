@@ -1,0 +1,39 @@
+{{/*
+  Hextra v0.12.3's own docs layout, with one line added: the gopher partial,
+  just above the breadcrumb.
+
+  It is a copy rather than a hook because v0.12.3 offers only three — banner,
+  footer and head-end — and none of them is inside <main>. v0.13.0 adds
+  custom/page-begin.html in exactly this position, so when Hextra is upgraded
+  this file should be deleted rather than merged: the partial it calls is
+  already named for that hook and will be picked up without it.
+
+  Nothing else here differs from the theme. Check it against the upstream
+  template before changing anything other than that one line.
+*/}}
+{{ define "main" }}
+  <div class='hx:mx-auto hx:flex hextra-max-page-width'>
+    {{ partial "sidebar.html" (dict "context" .) }}
+    {{ partial "toc.html" . }}
+    <article class="hx:w-full hx:break-words hx:flex hx:min-h-[calc(100vh-var(--navbar-height))] hx:min-w-0 hx:justify-center hx:pb-8 hx:pr-[calc(env(safe-area-inset-right)-1.5rem)]">
+      <main id="content" class="hx:w-full hx:min-w-0 hextra-max-content-width hx:px-6 hx:pt-4 hx:md:px-12">
+        {{ partial "custom/page-begin.html" . }}
+        {{ partial "breadcrumb.html" (dict "page" . "enable" true) }}
+        <div class="content">
+          {{ if .Title }}
+          <div class="hx:flex hx:flex-col hx:sm:flex-row hx:items-start hx:sm:items-center hx:sm:justify-between hx:gap-4 hx:mb-4">
+            <h1 class="hx:mb-0">{{ .Title }}</h1>
+            {{ partial "components/page-context-menu" . }}
+          </div>
+          {{ end }}
+          {{ .Content }}
+        </div>
+        {{ partial "components/last-updated.html" . }}
+        {{- if (site.Params.page.displayPagination | default true) -}}
+          {{- partial "components/pager.html" . -}}
+        {{- end -}}
+        {{ partial "components/comments.html" . }}
+      </main>
+    </article>
+  </div>
+{{ end }}
