@@ -54,7 +54,7 @@ curl -fsSL https://get.lemmego.org | sudo sh
 In an elevated PowerShell prompt:
 
 ```powershell
-irm https://raw.githubusercontent.com/lemmego/cli/refs/heads/main/installer.ps1 | iex
+irm https://get.lemmego.org/ps1 | iex
 ```
 
 {{< /tab >}}
