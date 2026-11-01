@@ -138,6 +138,115 @@
   shrinks items, which left the $ stranded on a row of its own above a wrapped
   command.
 */
+/*
+  The hero carries one command per platform. Only the chosen pane is in the
+  layout, so the box still shrink-wraps to the command it is showing rather
+  than to the longest one.
+*/
+.hero-install-group {
+  margin-top: 1.75rem;
+}
+
+.hero-install-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 0.6rem;
+}
+
+.hero-install-tabs label {
+  cursor: pointer;
+  border-radius: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--hx-color-gray-500);
+  /* The tab is the label, so the hit area is the whole word, not the dot. */
+  user-select: none;
+}
+
+.hero-install-tabs label:hover {
+  color: var(--hx-color-gray-700);
+}
+
+.dark .hero-install-tabs label:hover {
+  color: var(--hx-color-gray-300);
+}
+
+/*
+  The radio is hidden from sight and not from the keyboard or a screen
+  reader. display:none would take it out of the tab order and silence it,
+  which for the only control in the hero is the difference between a tab
+  group and a decoration.
+*/
+.hero-install-pick {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* :has() rather than an id per tab, so adding a platform needs no new rule. */
+.hero-install-tabs label:has(:checked) {
+  background: color-mix(in srgb, var(--hx-color-primary-500) 10%, transparent);
+  color: var(--hx-color-primary-700);
+  font-weight: 500;
+}
+
+.dark .hero-install-tabs label:has(:checked) {
+  color: var(--hx-color-primary-200);
+}
+
+.hero-install-tabs label:has(:focus-visible) {
+  outline: 2px solid var(--hx-color-primary-500);
+  outline-offset: 2px;
+}
+
+/*
+  Without :has() the switching cannot work, and the whole mechanism is one
+  rule away from hiding every pane — which would leave the landing page
+  showing no install command at all, the one thing it exists to show. So the
+  unswitchable state is the default: the first pane, and no tabs offering a
+  choice that would not be honoured.
+*/
+.hero-install[data-pane] {
+  display: none;
+}
+
+.hero-install[data-pane="0"] {
+  display: inline-block;
+}
+
+@supports not selector(:has(*)) {
+  .hero-install-tabs {
+    display: none;
+  }
+}
+
+/*
+  Pane visibility is the one place an index appears. A sibling selector
+  cannot count, so each pane needs its own rule — a fifth platform wants a
+  fifth line here, and shows nothing until it has one.
+*/
+@supports selector(:has(*)) {
+  .hero-install-group:has(.hero-install-pick:checked) .hero-install[data-pane] {
+    display: none;
+  }
+
+  .hero-install-group:has(.hero-install-pick[value="0"]:checked) .hero-install[data-pane="0"],
+  .hero-install-group:has(.hero-install-pick[value="1"]:checked) .hero-install[data-pane="1"],
+  .hero-install-group:has(.hero-install-pick[value="2"]:checked) .hero-install[data-pane="2"],
+  .hero-install-group:has(.hero-install-pick[value="3"]:checked) .hero-install[data-pane="3"] {
+    display: inline-block;
+  }
+}
+
 .hero-install {
   display: inline-block;
   /*
@@ -158,7 +267,6 @@
   overflow-wrap: anywhere;
   /* The hero centres its children, and centred ragged lines read badly. */
   text-align: left;
-  margin-top: 1.75rem;
   border-radius: 0.6rem;
   padding: 0.6rem 1rem;
   font-family: var(--hx-default-mono-font-family, ui-monospace, monospace);

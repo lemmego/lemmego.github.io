@@ -21,7 +21,30 @@
     {{ with .Params.subtitle }}<p>{{ . }}</p>{{ end }}
 
     {{ with .Params.install }}
-      <div><code class="hero-install"><span class="prompt">$</span><span class="command">{{ . }}</span></code></div>
+      {{/*
+        One pane per platform, chosen by a radio group and shown with CSS
+        alone. No script: the hero is the first thing rendered, and a tab
+        that needs JavaScript to decide what it shows renders the wrong
+        command first and corrects itself after paint.
+
+        Each radio lives inside its own label, so the label is the control
+        rather than something pointing at one, and the active and focused
+        states are plain :has() selectors with no ids to keep in step.
+      */}}
+      <div class="hero-install-group">
+        <div class="hero-install-tabs" role="group" aria-label="Your platform">
+          {{ range $i, $p := . }}
+            <label>
+              <input type="radio" name="hero-install" value="{{ $i }}"
+                     class="hero-install-pick"{{ if eq $i 0 }} checked{{ end }}>
+              <span>{{ $p.label }}</span>
+            </label>
+          {{ end }}
+        </div>
+        {{ range $i, $p := . }}
+          <code class="hero-install" data-pane="{{ $i }}"><span class="prompt">{{ $p.prompt }}</span><span class="command">{{ $p.command }}</span></code>
+        {{ end }}
+      </div>
     {{ end }}
 
     <div class="hero-actions">

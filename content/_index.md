@@ -7,13 +7,17 @@ headline: The Go framework that ships batteries included
 subtitle: >-
   Routing, an ORM, migrations, auth, queues, mail, realtime and a frontend —
   wired together, type-safe, and yours to replace one piece at a time.
-install: curl -fsSL https://get.lemmego.org | sudo sh
+install:
+  - label: macOS / Linux
+    prompt: "$"
+    command: curl -fsSL https://get.lemmego.org | sudo sh
+  - label: Windows
+    prompt: "PS>"
+    command: irm https://get.lemmego.org/ps1 | iex
 actions:
   - text: Get started
     link: /docs/quick-start
     primary: true
-  - text: Read the docs
-    link: /docs/prologue
   - text: GitHub
     link: https://github.com/lemmego
 ---
