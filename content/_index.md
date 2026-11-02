@@ -16,7 +16,7 @@ install:
     command: irm https://get.lemmego.org/ps1 | iex
 actions:
   - text: Get started
-    link: /docs/quick-start
+    link: /docs/prologue
     primary: true
   - text: GitHub
     link: https://github.com/lemmego
