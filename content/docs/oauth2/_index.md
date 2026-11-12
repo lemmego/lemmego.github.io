@@ -1,7 +1,7 @@
 ---
 title: OAuth2 Server
 type: docs
-prev: docs/payments/
+prev: docs/localization/
 next: docs/oauth2/installation
 weight: 120
 sidebar:

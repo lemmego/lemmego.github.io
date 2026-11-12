@@ -2,7 +2,7 @@
 title: Payments
 type: docs
 prev: docs/seo/
-next: docs/oauth2/
+next: docs/localization/
 weight: 114
 sidebar:
   open: true
