@@ -116,6 +116,7 @@ ORDER: list[tuple[str, list[str]]] = [
         "search/_index.md",
         "seo/_index.md",
         "payments/_index.md",
+        "localization/_index.md",
     ]),
     ("OAuth2 server", [
         "oauth2/_index.md",
