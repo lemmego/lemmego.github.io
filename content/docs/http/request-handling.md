@@ -70,7 +70,7 @@ type CreateUserInput struct {
 
 func (i *CreateUserInput) Validate() error {
     v := app.NewValidator()
-    v.Field("name", i.Name).Required()
+    v.Field("name", i.Name).Required().Max(255)
     v.Field("email", i.Email).Required().Email()
     return v.Validate()
 }
@@ -95,6 +95,28 @@ func Store(c app.Context) error {
     // input is validated and ready to use
 }
 ```
+
+### Size rules
+
+`Min`, `Max` and `Between` measure whatever you give them:
+
+```go
+v.Field("age", i.Age).Min(18)                  // the number
+v.Field("password", i.Password).Min(8)         // characters
+v.Field("topics", i.TopicIDs).Between(1, 5)    // items
+```
+
+A string is counted in **characters, not bytes**, so an eight-character
+minimum means eight characters whatever alphabet they are in. The message
+follows the value — "must be at least 8", "at least 8 characters", "at least
+8 items" — so you do not need a different rule for each.
+
+{{< callout type="warning" >}}
+Needs `api` v0.12.0. Below that version these three rules applied to `int`
+only and **silently did nothing to a string**, so a password minimum written
+against an older release was never enforced. See
+[Upgrade notes](/docs/appendix/upgrading#api-v0120--min-max-and-between-enforce-on-strings).
+{{< /callout >}}
 
 ### Changing the messages
 
