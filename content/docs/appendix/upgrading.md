@@ -44,6 +44,36 @@ own user type would have failed the assertion. It stores whatever
 
 See [Protecting routes](/docs/oauth2/protecting-routes) for the current setup.
 
+### `api` v0.11.0 — `app.Context` gained two methods
+
+`ctx.T()` and `ctx.Locale()` are new, and `HttpProvider` embeds the interface
+that declares them. This only affects you if you **implement `app.Context`
+yourself**, which in practice means a hand-written test double.
+
+If you have one, the symptom is a nil pointer dereference rather than a
+compile error, because a double usually embeds the interface:
+
+```go
+// A double written this way compiles, then panics the first time anything
+// calls T() — the promoted method dereferences the nil embedded value.
+type fakeContext struct {
+    app.Context
+}
+
+// Implement the two methods and it is fine again.
+func (f *fakeContext) T() app.Translator { return nil }
+func (f *fakeContext) Locale() string    { return "" }
+```
+
+Returning `nil` from `T()` is correct and supported: every caller in the
+framework reads it as "no translator registered" and falls back to the
+built-in English. An application that never registers a localization provider
+behaves exactly as it did before.
+
+Nothing else changes. Validation messages, HTTP error text and the
+`api/db` rule messages are keys internally now, and the English they resolve
+to is byte-identical.
+
 ### `migration` v0.1.24 — `--step` counts migrations
 
 `migrate down --step N` reverts the last N *migrations*. It previously
@@ -90,6 +120,11 @@ change; the feature is simply absent below the version given.
 | [MCP server over stdio](/docs/mcp) | `cli` v0.5.5 |
 | [Named keys and constraints](/docs/migrations/schema-builder#keys-and-constraints) | `migration` v0.5.0 |
 | [Unpooled DSN preference](/docs/migrations/running-migrations#which-database-migrate-connects-to) | `migration` v0.5.1 |
+| [Localization](/docs/localization) | `i18n` v0.1.0, `api` v0.11.0 |
+| [Per-language mail bodies](/docs/localization#translating-email) | `mail` v0.3.0 |
+| [A recipient's preferred language](/docs/localization#translating-email) | `notify` v0.4.0 |
+| [`og:locale` from the request](/docs/seo) | `seo` v0.5.0 |
+| [Translatable authorization refusals](/docs/localization#messages-from-a-module) | `authz` v0.4.0 |
 
 ## Upgrading a project
 

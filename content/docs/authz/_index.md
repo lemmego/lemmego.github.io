@@ -182,6 +182,36 @@ r.Post("/launch", auth.Protected, authz.Gated("launch.create"), handlers.CreateL
 | Typed nil subject (`(*User)(nil)`) | Treated as unauthenticated → 401 |
 | Same ability registered twice | **Panics at boot** — one of the two policies would never run |
 
+## Refusals in the reader's language
+
+The five refusals this module produces itself are translatable. Mount its
+messages:
+
+```go
+&i18nprovider.Provider{
+    Supported: []string{"en", "fr"},
+    Mount:     map[string]fs.FS{"authz": authz.Catalogue()},
+}
+```
+
+and publish them to change the wording:
+
+```shell
+lemmego run publish --tags=authz-i18n
+```
+
+which writes `resources/lang/vendor/authz/en/errors.json`. Edit the keys you
+care about; the rest still come from here.
+
+Your own `Deny` reasons are untouched. `authz.Deny("only an owner can change
+a circle")` keeps saying exactly that — a reason is looked up as a key first
+and used verbatim when it is not one — so you opt in per rule by returning a
+key instead.
+
+The reasons that name an ability, like `no rule is registered for "launch.update"`,
+stay in English deliberately: those are programming errors, and the reader
+they are addressed to is you.
+
 ## Limitations
 
 No roles or permissions tables, no ABAC, no policy caching. A policy is a Go

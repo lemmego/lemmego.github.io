@@ -232,6 +232,30 @@ process. If nothing appears after a sign-up, check that a worker is running
 before suspecting the mailer.
 {{< /callout >}}
 
+## Writing in the reader's language
+
+Put a translated body in a subdirectory named after the language, beside the
+one you already have:
+
+```
+resources/mail/
+  verify_email.gohtml
+  fr/verify_email.gohtml
+```
+
+and tell the provider where to find the language:
+
+```go
+&mail.Provider{Locale: i18n.LocaleOf}
+```
+
+A template you have not translated yet falls back on its own, so you can
+translate one body at a time. A hand-written `.gotxt` text part in the base
+directory is still used.
+
+See [Localization](/docs/localization#translating-email) for the whole picture,
+including mailing somebody in the language *they* chose.
+
 ## Limitations
 
 One transport at a time. No multi-transport routing, no attachments, no bounce

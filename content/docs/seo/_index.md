@@ -223,6 +223,28 @@ for it until it is unmapped.
 It does not run JavaScript, so a page that writes its own meta tags from a
 script unfurls to whatever is in the served HTML.
 
+## Declaring the page's language
+
+`og:locale` is emitted when it has a value. Set the site's fallback on the
+provider:
+
+```go
+&seo.Provider{
+    Defaults: seo.Defaults{
+        BaseURL: "https://example.com",
+        Locale:  "en_US",
+    },
+}
+```
+
+Open Graph wants `language_TERRITORY` with an underscore, not the hyphen a
+language tag uses. `seo.OpenGraphLocale("en-US")` converts one for you.
+
+If you have localized your application, you don't need to do anything else:
+`Share` fills the per-page value from the request's own language, and your
+default supplies the territory when it names the same language — so a reader
+on `en` still gets `en_US`, and a reader on `fr` gets `fr`.
+
 ## Limitations
 
 No Open Graph image generation, no `hreflang`, no AMP.

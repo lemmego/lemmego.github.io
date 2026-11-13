@@ -196,6 +196,36 @@ parsed form — the same property that makes it indexable. Every key and value
 survives, numbers included. A payload with duplicate keys is collapsed, so do
 not build one.
 
+## Mailing somebody in their own language
+
+A recipient says which language it wants by implementing one method:
+
+```go
+func (u *User) PreferredLocale() (string, bool) {
+    return u.Locale, u.Locale != ""
+}
+```
+
+Return `false` for "this person has never chosen" — that is a state, not a
+failure, and they get the default language.
+
+Then tell the mail channel how to carry it:
+
+```go
+mailchan.New(mailer,
+    mailchan.WithLocale(func(ctx context.Context, locale string) context.Context {
+        return i18n.With(ctx, localizer.For(locale))
+    }),
+)
+```
+
+If you implement `PreferredLocale` and forget `WithLocale`, the notification
+still sends in the default language and you get one warning naming the type —
+rather than silence, which is the worst outcome for a message delivered in the
+wrong language.
+
+See [Localization](/docs/localization#translating-email).
+
 ## Limitations
 
 - **Notification preferences** — `Via` takes the recipient, so they belong in

@@ -70,7 +70,7 @@ type CreateUserInput struct {
 
 func (i *CreateUserInput) Validate() error {
     v := app.NewValidator()
-    v.Field("name", i.Name).Required().Max(255)
+    v.Field("name", i.Name).Required()
     v.Field("email", i.Email).Required().Email()
     return v.Validate()
 }
@@ -95,6 +95,35 @@ func Store(c app.Context) error {
     // input is validated and ready to use
 }
 ```
+
+### Changing the messages
+
+Every built-in rule ships with English the framework owns, so a validator
+says sentences without any setup. To reword one, publish the catalogue and
+edit it:
+
+```shell
+lemmego run publish --tags=i18n
+```
+
+That writes `resources/lang/en/validation.json` and refuses to overwrite a
+file you have already changed. The messages say "This field is required"
+rather than naming the field, because both the Inertia and template error
+paths render a message next to its own input. If you would rather name it,
+`:attribute` is bound on every message:
+
+```json
+{ "required": "The :attribute field is required." }
+```
+
+and you can set what it resolves to per validator:
+
+```go
+v := app.NewValidator()
+v.Attributes(map[string]string{"email": "email address"})
+```
+
+For a second language, see [Localization](/docs/localization).
 
 ### Input Middleware
 
