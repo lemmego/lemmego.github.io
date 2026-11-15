@@ -223,6 +223,66 @@ ctx = inertia.SetFlashValue(ctx, "message", "Welcome")
 flash := inertia.GetFlash(ctx)
 ```
 
+### Reading a flash message in the browser
+
+This is the part that is easy to get wrong, and getting it wrong looks like
+the feature not working at all.
+
+**A flash message is not read from the page.** It is a real field of the page
+object and it does arrive in the document — but at the top level as
+`page.flash`, not `page.props.flash` — and Inertia writes the page through
+history, which carries no flash, so that going back does not repeat a
+message. `usePage()` can therefore hand you either side of that round trip
+depending on timing: the same code returned an empty object in React and the
+real message in Vue.
+
+The supported client API is an event:
+
+```ts
+import { router } from "@inertiajs/core";
+
+router.on("flash", (event) => {
+  const flash = event.detail.flash;
+  // flash.success, flash.error, …
+});
+```
+
+Register the listener **before** `createInertiaApp`, in the client entry.
+Inertia queues the first page's flash event in a microtask, so a listener
+registered there catches it, including on a full document load. Raising
+`props.initialPage.flash` in `setup` as well — the obvious belt and braces —
+shows every such message twice.
+
+`router.on` is a no-op when `typeof window === "undefined"`, so this is safe
+in the SSR entry.
+
+A generated project ships this already: `resources/js/lib/flash.ts` turns each
+flash key into a toast, and the client entry calls it. The file imports no
+framework and is byte-identical in the React and Vue overlays.
+
+### Flash data is one-shot, and a sub-resource can eat it
+
+Flash data is consumed by the first request that reads it, and the Inertia
+middleware wraps the whole router. So a browser's own favicon request landing
+between a redirect and the page it redirected to used to consume the message,
+and the page rendered without it — intermittently, which is the worst way to
+meet a bug.
+
+`inertia.Middleware` now skips a request whose `Sec-Fetch-Dest` says it is a
+sub-resource. A navigation (`document`), an Inertia visit (`empty`) and a
+client that sends no such header at all are all treated as page requests.
+
+**This matters if you use link prefetching.** A prefetch is an ordinary
+Inertia GET — same header, same `Sec-Fetch-Dest: empty` — and is therefore
+indistinguishable from a real visit. `<Link prefetch>` on a route that expects
+a flash message will consume it before the visitor arrives. Check that before
+turning prefetching on.
+
+Requires `lemmego/inertia` v0.5.2 and `lemmego/api` v0.12.1, which together
+also fixed the session id being injected inside the route dispatcher — where
+gonertia's own middleware, the thing that restores flash data, could not see
+it.
+
 ## SSR (Server-Side Rendering)
 
 Normally your React or Vue page is built in the browser, so the first thing a

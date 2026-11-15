@@ -59,7 +59,7 @@ A channel is where records go. One variable picks it:
 
 | `LOG_CHANNEL` | Where records go |
 |---|---|
-| `console` | Readable, coloured lines on stderr. The development default. |
+| `console` | Readable, coloured lines, split across stdout and stderr. The development default. |
 | `file` | JSON in a rotating file. |
 | `json` | JSON on stderr, for a platform that collects stdio. |
 | `stack` | Console **and** file together. The production default. |
@@ -74,6 +74,32 @@ The console channel checks whether it is writing to a terminal before it
 colours anything, and honours `NO_COLOR` and `TERM=dumb`. So
 `make run > app.log` gives you a readable file rather than one full of escape
 sequences.
+
+### Which stream a line goes to
+
+For a server, warn and above go to **stderr** and everything below to
+**stdout**. For a CLI command, the whole console channel stays on stderr.
+
+The reason is the platform rather than the logger. Railway, Cloud Run and
+Heroku classify a line by the stream it arrived on, so a server that writes
+info to stderr has every routine line recorded as an error — and severity
+filtering stops meaning anything exactly when somebody is hunting a real one.
+A command has the opposite need, because its stdout is the output somebody ran
+it for, and that is what keeps `cmd > out.txt` useful.
+
+`LOG_SPLIT_STREAMS` overrides the choice, for the case `LOG_QUIET` already
+exists for: a worker or a scheduler is a long-running server that happens to
+be spelled as a subcommand, so the console/command distinction answers the
+wrong question for it.
+
+```shell
+LOG_SPLIT_STREAMS=true           # on a worker or scheduler
+```
+
+Setting `Console` to a writer of your own disables the split, since naming one
+writer and then dividing it in two would disregard the choice.
+
+Requires `lemmego/log` v0.3.0 and `lemmego/api` v0.13.0.
 
 ## Configuration
 
@@ -91,6 +117,7 @@ LOG_DAILY=true                   # put the date in rotated filenames
 LOG_MAX_SIZE=33554432            # rotate past 32 MiB
 LOG_MAX_FILES=7                  # keep this many rotated files
 LOG_SOURCE=true                  # add file:line to each record
+LOG_SPLIT_STREAMS=true           # warn+ to stderr, the rest to stdout
 ```
 
 `LOG_LEVEL` falls back to `APP_DEBUG`: with `APP_DEBUG=true` and no
