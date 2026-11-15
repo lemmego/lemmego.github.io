@@ -2,7 +2,7 @@
 title: Logging
 type: docs
 prev: docs/core-concepts/event-system
-next: docs/security/
+next: docs/observe/
 weight: 86
 sidebar:
   open: true

@@ -1,7 +1,7 @@
 ---
 title: Security
 type: docs
-prev: docs/logging
+prev: docs/observe/
 next: docs/security/authentication
 weight: 90
 sidebar:
