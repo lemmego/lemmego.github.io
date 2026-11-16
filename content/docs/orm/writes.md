@@ -124,6 +124,55 @@ AfterCommit callbacks
 
 An after-statement hook error is returned to the caller, and rolls back when inside `DB.Transaction`. After-commit callbacks run only once the commit has succeeded and cannot roll it back.
 
+## Observing every write
+
+Hooks are per model and per operation. When something needs to see *all* of
+them — keeping a search index fed, invalidating a cache — register an observer
+on the handle:
+
+```go
+db.Observe(func(ctx context.Context, c orm.Change) {
+    switch m := c.Entity.(type) {
+    case *Post:
+        if c.Op == orm.ChangeDelete {
+            unindex(ctx, m)
+            return
+        }
+        reindex(ctx, m)
+    }
+})
+```
+
+`Change` carries `Op` (`ChangeCreate`, `ChangeUpdate`, `ChangeDelete`),
+`Entity` as the pointer the caller passed, and `Table` after any `Table()`
+override. A soft delete is `ChangeDelete`, not `ChangeUpdate`: it is an
+`UPDATE` statement, but what it means to a search index or a feed is that the
+row is gone.
+
+**Inside a transaction it fires after the commit**, and that is the whole
+point of it. A change raised through `db.Model[T]()` fires immediately; one
+raised through `tx.Model[T]()` is held until the commit succeeds and discarded
+by a rollback. Nothing the caller writes makes the difference — the handle
+does. GORM's callbacks and Bun's query hooks both fire *inside* the
+transaction, which means announcing a row before anything else can see it, and
+announcing rows that a rollback then removes.
+
+Observers are additive and cannot be removed, so registration is a boot-time
+act. Two things an observer must not be:
+
+- **The place a counter is incremented.** Two concurrent observers both read 41
+  and both write 42, and the lost vote is silent and permanent. That is what a
+  database trigger or `SET c = c + 1` is for.
+- **Slow.** An observer runs on the goroutine that did the write, so anything
+  expensive is paid by the request. Hand off to a queue.
+
+A panicking observer does not take the write down; each runs under `recover()`.
+
+`UpdateAll` and `DeleteAll` observe nothing, deliberately: there is no entity
+to report and the matched set is unknown without a `RETURNING` or a pre-`SELECT`
+that would change the statement's cost and lock footprint. A reindex after a
+bulk write is yours to trigger.
+
 ## Transactions
 
 ```go

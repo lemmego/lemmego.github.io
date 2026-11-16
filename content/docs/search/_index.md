@@ -12,10 +12,14 @@ sidebar:
 tables already have. It turns what somebody typed into a safe query, and
 returns results grouped by source with highlighted snippets.
 
-It is not an indexing engine: it queries generated `tsvector` columns and GIN
-indexes that your migrations created. If your tables do not have them yet, add
-them first — it is cheap in a new migration and an expensive retrofit on a
-large live table.
+**The default engine holds no index of its own**: it queries generated
+`tsvector` columns and GIN indexes that your migrations created. If your tables
+do not have them yet, add them first — it is cheap in a new migration and an
+expensive retrofit on a large live table.
+
+That is the default and not the only option. The engine is pluggable, and
+Meilisearch ships alongside Postgres; see [Choosing an
+engine](#choosing-an-engine) for what changes when you switch.
 
 ```go
 import "github.com/lemmego/search"
@@ -212,14 +216,84 @@ here: the unit tests never execute the generated SQL, so a syntax error passes
 all of them.
 {{< /callout >}}
 
+## Choosing an engine
+
+An engine is selected from configuration and built once:
+
+```go
+engine, err := search.Build(ctx, &search.Config{
+    Engine:   search.EngineMeili,          // or EnginePostgres, the default
+    Prefix:   "myapp_prod",
+    Meili:    search.MeiliConfig{Host: "http://127.0.0.1:7700", APIKey: key},
+})
+```
+
+An empty `Engine` means `postgres`, because that is the one engine needing no
+infrastructure your application does not already have. `Postgres.DB` takes the
+application's own handle rather than a DSN, so there is one pool with one set
+of limits.
+
+`Prefix` namespaces every index an engine writes, and it is what bounds
+`Flush`. An instance shared between environments wants one: without it, a
+`search:flush posts` run from a laptop empties production's `posts` index.
+
+Engines that are not built in register themselves when their package is
+imported, the same arrangement as [a filesystem
+driver](/docs/filesystem/#a-cloud-disk-needs-one-blank-import):
+
+```go
+import _ "github.com/lemmego/search/engines"
+```
+
+Postgres is deliberately not in there — it needs nothing but `database/sql`, so
+it is in the root and registers itself. Without the import, `Build` says so:
+
+```text
+search: no engine registered for "meilisearch" (registered: [postgres]);
+import github.com/lemmego/search/engines to register the ones that are not
+built in
+```
+
+### What changes when you switch
+
+Engines are not interchangeable, and `Capabilities()` is how one says so
+rather than pretending:
+
+| | Postgres | an external engine |
+|---|---|---|
+| `RelationalVisibility` | yes — `Visible` is SQL over your own rows | no |
+| `FilterVisibility` | no | yes — an expression over indexed fields |
+| `ExactTotals` | yes, `Group.Total` is a count | no, it is an estimate |
+
+The first row is the one with teeth. A `Visible` rule like three nested
+`EXISTS` over `follows` and `circle_members` is a live join against mutable
+tables, and no external engine's filter language can evaluate it. So an engine
+that cannot enforce a source's visibility **refuses that source** — before any
+query runs, rather than searching rows it has no way to filter and handing
+somebody's private post to a stranger.
+
+`ExactTotals` matters at the other end: a page rendering "23 results" from an
+estimate is asserting something it was not told.
+
+### Keeping an index fed
+
+An engine that holds its own index needs documents put into it. A model
+implements `Indexable` — `SearchIndex()`, `SearchKey()` and
+`SearchDocument()` — and the engine takes them through `Index`, `Unindex` and
+`Flush`.
+
+`SearchDocument` returns only what search needs. Every field in it leaves your
+database, lands in another system's storage, and comes back to anyone who can
+reach that system, so a document carrying a password hash because the struct
+had one is a disclosure with no request behind it.
+
 ## Limitations
 
-No synonyms, no spelling correction, no faceting, no aggregations, no
-incremental indexing.
+No synonyms, no spelling correction, no faceting and no aggregations.
 
-`Searcher` is an interface, so another implementation — Meilisearch, say — can
-replace this one. The `Table` descriptors are Postgres-shaped, so they would
-not carry over.
+The `Table` descriptors on this page are Postgres-shaped and do not carry over
+to another engine, which takes its own descriptor type. `Query`, `Hit`, `Group`
+and `Results` are shared and do carry over.
 
 ## Next steps
 
