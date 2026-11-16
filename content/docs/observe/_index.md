@@ -3,7 +3,7 @@ title: Request Debugging
 type: docs
 prev: docs/logging
 next: docs/security/
-weight: 88
+weight: 87
 sidebar:
   open: true
 ---

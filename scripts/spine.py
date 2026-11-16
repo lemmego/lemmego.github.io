@@ -89,6 +89,7 @@ ORDER: list[tuple[str, list[str]]] = [
         "core-concepts/dependency-injection.md",
         "core-concepts/event-system.md",
         "logging.md",
+        "observe/_index.md",
     ]),
     ("Security", [
         "security/_index.md",
