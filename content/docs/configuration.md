@@ -116,6 +116,33 @@ A generated project includes these configuration files:
 Only the connection the project chose is written, so a SQLite project has no
 `mysql` block to ignore.
 
+{{< callout type="warning" >}}
+**Your application registers its own database driver.** `DB_DRIVER` names a
+driver; it does not supply one. The driver registers itself from an `init`, so
+`bootstrap/providers.go` carries a blank import for the one you configured:
+
+```go
+_ "github.com/lib/pq"              // postgres
+_ "github.com/go-sql-driver/mysql" // mysql
+_ "github.com/glebarez/go-sqlite"  // sqlite
+```
+
+`lemmego new` writes exactly the one your project selected. If you change
+`DB_DRIVER` later, change that import too, or the connection fails with
+`database/sql`'s own message:
+
+```text
+sql: unknown driver "postgres" (forgotten import?)
+```
+
+This is worth knowing if you are upgrading an older project. `migration`
+blank-imported all three until v0.6.0, so every application got them for free
+whether or not it had configured one — which also meant linking two drivers
+nobody used, the pure-Go SQLite driver alone being twenty-nine packages of
+translated libc. It registers none now, and the failure is loud and immediate
+rather than silent.
+{{< /callout >}}
+
 ### `keyvalue.go` — the shared Redis connection
 
 Written when anything in the project uses Redis: the cache, the queue or

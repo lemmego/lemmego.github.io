@@ -169,6 +169,15 @@ means `.env.test`. There is no separate environment variable naming a
 database, and that is the point: two ways to say which server to use is two
 things that can disagree. Point `.env.test` at a Postgres you are running.
 
+You do not need to import a driver for this. [Configuration](/docs/configuration)
+explains that your application registers the SQL driver it configured, and
+`apptest` is the one deliberate exception: it opens `postgres` by name itself,
+as the implementation of this helper, so it carries `lib/pq` for you. A harness
+links into test binaries only, so the weight costs nobody — and the alternative
+was worse than it sounds. Until it did, a missing driver was read as "no
+postgres reachable" and the scratch-database tests **skipped**, reporting green
+while testing nothing.
+
 {{< callout type="warning" >}}
 **It fails rather than skipping** when that server is unreachable. Skipping
 looks kinder and costs more: a skipped package and a passing one are identical

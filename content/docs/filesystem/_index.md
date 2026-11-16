@@ -149,6 +149,35 @@ config.Set("filesystems", config.M{
 })
 ```
 
+## A cloud disk needs one blank import
+
+Configuring the disk is not quite enough. A driver registers itself from an
+`init` in its own package, the way a `database/sql` driver does, so the one
+that serves your disk has to be imported somewhere:
+
+```go
+// bootstrap/providers.go
+import (
+    _ "github.com/lemmego/fsys/s3"  // or fsys/gcs
+)
+```
+
+`lemmego new --disk s3` writes that line for you. Adding an S3 disk by hand to
+a project that was generated with local storage does not, and the failure waits
+until the disk is first opened rather than appearing at compile time:
+
+```text
+fsys: no driver "s3" is registered (have: [local memory]). A driver registers
+itself when its package is imported, so this usually means a missing blank
+import such as _ "github.com/lemmego/fsys/s3"
+```
+
+The arrangement exists because the alternative was worse. Serving S3 and GCS
+from the root package meant every application — and `api/fs` with it — linked
+both cloud SDKs whether or not it had ever seen a bucket. Measured on a trivial
+program, that was the difference between **58 packages and 691**. Local and
+memory are in the root and cost nothing, so they need no import.
+
 ## Providers
 
 ### Local Storage
@@ -163,23 +192,32 @@ Features: Read, Write, Delete, Exists, Rename, Copy, CreateDirectory, Open, Uplo
 
 ### S3 Storage
 
-Stores files on Amazon S3 (or S3-compatible services like Cloudflare R2).
+Stores files on Amazon S3, or an S3-compatible service such as Cloudflare R2.
+It lives in `fsys/s3`, for the reason above:
 
 ```go
-storage := fsys.NewS3Storage(s3Config)
+import "github.com/lemmego/fsys/s3"
+
+storage, err := s3.New(bucket, region, key, secret, endpoint)
 ```
 
-URLs are generated as pre-signed URLs with 15-minute expiry by default.
+`endpoint` is empty for Amazon's own S3 and set for a compatible service. URLs
+are generated as pre-signed URLs with 15-minute expiry by default.
 
 ### GCS Storage
 
-Stores files on Google Cloud Storage.
+Stores files on Google Cloud Storage, from `fsys/gcs`:
 
 ```go
-storage := fsys.NewGCSStorage(gcsConfig)
+import "github.com/lemmego/fsys/gcs"
+
+storage, err := gcs.New(projectID, bucket, serviceAccountKey)
 ```
 
 URLs use the standard `https://storage.googleapis.com/<bucket>/<path>` format.
+
+Most applications never call either constructor directly: `a.FileSystem().Disk()`
+builds the disk from configuration, and these are what it builds.
 
 ### Memory Storage
 
