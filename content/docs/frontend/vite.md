@@ -29,13 +29,13 @@ The generated project includes a `vite.config.js`:
 
 ```js
 import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
+import lemmego from '@lemmego/vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [
-    laravel({
+    lemmego({
       input: ['resources/js/app.tsx'],
       refresh: true,
     }),
@@ -48,6 +48,49 @@ export default defineConfig({
 ### Entry Points
 
 The main entry point is `resources/js/app.tsx` (React) or `resources/js/app.js` (Vue).
+
+The Lemmego plugin also preserves the paths consumed by the Go integration:
+
+- `public/hot` contains the development server URL.
+- `public/build/manifest.json` describes production browser assets.
+- `bootstrap/ssr/ssr.js` is the standalone Inertia renderer.
+
+Install the plugin with:
+
+```shell
+pnpm add -D @lemmego/vite
+```
+
+The generated project already includes it. The plugin currently targets Vite 8.
+
+## Package Frontend Contributions
+
+Go modules can ship a `lemmego.frontend.json` manifest containing pages and
+other frontend metadata. Before Vite starts, the CLI discovers manifests from
+compiled dependencies and writes `.lemmego/frontend.generated.json`:
+
+```shell
+lemmego frontend sync
+```
+
+The plugin exposes the result through virtual modules:
+
+```ts
+import { pages } from 'virtual:lemmego/pages';
+import { modules } from 'virtual:lemmego/modules';
+```
+
+Page keys are Inertia names such as `Scheduling/Shifts` and their values are
+lazy import functions. Applications should combine them with their local page
+glob and resolve them with:
+
+```ts
+import { resolvePageComponent } from '@lemmego/vite/inertia-helpers';
+```
+
+The declarations for these virtual modules are included by
+`@lemmego/vite/client`. The generated `.lemmego/` directory is build metadata
+and should remain ignored by Git.
 
 ## Development
 
