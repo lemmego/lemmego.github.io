@@ -8,13 +8,16 @@ sidebar:
   open: true
 ---
 
-By this point you have written handlers, rendered a page and queried a
-database. This section covers the wiring underneath all three: how an
-application boots, how services find each other, and how a module adds itself
-to your project.
+Everything your application does starts with one object. It boots, collects
+the things your code will need — a database connection, a cache, a session
+store — and hands them to your handlers once requests start arriving. This
+section is that wiring: how an application starts, how services find each
+other, and how a module adds itself to your project.
 
-Read it before you add your first module from the next section — every one of
-them arrives as a provider, and the pages here are what a provider is.
+If you would rather see a request served first, read [the HTTP
+layer](/docs/http/) and come back. Do come back before you add your first
+module, though: every module arrives as a provider, and the pages here are
+what a provider is.
 
 {{< cards >}}
 {{< card link="application-bootstrap" title="Application Bootstrap" subtitle="The app lifecycle and bootstrapping pipeline" >}}
