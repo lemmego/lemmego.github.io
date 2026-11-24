@@ -3,7 +3,7 @@ title: GPA Overview
 type: docs
 prev: docs/orm/gpa-adapter
 next: docs/database/provider-registry
-weight: 50
+weight: 60
 sidebar:
   open: true
 ---

@@ -3,7 +3,7 @@ title: Queue & Background Jobs
 type: docs
 prev: docs/cache/events
 next: docs/mail/
-weight: 106
+weight: 116
 sidebar:
   open: true
 ---
@@ -161,7 +161,7 @@ scheduler.New(mgr).Register(scheduler.ScheduledJob{
 
 ## Web Dashboard
 
-The dashboard lives at `http://localhost:8080/tasker/`, and it is **closed
+The dashboard lives at `http://localhost:1490/tasker/`, and it is **closed
 until you say who may use it**. Visiting it before then answers 401.
 
 That is deliberate rather than an oversight. The dashboard can retry, cancel

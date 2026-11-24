@@ -3,7 +3,7 @@ title: Column Types Reference
 type: docs
 prev: docs/migrations/schema-builder
 next: docs/migrations/writing-migrations
-weight: 72
+weight: 82
 sidebar:
   open: true
 ---

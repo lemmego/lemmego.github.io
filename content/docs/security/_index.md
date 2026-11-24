@@ -3,7 +3,7 @@ title: Security
 type: docs
 prev: docs/observe/
 next: docs/security/authentication
-weight: 90
+weight: 100
 sidebar:
   open: true
 ---

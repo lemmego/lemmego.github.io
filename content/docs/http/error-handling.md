@@ -3,7 +3,7 @@ title: Error Handling
 type: docs
 prev: docs/http/response-handling
 next: docs/http/context
-weight: 25
+weight: 35
 sidebar:
   open: true
 ---

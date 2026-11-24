@@ -3,7 +3,7 @@ title: Notifications
 type: docs
 prev: docs/mail/
 next: docs/broadcast/
-weight: 108
+weight: 118
 sidebar:
   open: true
 ---

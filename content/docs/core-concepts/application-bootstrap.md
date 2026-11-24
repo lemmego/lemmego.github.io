@@ -3,7 +3,7 @@ title: Application Bootstrap
 type: docs
 prev: docs/core-concepts/
 next: docs/core-concepts/service-container
-weight: 81
+weight: 21
 sidebar:
   open: true
 ---

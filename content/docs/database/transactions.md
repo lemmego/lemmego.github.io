@@ -3,7 +3,7 @@ title: Transactions
 type: docs
 prev: docs/database/entity-hooks
 next: docs/database/raw-sql-and-ddl
-weight: 56
+weight: 66
 sidebar:
   open: true
 ---

@@ -3,7 +3,7 @@ title: Architecture
 type: docs
 prev: docs/prompting
 next: docs/appendix/
-weight: 140
+weight: 150
 sidebar:
   open: true
 ---

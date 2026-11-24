@@ -1,9 +1,9 @@
 ---
 title: HTTP Lifecycle
 type: docs
-prev: docs/configuration
+prev: docs/core-concepts/event-system
 next: docs/http/routing
-weight: 20
+weight: 30
 sidebar:
   open: true
 ---

@@ -1,9 +1,9 @@
 ---
 title: Core Concepts
 type: docs
-prev: docs/migrations/running-migrations
+prev: docs/configuration
 next: docs/core-concepts/application-bootstrap
-weight: 80
+weight: 20
 sidebar:
   open: true
 ---

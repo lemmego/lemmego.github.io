@@ -3,7 +3,7 @@ title: Installation
 type: docs
 prev: docs/oauth2/
 next: docs/oauth2/configuration
-weight: 121
+weight: 131
 sidebar:
   open: true
 ---

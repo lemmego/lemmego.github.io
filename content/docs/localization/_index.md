@@ -3,7 +3,7 @@ title: Localization
 type: docs
 prev: docs/payments/
 next: docs/oauth2/
-weight: 115
+weight: 125
 sidebar:
   open: true
 ---

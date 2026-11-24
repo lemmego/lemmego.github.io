@@ -2,7 +2,7 @@
 title: FAQ
 type: docs
 prev: docs/appendix/upgrading
-weight: 143
+weight: 153
 sidebar:
   open: true
 ---

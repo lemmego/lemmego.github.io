@@ -3,7 +3,7 @@ title: Routing
 type: docs
 prev: docs/http/
 next: docs/http/middleware
-weight: 21
+weight: 31
 sidebar:
   open: true
 ---

@@ -3,7 +3,7 @@ title: Search
 type: docs
 prev: docs/media/
 next: docs/seo/
-weight: 112
+weight: 122
 sidebar:
   open: true
 ---

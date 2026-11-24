@@ -3,7 +3,7 @@ title: The Current User
 type: docs
 prev: docs/security/authentication
 next: docs/security/csrf
-weight: 92
+weight: 102
 sidebar:
   open: true
 ---

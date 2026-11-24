@@ -1,9 +1,9 @@
 ---
 title: Logging
 type: docs
-prev: docs/core-concepts/event-system
+prev: docs/migrations/running-migrations
 next: docs/observe/
-weight: 86
+weight: 90
 sidebar:
   open: true
 ---
@@ -25,7 +25,7 @@ nothing new to import:
 ```go
 import "log/slog"
 
-slog.Info("server started", "port", 8080)
+slog.Info("server started", "port", 1490)
 slog.Warn("slow request", "duration", "2.5s")
 slog.Error("database connection failed", "error", err)
 ```

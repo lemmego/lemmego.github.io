@@ -2,8 +2,8 @@
 title: Bun Connector
 type: docs
 prev: docs/database/gormconnector
-next: docs/migrations/
-weight: 63
+next: docs/database/libsql
+weight: 73
 sidebar:
   open: true
 ---

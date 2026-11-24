@@ -3,7 +3,7 @@ title: Middleware
 type: docs
 prev: docs/http/routing
 next: docs/http/request-handling
-weight: 22
+weight: 32
 sidebar:
   open: true
 ---

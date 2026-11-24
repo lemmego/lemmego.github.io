@@ -3,7 +3,7 @@ title: Grants
 type: docs
 prev: docs/oauth2/clients
 next: docs/oauth2/protecting-routes
-weight: 124
+weight: 134
 sidebar:
   open: true
 ---

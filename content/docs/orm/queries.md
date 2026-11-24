@@ -3,7 +3,7 @@ title: Queries
 type: docs
 prev: docs/orm/
 next: docs/orm/writes
-weight: 41
+weight: 51
 sidebar:
   open: true
 ---

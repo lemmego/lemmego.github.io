@@ -3,7 +3,7 @@ title: Upgrade notes
 type: docs
 prev: docs/appendix/
 next: docs/appendix/faq
-weight: 142
+weight: 152
 sidebar:
   open: true
 ---
@@ -17,6 +17,35 @@ Modules are versioned independently. Only the ones listed here have changes
 that affect code you have already written.
 
 ## Breaking changes
+
+### `cli` v0.15.0 — the application listens on `1490`
+
+`APP_PORT` defaults to `1490` instead of `8080`. New projects get it; an
+existing project keeps whatever its `.env` says and needs no change unless you
+want to follow.
+
+To follow, three files carry the old value:
+
+```bash
+# .env and .env.example
+APP_URL=http://localhost:1490
+APP_PORT=1490
+```
+
+```go
+// internal/configs/app.go
+"port": config.MustEnv("APP_PORT", 1490),
+```
+
+If you selected the `mail`, `pay`, `seo` or `broadcast` modules, their
+`APP_URL` fallbacks carry it too — `grep -rn 8080 internal/` finds them.
+
+Anything outside your project that names the port needs the same change: a
+reverse proxy, a `docker-compose.yml`, an `EXPOSE` line, a CI job.
+
+The port moved because a libsql project collided with itself: `sqld` serves on
+`8080` by default, so the application could not bind its own port. `sqld` keeps
+`8080` and the application moved.
 
 ### `oauth2` v0.2.0 — one user loader
 

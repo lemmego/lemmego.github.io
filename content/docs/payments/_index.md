@@ -3,7 +3,7 @@ title: Payments
 type: docs
 prev: docs/seo/
 next: docs/localization/
-weight: 114
+weight: 124
 sidebar:
   open: true
 ---

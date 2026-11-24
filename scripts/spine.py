@@ -34,6 +34,14 @@ ORDER: list[tuple[str, list[str]]] = [
         "project-structure.md",
         "configuration.md",
     ]),
+    ("Core concepts", [
+        "core-concepts/_index.md",
+        "core-concepts/application-bootstrap.md",
+        "core-concepts/service-container.md",
+        "core-concepts/provider-plugin-system.md",
+        "core-concepts/dependency-injection.md",
+        "core-concepts/event-system.md",
+    ]),
     ("The HTTP layer", [
         "http/_index.md",
         "http/routing.md",
@@ -73,6 +81,7 @@ ORDER: list[tuple[str, list[str]]] = [
         "database/providers/redis.md",
         "database/gormconnector.md",
         "database/bunconnector.md",
+        "database/libsql.md",
     ]),
     ("Migrations", [
         "migrations/_index.md",
@@ -81,13 +90,7 @@ ORDER: list[tuple[str, list[str]]] = [
         "migrations/writing-migrations.md",
         "migrations/running-migrations.md",
     ]),
-    ("How the framework fits together", [
-        "core-concepts/_index.md",
-        "core-concepts/application-bootstrap.md",
-        "core-concepts/service-container.md",
-        "core-concepts/provider-plugin-system.md",
-        "core-concepts/dependency-injection.md",
-        "core-concepts/event-system.md",
+    ("Logging and debugging", [
         "logging.md",
         "observe/_index.md",
     ]),

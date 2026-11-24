@@ -3,7 +3,7 @@ title: Dependency Injection
 type: docs
 prev: docs/core-concepts/provider-plugin-system
 next: docs/core-concepts/event-system
-weight: 84
+weight: 24
 sidebar:
   open: true
 ---

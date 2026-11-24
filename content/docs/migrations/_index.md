@@ -1,9 +1,9 @@
 ---
 title: Migrations
 type: docs
-prev: docs/database/bunconnector
+prev: docs/database/libsql
 next: docs/migrations/schema-builder
-weight: 70
+weight: 80
 sidebar:
   open: true
 ---

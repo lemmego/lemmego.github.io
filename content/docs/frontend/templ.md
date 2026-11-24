@@ -3,7 +3,7 @@ title: Templ
 type: docs
 prev: docs/frontend/go-templates
 next: docs/frontend/inertia
-weight: 32
+weight: 42
 sidebar:
   open: true
 ---

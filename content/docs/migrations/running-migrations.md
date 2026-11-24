@@ -2,8 +2,8 @@
 title: Running Migrations
 type: docs
 prev: docs/migrations/writing-migrations
-next: docs/core-concepts/
-weight: 74
+next: docs/logging
+weight: 84
 sidebar:
   open: true
 ---

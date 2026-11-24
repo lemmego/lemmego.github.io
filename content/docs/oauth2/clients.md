@@ -3,7 +3,7 @@ title: Clients
 type: docs
 prev: docs/oauth2/configuration
 next: docs/oauth2/grants
-weight: 123
+weight: 133
 sidebar:
   open: true
 ---

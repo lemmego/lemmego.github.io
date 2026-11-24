@@ -3,7 +3,7 @@ title: Mail
 type: docs
 prev: docs/queue
 next: docs/notifications/
-weight: 107
+weight: 117
 sidebar:
   open: true
 ---

@@ -3,7 +3,7 @@ title: Authorization
 type: docs
 prev: docs/session
 next: docs/ratelimit/
-weight: 96
+weight: 106
 sidebar:
   open: true
 ---

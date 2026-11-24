@@ -3,7 +3,7 @@ title: Inertia.js
 type: docs
 prev: docs/frontend/templ
 next: docs/frontend/vite
-weight: 33
+weight: 43
 sidebar:
   open: true
 ---

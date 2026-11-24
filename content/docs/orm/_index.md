@@ -3,7 +3,7 @@ title: ORM Overview
 type: docs
 prev: docs/frontend/vite
 next: docs/orm/queries
-weight: 40
+weight: 50
 sidebar:
   open: true
 ---

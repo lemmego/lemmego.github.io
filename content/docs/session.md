@@ -3,7 +3,7 @@ title: Session
 type: docs
 prev: docs/security/encryption
 next: docs/authz/
-weight: 95
+weight: 105
 sidebar:
   open: true
 ---

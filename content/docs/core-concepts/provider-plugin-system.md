@@ -3,7 +3,7 @@ title: Provider & Plugin System
 type: docs
 prev: docs/core-concepts/service-container
 next: docs/core-concepts/dependency-injection
-weight: 83
+weight: 23
 sidebar:
   open: true
 ---

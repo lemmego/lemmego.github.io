@@ -3,7 +3,7 @@ title: GORM Connector
 type: docs
 prev: docs/database/providers/redis
 next: docs/database/bunconnector
-weight: 62
+weight: 72
 sidebar:
   open: true
 ---

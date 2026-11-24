@@ -3,7 +3,7 @@ title: Writes and Transactions
 type: docs
 prev: docs/orm/queries
 next: docs/orm/relationships
-weight: 42
+weight: 52
 sidebar:
   open: true
 ---

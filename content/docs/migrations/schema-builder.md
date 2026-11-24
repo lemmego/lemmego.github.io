@@ -3,7 +3,7 @@ title: Schema Builder
 type: docs
 prev: docs/migrations/
 next: docs/migrations/column-types
-weight: 71
+weight: 81
 sidebar:
   open: true
 ---

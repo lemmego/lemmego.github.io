@@ -3,7 +3,7 @@ title: Appendix
 type: docs
 prev: docs/architecture/
 next: docs/appendix/upgrading
-weight: 141
+weight: 151
 sidebar:
   open: true
 ---
@@ -18,8 +18,8 @@ sidebar:
 | `APP_NAME` | `Lemmego` | Application name |
 | `APP_ENV` | `development` | Environment (`production`, `development`) |
 | `APP_DEBUG` | `false` | Enable debug mode |
-| `APP_PORT` | `8080` | HTTP server port |
-| `APP_URL` | `http://localhost:8080` | Application URL |
+| `APP_PORT` | `1490` | HTTP server port |
+| `APP_URL` | `http://localhost:1490` | Application URL |
 | `APP_KEY` | — | 32-byte base64 encryption key |
 
 {{< /tab >}}

@@ -3,7 +3,7 @@ title: Vite Integration
 type: docs
 prev: docs/frontend/inertia
 next: docs/orm/
-weight: 34
+weight: 44
 sidebar:
   open: true
 ---

@@ -3,7 +3,7 @@ title: Field Descriptors
 type: docs
 prev: docs/orm/relationships
 next: docs/orm/gpa-adapter
-weight: 44
+weight: 54
 sidebar:
   open: true
 ---

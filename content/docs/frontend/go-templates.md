@@ -3,7 +3,7 @@ title: Go Templates
 type: docs
 prev: docs/frontend/
 next: docs/frontend/templ
-weight: 31
+weight: 41
 sidebar:
   open: true
 ---

@@ -3,7 +3,7 @@ title: Service Container
 type: docs
 prev: docs/core-concepts/application-bootstrap
 next: docs/core-concepts/provider-plugin-system
-weight: 82
+weight: 22
 sidebar:
   open: true
 ---

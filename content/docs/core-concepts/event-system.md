@@ -2,8 +2,8 @@
 title: Event System
 type: docs
 prev: docs/core-concepts/dependency-injection
-next: docs/logging
-weight: 85
+next: docs/http/
+weight: 25
 sidebar:
   open: true
 ---

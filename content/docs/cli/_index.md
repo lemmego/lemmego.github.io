@@ -3,7 +3,7 @@ title: "CLI & Generators"
 type: docs
 prev: docs/oauth2/tokens-and-keys
 next: docs/testing/
-weight: 130
+weight: 140
 sidebar:
   open: true
 ---
@@ -70,7 +70,7 @@ The full set of questions:
 | `--module <path>` | Go module path — required |
 | `--preset <mvc\|rest_api>` | |
 | `--frontend <preset>` | MVC only |
-| `--database <sqlite\|mysql\|postgres\|none>` | |
+| `--database <sqlite\|mysql\|postgres\|libsql\|none>` | `libsql` needs a server; see [libSQL](/docs/database/libsql/) |
 | `--orm <orm\|gorm\|bun\|none>` | The SQL layer, not the backend |
 | `--cache <file\|memory\|redis\|none>` | |
 | `--queue <sql\|redis\|none>` | |
@@ -163,14 +163,21 @@ Runs the application via `go run ./cmd/app`.
 
 ### `lemmego dev`
 
-Starts the development server with hot reload. Orchestrates up to four parallel processes:
+Starts the development server with hot reload. Orchestrates up to five parallel processes:
 
 1. **the Inertia renderer** — `node bootstrap/ssr/ssr.js` on `:13714` (if that bundle exists)
 2. **vite dev** — Frontend dev server (if `package.json` exists)
-3. **air** — Go hot reload on `:8080`
-4. **templ generate --watch** — Templ file watcher (if `.templ` files exist)
+3. **sqld** — a [libSQL](/docs/database/libsql/) server, when `DB_DRIVER=libsql`, `DB_URL` points at your own machine and nothing is answering there yet
+4. **air** — Go hot reload on `:1490`
+5. **templ generate --watch** — Templ file watcher (if `.templ` files exist)
 
-Output is color-coded with `[ssr]`, `[vite]`, `[air]` and `[templ]` prefixes.
+Output is color-coded with `[ssr]`, `[vite]`, `[libsql]`, `[air]` and `[templ]` prefixes.
+
+The database starts before `air`, because your application migrates its queue
+tables at startup and cannot boot without one. If a server is already answering
+on that address, `dev` checks that it can run a query and leaves it alone; if
+something is listening but cannot, `dev` tells you and stops rather than
+letting your application panic against it.
 
 Build the renderer's bundle once and `dev` uses it from then on:
 

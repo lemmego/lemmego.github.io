@@ -3,7 +3,7 @@ title: Protecting routes
 type: docs
 prev: docs/oauth2/grants
 next: docs/oauth2/consent-screen
-weight: 125
+weight: 135
 sidebar:
   open: true
 ---

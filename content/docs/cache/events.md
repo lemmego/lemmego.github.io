@@ -3,7 +3,7 @@ title: Cache Events
 type: docs
 prev: docs/cache/tags
 next: docs/queue
-weight: 105
+weight: 115
 sidebar:
   open: true
 ---

@@ -3,7 +3,7 @@ title: AI Agents (MCP)
 type: docs
 prev: docs/deployment/
 next: docs/prompting
-weight: 133
+weight: 143
 sidebar:
   open: true
 ---

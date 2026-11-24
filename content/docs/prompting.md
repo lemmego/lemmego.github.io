@@ -3,7 +3,7 @@ title: CLI Prompting
 type: docs
 prev: docs/mcp
 next: docs/architecture/
-weight: 134
+weight: 144
 sidebar:
   open: true
 ---

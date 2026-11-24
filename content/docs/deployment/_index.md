@@ -3,7 +3,7 @@ title: Deployment
 type: docs
 prev: docs/testing/
 next: docs/mcp
-weight: 132
+weight: 142
 sidebar:
   open: true
 ---
@@ -45,7 +45,7 @@ Set these for production:
 ```shell
 APP_ENV=production
 APP_DEBUG=false
-APP_PORT=8080
+APP_PORT=1490
 APP_URL=https://yourdomain.com
 
 # Database
@@ -233,7 +233,7 @@ WORKDIR /app
 COPY --from=builder /app/bin/app .
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.env .
-EXPOSE 8080
+EXPOSE 1490
 CMD ["./app"]
 ```
 
@@ -268,7 +268,7 @@ server {
     server_name yourdomain.com;
     
     location / {
-        proxy_pass http://127.0.0.1:8080;
+        proxy_pass http://127.0.0.1:1490;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

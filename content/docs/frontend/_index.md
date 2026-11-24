@@ -3,7 +3,7 @@ title: Frontend
 type: docs
 prev: docs/http/context
 next: docs/frontend/go-templates
-weight: 30
+weight: 40
 sidebar:
   open: true
 ---

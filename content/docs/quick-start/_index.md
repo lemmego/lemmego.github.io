@@ -78,11 +78,11 @@ lemmego dev
 ```
 
 The `dev` command orchestrates three parallel processes:
-- **air** — Go hot reload on `:8080`
+- **air** — Go hot reload on `:1490`
 - **templ generate --watch** — Templ file watcher (if `.templ` files exist)
 - **vite dev** — Frontend dev server (if `package.json` exists)
 
-Visit `http://localhost:8080` in your browser — you should see the application's homepage.
+Visit `http://localhost:1490` in your browser — you should see the application's homepage.
 
 ## Development Workflow
 
@@ -90,16 +90,27 @@ The generated project includes a `Makefile` with common tasks:
 
 | Command | Description |
 |---------|-------------|
-| `make run` | Start with hot reload (`air`) |
-| `make watch` | Parallel templ + tailwind + air + file watcher |
-| `make dev` | Frontend dev server |
-| `make build` | Build frontend assets |
+| `make dev` | Everything at once: hot reload, frontend, and your database if it needs one |
+| `make run` | Run the application without hot reload |
+| `make build` | Build for production |
+| `make test` | Run the test suite |
 | `make migrate` | Run pending migrations |
+| `make rollback` | Roll the last batch back |
 | `make migration n=name` | Create a new migration |
 | `make model n=name` | Generate a model |
 | `make handlers n=name` | Generate CRUD handlers |
 | `make input n=name` | Generate input validation |
 | `make form n=name` | Generate a form component |
+| `make appkey` | Generate a new `APP_KEY` |
+| `make deps` | Tidy modules and install `templ` and `air` |
+| `make libsql` | Run a [libSQL](/docs/database/libsql/) server on its own |
+| `make ssr-start` | Start the Inertia server-side renderer |
+| `make ssr-stop` | Stop it |
+| `make ssr-check` | Report whether it is running |
+
+`make dev` is the one you'll use. It runs [`lemmego dev`](/docs/cli/), which
+starts the frontend dev server, the Go hot reloader and — for a libSQL
+project — the database, then shuts them all down together on `Ctrl+C`.
 
 ## Frontend Options
 

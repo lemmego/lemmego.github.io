@@ -3,7 +3,7 @@ title: Rate Limiting
 type: docs
 prev: docs/authz/
 next: docs/cache/
-weight: 97
+weight: 107
 sidebar:
   open: true
 ---

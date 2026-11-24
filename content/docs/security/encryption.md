@@ -3,7 +3,7 @@ title: Encryption
 type: docs
 prev: docs/security/csrf
 next: docs/session
-weight: 94
+weight: 104
 sidebar:
   open: true
 ---

@@ -3,7 +3,7 @@ title: Query System
 type: docs
 prev: docs/database/generic-repository
 next: docs/database/entity-hooks
-weight: 54
+weight: 64
 sidebar:
   open: true
 ---

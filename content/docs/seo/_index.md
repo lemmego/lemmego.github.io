@@ -3,7 +3,7 @@ title: SEO
 type: docs
 prev: docs/search/
 next: docs/payments/
-weight: 113
+weight: 123
 sidebar:
   open: true
 ---
@@ -57,7 +57,7 @@ and nothing else.
 ```go
 &seo.Provider{
     Defaults: seo.Defaults{
-        BaseURL:  config.MustEnv("APP_URL", "http://localhost:8080"),
+        BaseURL:  config.MustEnv("APP_URL", "http://localhost:1490"),
         SiteName: "Example",
         NoIndex:  config.MustEnv("APP_ENV", "development") != "production",
     },

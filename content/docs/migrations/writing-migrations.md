@@ -3,7 +3,7 @@ title: Writing Migrations
 type: docs
 prev: docs/migrations/column-types
 next: docs/migrations/running-migrations
-weight: 73
+weight: 83
 sidebar:
   open: true
 ---

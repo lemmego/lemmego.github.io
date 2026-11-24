@@ -3,7 +3,7 @@ title: Redis Provider
 type: docs
 prev: docs/database/providers/mongodb
 next: docs/database/gormconnector
-weight: 61
+weight: 71
 sidebar:
   open: true
 ---

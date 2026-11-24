@@ -3,7 +3,7 @@ title: GPA Adapter
 type: docs
 prev: docs/orm/field-descriptors
 next: docs/database/
-weight: 45
+weight: 55
 sidebar:
   open: true
 ---
