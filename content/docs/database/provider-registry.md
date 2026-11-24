@@ -181,3 +181,12 @@ if gpa.IsSQLProvider(provider) {
     // provider is a SQL provider
 }
 ```
+
+## Next steps
+
+- [Generic repository](/docs/database/generic-repository) — what you do with a
+  provider once you have one.
+- [The connection seam](/docs/database/connection-seam/) — registering during
+  boot, in the right order.
+- [GORM provider](/docs/database/providers/gorm) — a worked registration end to
+  end.

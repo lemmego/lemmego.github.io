@@ -95,3 +95,12 @@ app.ServicesRegistered       // After services are registered
 ```
 
 Listen to these events to hook into the application lifecycle (see [Event System](/docs/core-concepts/event-system/)).
+
+## Next steps
+
+- [Service container](/docs/core-concepts/service-container) — where booted
+  services are kept.
+- [Provider & plugin system](/docs/core-concepts/provider-plugin-system) — the
+  interface every module arrives through.
+- [Event system](/docs/core-concepts/event-system) — hooking the lifecycle
+  events boot emits.

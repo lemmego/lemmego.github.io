@@ -120,3 +120,9 @@ var UserFields = struct {
     Active: orm.NewField[User, bool]("active"),
 }
 ```
+
+## Next steps
+
+- [Queries](/docs/orm/queries) — where the descriptors get used.
+- [Relationships](/docs/orm/relationships) — declaring the associations they
+  cover.

@@ -192,3 +192,9 @@ store.RevokeClient(ctx, clientID, time.Now())
 Revoking cascades to every token the client holds, at revoke time rather than
 on each later request — so an administrator pays the cost once instead of
 every request paying it forever.
+
+## Next steps
+
+- [Grants](/docs/oauth2/grants) — the flow your client will use.
+- [Consent screen](/docs/oauth2/consent-screen) — what the user sees, and
+  skipping it.

@@ -122,3 +122,11 @@ claim of every token and the issuer in the discovery document. A wrong value
 breaks every consumer and is invisible until somebody integrates, so the
 provider logs an error at boot if it is empty or points at localhost while in
 production.
+
+## Next steps
+
+- [Configuration](/docs/oauth2/configuration) — endpoints, keys, lifetimes and
+  scopes.
+- [Clients](/docs/oauth2/clients) — creating the client that will ask for
+  tokens.
+- [Grants](/docs/oauth2/grants) — choosing the flow for your client.

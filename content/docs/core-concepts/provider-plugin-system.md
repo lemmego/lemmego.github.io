@@ -166,3 +166,12 @@ func LoadProviders() []app.Provider {
 | `gormconnector.Provider` | `github.com/lemmego/gormconnector` | GORM database connection |
 | `bunconnector.Provider` | `github.com/lemmego/bunconnector` | Bun ORM database connection |
 | `auth.Provider` | `github.com/lemmego/auth` | Authentication |
+
+## Next steps
+
+- [Dependency injection](/docs/core-concepts/dependency-injection) — binding
+  what your provider registers.
+- [The connection seam](/docs/database/connection-seam/) — how a database
+  provider reaches the rest of the framework.
+- [Event system](/docs/core-concepts/event-system) — the lifecycle events a
+  provider can listen for.

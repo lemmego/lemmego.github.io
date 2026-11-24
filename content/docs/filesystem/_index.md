@@ -228,3 +228,9 @@ storage := fsys.NewMemoryStorage()
 ```
 
 All operations work in memory. `GetUrl` returns mock `mem://` URLs. `Open` is not supported.
+
+## Next steps
+
+- [Media & images](/docs/media/) — resizing and re-encoding before you store.
+- [Configuration](/docs/configuration) — declaring your disks.
+- [Deployment](/docs/deployment/) — pointing a disk at cloud storage.

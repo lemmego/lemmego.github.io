@@ -196,3 +196,10 @@ escalation the moment it was the identity.
 An application serving pages wants a session. An application serving only an
 API has no cookie jar to renew and can reasonably go token-only, as long as
 you have read the `Logout` note above.
+
+## Next steps
+
+- [The current user](/docs/security/current-user) — reading the signed-in user
+  in a handler.
+- [Session](/docs/session) — the store a login writes into.
+- [Authorization](/docs/authz/) — what that user is then allowed to do.

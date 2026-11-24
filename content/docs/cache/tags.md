@@ -74,3 +74,8 @@ is one known key, a plain `Forget` is simpler and cheaper.
 
 Tags earn their cost when the set of keys to invalidate is not known in
 advance.
+
+## Next steps
+
+- [Cache events](/docs/cache/events) — watching a flush happen.
+- [Typed access](/docs/cache/typed-access) — the API tags wrap.

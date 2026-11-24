@@ -78,3 +78,10 @@ c.Listen(cache.EventMissed, func(cache.Event) { misses.Add(1) })
 
 In development, logging every miss tends to reveal keys that never hit —
 usually a key built from something that varies per request.
+
+## Next steps
+
+- [Event system](/docs/core-concepts/event-system) — the application emitter
+  these can reach.
+- [Request debugging](/docs/observe/) — cache activity attributed to one
+  request.

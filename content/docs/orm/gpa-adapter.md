@@ -94,3 +94,10 @@ The original error is kept as the cause, so `errors.As` still reaches `*orm.Cons
 The ORM's create, update and delete hooks are signature-identical to GPA's, so an entity implementing one implements the other and the ORM runs them. The adapter adds only what GPA declares and the ORM does not: `Validate` before create and update, and `AfterFind` on results.
 
 One behavioural difference from `gpagorm`: an after-hook error is **returned** here, rather than logged and swallowed.
+
+## Next steps
+
+- [GPA overview](/docs/database/) — the abstraction your code is written
+  against.
+- [Generic repository](/docs/database/generic-repository) — the `Repository[T]`
+  the adapter satisfies.

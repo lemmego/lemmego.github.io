@@ -148,3 +148,10 @@ func (t *Task) BeforeUpdate(ctx context.Context) error {
 | Redis* | No | Yes (Set) | No | Yes (Delete) | Yes |
 
 *Redis hooks apply to `SetWithTTL` and `DeleteKey` operations only.
+
+## Next steps
+
+- [Transactions](/docs/database/transactions) — where a hook's error takes the
+  whole batch.
+- [Generic repository](/docs/database/generic-repository) — the operations that
+  fire these hooks.

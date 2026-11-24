@@ -348,3 +348,12 @@ for _, statement := range []string{
     }
 }
 ```
+
+## Next steps
+
+- [Column types reference](/docs/migrations/column-types) — every column method
+  in one table.
+- [Writing migrations](/docs/migrations/writing-migrations) — putting the
+  builder into a versioned file.
+- [Raw SQL & DDL](/docs/database/raw-sql-and-ddl) — for what the builder cannot
+  express.

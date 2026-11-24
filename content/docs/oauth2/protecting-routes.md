@@ -135,3 +135,11 @@ curl -u "$CLIENT_ID:$CLIENT_SECRET" \
 Introspection is limited to confidential clients, so a browser cannot use it
 to probe tokens it was never issued.
 {{< /callout >}}
+
+## Next steps
+
+- [Tokens and keys](/docs/oauth2/tokens-and-keys) — what the middleware is
+  verifying.
+- [Authorization](/docs/authz/) — policies, once the token says who it is.
+- [Authentication](/docs/security/authentication) — combining tokens with
+  session sign-in.

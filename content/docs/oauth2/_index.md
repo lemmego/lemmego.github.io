@@ -113,3 +113,11 @@ substitution, PKCE downgrade and stripping, refresh reuse, scope elevation,
 `alg:none`, algorithm confusion, `kid` injection, `typ` confusion and a forged
 `jti`. That suite proves those specific attacks are blocked. It does not prove
 the absence of attacks, and it would be wrong to read it as doing so.
+
+## Next steps
+
+- [Installation](/docs/oauth2/installation) — install it and mount the
+  endpoints.
+- [Grants](/docs/oauth2/grants) — the five flows it issues tokens through.
+- [Protecting routes](/docs/oauth2/protecting-routes) — requiring a token on
+  your own API.

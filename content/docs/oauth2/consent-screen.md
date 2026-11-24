@@ -127,3 +127,9 @@ Set `skip_consent_for_first_party` to `false` to show it anyway.
 
 `DeviceView` replaces the code-entry and confirmation screens the same way,
 receiving a `DeviceData`.
+
+## Next steps
+
+- [Tokens and keys](/docs/oauth2/tokens-and-keys) — what approval actually
+  issues.
+- [Clients](/docs/oauth2/clients) — the first-party clients that skip it.

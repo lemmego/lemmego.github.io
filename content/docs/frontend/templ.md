@@ -126,3 +126,12 @@ templ EditForm(task models.Task) {
     </form>
 }
 ```
+
+## Next steps
+
+- [Vite integration](/docs/frontend/vite) — the asset pipeline your components
+  link to.
+- [Inertia.js](/docs/frontend/inertia) — the same page in React or Vue instead
+  of Go.
+- [Response handling](/docs/http/response-handling) — the handler side of
+  rendering a component.

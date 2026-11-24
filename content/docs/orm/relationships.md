@@ -133,3 +133,11 @@ A relationship joins on a single column. A model with a composite primary key mu
 ## Limitations
 
 `hasOneThrough`, `hasManyThrough` and polymorphic relationships are not available.
+
+## Next steps
+
+- [Field descriptors](/docs/orm/field-descriptors) — checked column names for
+  the queries you build.
+- [Queries](/docs/orm/queries) — predicates, pagination and scopes.
+- [Schema builder](/docs/migrations/schema-builder) — the foreign keys behind a
+  relationship.

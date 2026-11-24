@@ -117,3 +117,10 @@ A soft-delete column must be nullable, and the model field must be
 metadata time, because its zero value writes a real timestamp and
 `deleted_at IS NULL` would then match nothing and hide the whole table. See
 [Soft deletes](/docs/orm/writes#soft-deletes).
+
+## Next steps
+
+- [Writing migrations](/docs/migrations/writing-migrations) — using these
+  columns in a migration file.
+- [Schema builder](/docs/migrations/schema-builder) — the keys and constraints
+  around them.

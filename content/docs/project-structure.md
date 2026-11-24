@@ -160,3 +160,11 @@ func LoadRoutes() []app.RouteCallback {
 | `internal/migrations/` | Database migration files | Via `lemmego g migration` |
 | `internal/repos/` | Data access repositories | Via `lemmego gorm:repo` |
 | `internal/routes/` | HTTP route definitions | Via `lemmego new` |
+
+## Next steps
+
+- [Configuration](/docs/configuration) — what lives in `internal/configs/`.
+- [CLI & generators](/docs/cli/) — the commands that write into these
+  directories.
+- [Application bootstrap](/docs/core-concepts/application-bootstrap) — what
+  `bootstrap/` runs at startup.

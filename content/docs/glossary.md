@@ -276,3 +276,11 @@ application is working, so a broken instance is taken out of rotation.
 
 **Graceful shutdown** — finishing in-flight requests before exiting, instead
 of dropping them.
+
+## Next steps
+
+- [Installation](/docs/installation/) — get the `lemmego` CLI onto your
+  machine.
+- [Quick start](/docs/quick-start/) — create a project and watch it reload.
+- [The HTTP layer](/docs/http/) — where routes, handlers and middleware do
+  their work.

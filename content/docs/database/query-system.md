@@ -196,3 +196,12 @@ gpa.CorrelatedSubQuery("score", gpa.OpGreaterThan, highValue, "product_id")
 `CorrelatedSubQuery` takes four arguments: the outer field, the operator, the
 subquery, and the field on the inner query that correlates back to the outer
 one.
+
+## Next steps
+
+- [Transactions](/docs/database/transactions) — running a group of queries
+  atomically.
+- [Raw SQL & DDL](/docs/database/raw-sql-and-ddl) — for the queries this cannot
+  express.
+- [Generic repository](/docs/database/generic-repository) — the repository
+  methods these options feed.

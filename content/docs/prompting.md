@@ -100,3 +100,9 @@ type PromptResult struct {
 ## Interrupt Handling
 
 All prompts handle Ctrl+C gracefully, exiting the application cleanly.
+
+## Next steps
+
+- [CLI & generators](/docs/cli/) — the commands your prompts live inside.
+- [Project structure](/docs/project-structure) — where a custom command
+  belongs.

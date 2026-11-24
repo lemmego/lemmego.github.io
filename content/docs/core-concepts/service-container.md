@@ -111,3 +111,10 @@ Use the service container for:
 - Services that need to be available across the entire application
 
 For more advanced DI needs (multiple lifetimes, auto-resolution of dependencies, scoped instances), see the [Dependency Injection](/docs/core-concepts/dependency-injection/) page.
+
+## Next steps
+
+- [Dependency injection](/docs/core-concepts/dependency-injection) — lifetimes,
+  automatic resolution and scoped containers.
+- [Provider & plugin system](/docs/core-concepts/provider-plugin-system) —
+  where services get registered.

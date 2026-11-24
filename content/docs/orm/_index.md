@@ -114,7 +114,7 @@ users, err := db.Model[User]().
 - A `db:"..."` tag is honoured as a fallback, so models generated before the ORM existed map without edits.
 - Fields that cannot round-trip through a single column — nested structs, slices of structs — are skipped rather than mapped.
 
-## Where to next
+## Next steps
 
 - [Queries](/docs/orm/queries) — predicates, projections, pagination, scopes
 - [Relationships](/docs/orm/relationships) — eager loading and associations

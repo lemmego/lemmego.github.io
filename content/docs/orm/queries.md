@@ -185,3 +185,12 @@ rows, err := db.Raw[MonthlyReport](
 ```
 
 Raw queries tolerate columns the destination does not declare — hand-written SQL routinely returns more than the struct models. Model queries do not, so a mistyped `Select` is reported rather than silently dropped.
+
+## Next steps
+
+- [Writes and transactions](/docs/orm/writes) — creating, updating and rolling
+  back.
+- [Relationships](/docs/orm/relationships) — loading the rows hanging off the
+  ones you found.
+- [Field descriptors](/docs/orm/field-descriptors) — replacing column strings
+  with checked identifiers.

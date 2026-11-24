@@ -112,6 +112,6 @@ Expected output:
 version [x.x.x]
 ```
 
-## Next Steps
+## Next steps
 
 Now that the CLI is installed, proceed to the [Quick Start](/docs/quick-start/) guide to create your first project.

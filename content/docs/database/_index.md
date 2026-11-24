@@ -107,3 +107,12 @@ user, _ := userRepo.FindByID(ctx, 1)   // Returns *User
 users, _ := userRepo.FindAll(ctx)       // Returns []*User
 userRepo.Create(ctx, &User{Name: "Jane"})
 ```
+
+## Next steps
+
+- [Provider registry](/docs/database/provider-registry) — registering a backend
+  and getting it back typed.
+- [Generic repository](/docs/database/generic-repository) — the API your
+  application code calls.
+- [The connection seam](/docs/database/connection-seam/) — how a connection
+  reaches the rest of the framework.

@@ -8,9 +8,17 @@ sidebar:
   open: true
 ---
 
-## Request Lifecycle
+Someone opens a page in their browser, and your application gets a short
+message: a method like `GET`, a path like `/users/42`, and some headers. From
+there it has to pick the Go function that answers, decide whether this caller
+is allowed in, and send something back. That sequence of steps is the request
+lifecycle, and it is the same for every request you serve. Knowing it is what
+tells you where your own code belongs — which layer logs, which layer turns
+away a bad CSRF token, and which layer your handler runs in.
 
-Every HTTP request to a Lemmego application goes through a well-defined pipeline:
+## The pipeline
+
+Every request goes through six steps:
 
 1. **Entry** — The Go HTTP server receives the request
 2. **HTTP Middleware** — Global middleware runs first (recovery, logging, method override)
@@ -26,7 +34,7 @@ Lemmego has two distinct middleware systems:
 - **HTTP Middleware** (`func(http.Handler) http.Handler`) — standard `net/http` middleware that wraps the entire router. Used for cross-cutting concerns like panic recovery and request logging.
 - **App Middleware** (`func(next Handler) Handler`) — application-level middleware that operates on the Lemmego `Context`. Used for CSRF verification, authentication, and route-scoped logic.
 
-## Next Steps
+## Next steps
 
 {{< cards >}}
 {{< card link="routing" title="Routing" subtitle="Define routes, groups, and parameters" >}}

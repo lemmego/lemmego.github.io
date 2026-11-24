@@ -95,3 +95,10 @@ user, err := userRepo.FindByIDWithRelations(ctx, 1, []string{"Profile", "Posts.C
 | CreateIndex | Yes | Yes | Yes |
 | AutoMigrate | Yes | No | N/A |
 | Eager Loading | Yes | Yes | N/A | 
+
+## Next steps
+
+- [Schema builder](/docs/migrations/schema-builder) — the same DDL, versioned
+  and reversible.
+- [Query system](/docs/database/query-system) — the typed API to prefer where
+  it reaches.

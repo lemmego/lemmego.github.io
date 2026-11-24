@@ -203,3 +203,8 @@ go build ./...
 
 Then run the test suite. If you do not have one, [Testing](/docs/testing)
 starts a real application against a scratch database in about twenty lines.
+
+## Next steps
+
+- [FAQ](/docs/appendix/faq) — the questions that come up most.
+- [CLI & generators](/docs/cli/) — updating the CLI itself.

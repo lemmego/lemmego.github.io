@@ -94,3 +94,8 @@ c.Forever(ctx, "key", value)          // does not
 not parse holds, and Laravel's rule — where a non-positive TTL deletes the key
 — turns that mistake into silent data loss. `Forever` is how you ask for a
 non-expiring entry deliberately.
+
+## Next steps
+
+- [Tags](/docs/cache/tags) — invalidating a group of entries at once.
+- [Atomic locks](/docs/cache/locks) — the other half of stampede protection.

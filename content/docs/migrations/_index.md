@@ -98,3 +98,12 @@ Each is covered again in context. These three are worth knowing up front:
   constraint. Use `String` plus `Check` if you need all three.
 - **`ForeignID` is not a foreign key column** — it declares an
   auto-incrementing one. Use `UnsignedBigInt` plus `Foreign`.
+
+## Next steps
+
+- [Schema builder](/docs/migrations/schema-builder) — the fluent API for
+  tables, columns and keys.
+- [Writing migrations](/docs/migrations/writing-migrations) — the shape of a
+  migration file, up and down.
+- [Running migrations](/docs/migrations/running-migrations) — the commands, and
+  what `--step` counts.

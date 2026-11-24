@@ -136,3 +136,12 @@ Hook execution order: `Validate` → `BeforeCreate` → DB Insert → `AfterCrea
 | Batch Operations | Yes (CreateBatch with size 100) |
 | SQL Injection Protection | Yes (regex-based field validation) |
 | Error Mapping | Yes (GORM errors → GPA typed errors) |
+
+## Next steps
+
+- [GORM connector](/docs/database/gormconnector) — wiring this provider into a
+  project's boot.
+- [Generic repository](/docs/database/generic-repository) — the API you get
+  once it is registered.
+- [Entity hooks](/docs/database/entity-hooks) — which hooks this provider
+  fires.

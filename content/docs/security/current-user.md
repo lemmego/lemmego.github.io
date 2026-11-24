@@ -123,3 +123,9 @@ func TrustedProxyAuth(c app.Context) error {
 
 Use `auth.SetAuthenticated(c)` instead when the caller is verified but is not
 a user.
+
+## Next steps
+
+- [Authorization](/docs/authz/) — policies and gates over the user you just
+  read.
+- [Context](/docs/http/context) — the rest of the request-scoped API.

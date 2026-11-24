@@ -250,3 +250,10 @@ db = orm.Open(sqlDB, orm.Postgres(), orm.WithLogger(
 Every statement is reported, including the extra queries eager loading issues — usually the ones worth seeing. `QueryEvent` carries the SQL, bound arguments, duration, error, and rows affected; the last is `-1` for a read, since rows are counted as they are scanned.
 
 The logger is called synchronously on the query path, so hand off to a channel if the work is expensive. With no logger installed nothing is wrapped.
+
+## Next steps
+
+- [Relationships](/docs/orm/relationships) — writing through an association.
+- [Migrations](/docs/migrations/) — creating the tables these writes expect.
+- [Request debugging](/docs/observe/) — seeing the statements a write actually
+  ran.

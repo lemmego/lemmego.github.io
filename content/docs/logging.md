@@ -244,3 +244,11 @@ There is no metrics collector in the framework. `lemmego/observe` records what
 individual requests did, which is a different job from counting them — export
 to Prometheus or OpenTelemetry from your own middleware when you need
 aggregates.
+
+## Next steps
+
+- [Request debugging](/docs/observe/) — everything one request did, with
+  timings.
+- [Error handling](/docs/http/error-handling) — what reaches the log when a
+  handler fails.
+- [Deployment](/docs/deployment/) — where logs go in production.

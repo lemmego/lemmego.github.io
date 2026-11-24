@@ -285,3 +285,11 @@ func TestMyStoreSatisfiesTheContract(t *testing.T) {
     storetest.Run(t, func(*testing.T) observe.Store { return NewMyStore() })
 }
 ```
+
+## Next steps
+
+- [Logging](/docs/logging) — the channels and rotation behind the log watcher.
+- [AI agents (MCP)](/docs/mcp) — the tools that read this recorder from an
+  agent.
+- [Error handling](/docs/http/error-handling) — the errors it records against a
+  request.

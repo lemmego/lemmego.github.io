@@ -121,3 +121,8 @@ rather than carry on believing it is protected.
 
 A tagged cache does not provide locks. A tag namespace can be flushed out from
 under a lock, which would leave the lock unreachable while still held.
+
+## Next steps
+
+- [Tags](/docs/cache/tags) — grouping entries for invalidation.
+- [Queue](/docs/queue) — where a lock usually guards a job.

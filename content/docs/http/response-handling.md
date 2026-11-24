@@ -210,3 +210,10 @@ func MyHandler(c app.Context) error {
 c.NoContent()           // 204
 c.Error(status, err)    // Custom error with status
 ```
+
+## Next steps
+
+- [Error handling](/docs/http/error-handling) — typed errors and custom error
+  pages.
+- [Frontend](/docs/frontend/) — choosing what renders the HTML you send.
+- [Context](/docs/http/context) — every response helper in one place.

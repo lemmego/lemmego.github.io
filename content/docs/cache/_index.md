@@ -203,3 +203,12 @@ lemmego run cache:prune       # reclaim expired entries (file driver)
 These run in a different process from the server, which is why the default
 driver is `file` rather than `memory`. `cache:clear` against a memory cache
 says so instead of reporting a success it cannot deliver.
+
+## Next steps
+
+- [Drivers](/docs/cache/drivers) — choosing between memory, file, Redis and
+  null.
+- [Typed access](/docs/cache/typed-access) — getting a `*User` back instead of
+  bytes.
+- [Atomic locks](/docs/cache/locks) — making sure only one process does a
+  thing.

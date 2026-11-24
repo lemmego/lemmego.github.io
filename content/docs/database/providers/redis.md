@@ -142,3 +142,9 @@ provider.Keys(ctx, "pattern:*")
 provider.Expire(ctx, "key", ttl)
 provider.TTL(ctx, "key")
 ```
+
+## Next steps
+
+- [Caching](/docs/cache/) — the higher-level cache that can sit on Redis.
+- [Provider registry](/docs/database/provider-registry) — running it alongside
+  your primary store.

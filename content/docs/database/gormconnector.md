@@ -124,3 +124,12 @@ user := repos.User().MustFindByID(c.RequestContext(), 1)
 users, _ := repos.User().FindAll(c.RequestContext())
 repos.User().Create(c.RequestContext(), &models.User{Name: "Jane"})
 ```
+
+## Next steps
+
+- [The connection seam](/docs/database/connection-seam/) — what the connector
+  hands the rest of the framework.
+- [Running migrations](/docs/migrations/running-migrations) — pointing the
+  migrator at the same database.
+- [GORM provider](/docs/database/providers/gorm) — the repositories this
+  connection backs.

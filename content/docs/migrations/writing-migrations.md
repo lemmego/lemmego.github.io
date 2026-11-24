@@ -177,3 +177,12 @@ diff before.sql after.sql
 An empty diff means the rewrite is a restatement. A non-empty one names
 exactly what you changed — usually an index or constraint name, which is the
 thing worth not changing.
+
+## Next steps
+
+- [Running migrations](/docs/migrations/running-migrations) — applying and
+  rolling back what you wrote.
+- [Column types reference](/docs/migrations/column-types) — the column methods
+  available to you.
+- [Deployment](/docs/deployment/) — running migrations on the way to
+  production.

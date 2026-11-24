@@ -112,3 +112,11 @@ if !ok {
 A provider returning an error is turned into a panic by the bootstrapper,
 which prints a goroutine dump — so the actionable part belongs first, where
 someone will actually read it.
+
+## Next steps
+
+- [Running migrations](/docs/migrations/running-migrations) — which database
+  the migrator connects to.
+- [Session](/docs/session) — the driver that takes its dialect from your
+  connection.
+- [Queue](/docs/queue) — the other subsystem that borrows the connection.

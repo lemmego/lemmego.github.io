@@ -74,3 +74,12 @@ type Transaction[T any] interface {
 | Isolation Levels | Yes (ReadCommitted, RepeatableRead, Serializable) | Yes | Yes | N/A |
 
 *Redis uses its own multi/exec model for atomic operations.
+
+## Next steps
+
+- [Raw SQL & DDL](/docs/database/raw-sql-and-ddl) — statements the repository
+  API does not cover.
+- [Entity hooks](/docs/database/entity-hooks) — what runs inside your
+  transaction.
+- [Writing migrations](/docs/migrations/writing-migrations) — the other place a
+  transaction wraps your work.

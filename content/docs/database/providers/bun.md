@@ -80,3 +80,10 @@ func (u *User) BeforeCreate(ctx context.Context) error {
 - Projects that prefer Bun's SQL-first approach over GORM's ORM-heavy pattern
 - Applications needing full-text search or advanced subquery support
 - Lightweight deployments where Bun's smaller footprint is beneficial
+
+## Next steps
+
+- [Bun connector](/docs/database/bunconnector) — wiring this provider into a
+  project's boot.
+- [GORM provider](/docs/database/providers/gorm) — the more complete SQL
+  provider today.

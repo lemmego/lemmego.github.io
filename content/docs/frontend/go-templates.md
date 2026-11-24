@@ -133,3 +133,11 @@ The generated project includes error pages for common HTTP status codes:
 - `404.page.gohtml` — Not Found
 - `419.page.gohtml` — Page Expired (CSRF)
 - `500.page.gohtml` — Internal Server Error
+
+## Next steps
+
+- [Vite integration](/docs/frontend/vite) — bundling the CSS and JavaScript
+  your templates load.
+- [Response handling](/docs/http/response-handling) — the handler side of
+  rendering a template.
+- [Templ](/docs/frontend/templ) — the same job with compile-time checking.

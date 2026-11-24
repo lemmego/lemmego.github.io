@@ -142,3 +142,10 @@ Also random and also stored hashed, with short lifetimes: 60 seconds for an
 authorization code, ten minutes for a device code. Both are single use,
 enforced by a conditional update rather than a read followed by a write, so
 two simultaneous requests carrying the same code cannot both succeed.
+
+## Next steps
+
+- [Protecting routes](/docs/oauth2/protecting-routes) — verifying these tokens
+  on your API.
+- [Configuration](/docs/oauth2/configuration) — lifetimes and key settings.
+- [Deployment](/docs/deployment/) — keeping keys out of your image.

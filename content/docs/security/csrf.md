@@ -138,3 +138,9 @@ API clients should use token-based authentication (JWT or API keys) instead.
 - The cookie is `SameSite=Lax`, and `Secure` in production
 - Excluded paths skip verification entirely, so exclude only routes that
   authenticate some other way
+
+## Next steps
+
+- [Session](/docs/session) — where the token is kept between requests.
+- [Frontend](/docs/frontend/) — putting the token in your forms.
+- [Testing](/docs/testing/) — getting a valid token in a test request.

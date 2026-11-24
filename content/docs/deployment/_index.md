@@ -282,3 +282,11 @@ server {
     }
 }
 ```
+
+## Next steps
+
+- [Running migrations](/docs/migrations/running-migrations) — migrating a
+  database you cannot restart.
+- [Configuration](/docs/configuration) — the settings that change for
+  production.
+- [Logging](/docs/logging) — where output goes once there is no terminal.

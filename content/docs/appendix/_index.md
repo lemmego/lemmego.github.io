@@ -109,3 +109,10 @@ auth → api
 cli → (standalone, embeds scaffold templates)
 lemmego → api, gpa, orm, gparedis, inertia, auth, ormconnector, migration, queue
 ```
+
+## Next steps
+
+- [Upgrade notes](/docs/appendix/upgrading) — every change that needs action on
+  your project.
+- [FAQ](/docs/appendix/faq) — the questions that come up most.
+- [Configuration](/docs/configuration) — reading these values in your own code.

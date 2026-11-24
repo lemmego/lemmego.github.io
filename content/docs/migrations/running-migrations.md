@@ -128,3 +128,10 @@ DATABASE_URL_UNPOOLED=postgres://.../db?sslmode=require
 
 An explicit `--dsn` still wins, including when you deliberately want the pooled
 endpoint.
+
+## Next steps
+
+- [The connection seam](/docs/database/connection-seam/) — where the migrator's
+  connection comes from.
+- [Deployment](/docs/deployment/) — migrating a production database.
+- [Testing](/docs/testing/) — a migrated database per test.

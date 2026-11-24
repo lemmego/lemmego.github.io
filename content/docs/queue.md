@@ -349,3 +349,11 @@ lemmego run tasker:job cancel 5    # Cancel job #5
 
 lemmego run tasker:queue list      # List queue stats
 ```
+
+## Next steps
+
+- [Mail](/docs/mail/) — the queued sending this worker performs.
+- [Notifications](/docs/notifications/) — multi-channel sending over the same
+  worker.
+- [The connection seam](/docs/database/connection-seam/) — the connection the
+  SQL driver borrows.

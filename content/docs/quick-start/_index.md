@@ -149,3 +149,10 @@ After scaffolding, your project will have this structure:
 ├── public/             # Compiled static assets
 └── storage/            # Runtime data (database, sessions, uploads)
 ```
+
+## Next steps
+
+- [Project structure](/docs/project-structure) — what each generated directory
+  is for.
+- [Configuration](/docs/configuration) — reading settings and adding your own.
+- [The HTTP layer](/docs/http/) — add your first route and handler.

@@ -109,3 +109,9 @@ Decrypt(ciphertext):
 - Encrypting API tokens stored in the database
 - Secure cookie values
 - Encrypting data at rest
+
+## Next steps
+
+- [Environment variables](/docs/appendix/#environment-variables) — where
+  `APP_KEY` is set and what it must look like.
+- [Session](/docs/session) — data encryption already applies to.

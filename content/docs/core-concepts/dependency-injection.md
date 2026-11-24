@@ -172,3 +172,10 @@ The `di` package is suitable for complex applications that need:
 - Fluent registration syntax
 
 For simpler cases, the service container (`app.AddService` / `app.Get[T]`) is sufficient.
+
+## Next steps
+
+- [Service container](/docs/core-concepts/service-container) — the simpler API
+  most application code uses.
+- [Provider & plugin system](/docs/core-concepts/provider-plugin-system) —
+  where bindings are declared.

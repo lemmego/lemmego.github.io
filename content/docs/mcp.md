@@ -226,3 +226,8 @@ writing anything, which the editor reports as a server that will not start.
 If you add a tool, remember that one stray `fmt.Println` corrupts the stream
 and the editor reports a server that will not start, saying nothing about the
 print. Use stderr.
+
+## Next steps
+
+- [Request debugging](/docs/observe/) — the recorder most of these tools read.
+- [Logging](/docs/logging) — the log entries an agent can ask for.

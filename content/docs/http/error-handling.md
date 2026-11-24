@@ -120,3 +120,10 @@ The framework's recovery middleware catches panics and returns appropriate respo
 middleware.Recovery()                     // Production: log + 500
 middleware.RecoveryWithOpts(middleware.DevelopmentRecoveryOpts) // Dev: log + stack trace
 ```
+
+## Next steps
+
+- [Context](/docs/http/context) — the error helpers on the request context.
+- [Logging](/docs/logging) — where a failed request gets written down.
+- [Request debugging](/docs/observe/) — reading back everything one request
+  did.

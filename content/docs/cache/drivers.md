@@ -126,3 +126,11 @@ advances, so expiry is tested without sleeping.
 Optional capabilities are separate interfaces a store may implement —
 `LockProvider`, `TagIndex`, `Pruner`. A store that does not implement one makes
 callers get `cache.ErrUnsupported`, which is always better than a silent no-op.
+
+## Next steps
+
+- [Typed access](/docs/cache/typed-access) — the encoding layer above every
+  driver.
+- [Atomic locks](/docs/cache/locks) — how far exclusion reaches on each driver.
+- [Redis provider](/docs/database/providers/redis) — using Redis as a store in
+  its own right.

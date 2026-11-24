@@ -231,3 +231,11 @@ Access your config anywhere in your application:
 ```go
 mailHost := config.Get("mail.host").(string)
 ```
+
+## Next steps
+
+- [Application bootstrap](/docs/core-concepts/application-bootstrap) — when
+  your configuration is read.
+- [Environment variables](/docs/appendix/#environment-variables) — every key
+  the framework and its modules look for.
+- [Deployment](/docs/deployment/) — what to change for production.

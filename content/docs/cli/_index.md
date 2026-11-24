@@ -324,3 +324,10 @@ Interactive Bun model generation with `bun:` struct tags.
 ### `lemmego bun:repo`
 
 Generates Bun repository files in `internal/repos/`.
+
+## Next steps
+
+- [Project structure](/docs/project-structure) — where the generated files
+  land.
+- [Migrations](/docs/migrations/) — the migration commands in context.
+- [Deployment](/docs/deployment/) — the production build.

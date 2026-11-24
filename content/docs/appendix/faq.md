@@ -96,3 +96,9 @@ carries the `X-XSRF-TOKEN` header (Inertia and axios read the `XSRF-TOKEN` cooki
 and do this for you). A 419 also means the session was lost — check that the
 session cookie is actually coming back, since a new session means a new token.
 For API routes authenticated some other way, add them to the CSRF exclusion list.
+
+## Next steps
+
+- [Glossary](/docs/glossary) — every term these docs use, defined.
+- [Upgrade notes](/docs/appendix/upgrading) — changes that need action on your
+  project.

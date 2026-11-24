@@ -449,3 +449,11 @@ func TestPageResponse(t *testing.T) {
 ```
 
 Also supports `AssertFromString(t, body)` and `AssertFromBytes(t, body)` for parsing from different sources. Works with both Inertia JSON responses and HTML responses with `data-page` script tags.
+
+## Next steps
+
+- [Vite integration](/docs/frontend/vite) — the dev server and production build
+  behind it.
+- [Testing](/docs/testing/) — asserting on the page object and its props.
+- [Localization](/docs/localization/) — sharing your message catalogue with the
+  browser.

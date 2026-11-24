@@ -216,3 +216,12 @@ type DocumentRepository[T any] interface {
     DropCollection(ctx) error
 }
 ```
+
+## Next steps
+
+- [Query system](/docs/database/query-system) — conditions, options and the
+  fluent builder.
+- [Entity hooks](/docs/database/entity-hooks) — validating and stamping rows on
+  the way through.
+- [Transactions](/docs/database/transactions) — grouping writes so they land
+  together.

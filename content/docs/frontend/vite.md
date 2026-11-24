@@ -216,3 +216,8 @@ nothing.
 ## Package Manager
 
 The project uses `pnpm` by default with a `pnpm-workspace.yaml` for monorepo support. You can use `npm` or `yarn` as alternatives.
+
+## Next steps
+
+- [Deployment](/docs/deployment/) — building assets for production.
+- [CLI & generators](/docs/cli/) — the `ssr` and build commands that drive it.

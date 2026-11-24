@@ -396,3 +396,11 @@ type HttpProvider interface {
     Referer() string
 }
 ```
+
+## Next steps
+
+- [Frontend](/docs/frontend/) — the rendering approaches behind the template
+  helpers.
+- [Session](/docs/session) — the store behind the session accessors.
+- [The current user](/docs/security/current-user) — who is asking, on every
+  authenticated path.

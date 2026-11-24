@@ -245,3 +245,12 @@ func Upload(c app.Context) error {
 ```
 
 Parameters: the form field name, target directory, and an optional custom filename.
+
+## Next steps
+
+- [Response handling](/docs/http/response-handling) — sending JSON, HTML,
+  redirects and files back.
+- [Error handling](/docs/http/error-handling) — turning a failed validation
+  into a response.
+- [Context](/docs/http/context) — the full API of the `c` your handler
+  receives.

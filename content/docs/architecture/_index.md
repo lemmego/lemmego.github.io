@@ -151,3 +151,10 @@ Config → Providers → Services → Repositories → GPA Providers → Databas
                 ↓
           HTTP Server
 ```
+
+## Next steps
+
+- [Core concepts](/docs/core-concepts/) — the bootstrap, container and provider
+  system up close.
+- [The HTTP layer](/docs/http/) — the request path in detail.
+- [GPA overview](/docs/database/) — the persistence abstraction underneath.

@@ -202,3 +202,12 @@ Usage in forms:
     <input type="hidden" name="_method" value="DELETE">
 </form>
 ```
+
+## Next steps
+
+- [Request handling](/docs/http/request-handling) — reading and validating what
+  the request carries.
+- [Error handling](/docs/http/error-handling) — what to return when middleware
+  turns a request away.
+- [CSRF protection](/docs/security/csrf) — the middleware a scaffolded project
+  already runs.

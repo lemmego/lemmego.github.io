@@ -167,3 +167,9 @@ turn the queue off and the server must not depend on it.
 without migrating them. It is there for a project whose schema already has
 something called `oauth_clients`.
 {{< /callout >}}
+
+## Next steps
+
+- [Clients](/docs/oauth2/clients) — the five kinds and what each may do.
+- [Tokens and keys](/docs/oauth2/tokens-and-keys) — rotation, JWKS and
+  revocation.

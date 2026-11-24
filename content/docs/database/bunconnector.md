@@ -90,3 +90,10 @@ config.Set("sql", config.M{
 | Supported Drivers | PostgreSQL, MySQL, SQLite, SQL Server | PostgreSQL, MySQL, SQLite |
 | Dialects | GORM | Bun native |
 | GPA Integration | Yes (gpagorm) | Yes (gpabun) |
+
+## Next steps
+
+- [The connection seam](/docs/database/connection-seam/) — what the connector
+  hands the rest of the framework.
+- [Bun provider](/docs/database/providers/bun) — the repositories this
+  connection backs.

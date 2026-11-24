@@ -206,3 +206,12 @@ response, token, err := server.CreatePersonalAccessToken(
 
 Default lifetime is a year, and no refresh token is issued. The name is stored
 on the row so a user can recognise which token to revoke.
+
+## Next steps
+
+- [Protecting routes](/docs/oauth2/protecting-routes) — checking the token you
+  just issued.
+- [Tokens and keys](/docs/oauth2/tokens-and-keys) — what is inside one, and how
+  it dies.
+- [Consent screen](/docs/oauth2/consent-screen) — the screen the code flow goes
+  through.

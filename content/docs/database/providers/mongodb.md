@@ -122,3 +122,10 @@ type User struct {
     Email string
 }
 ```
+
+## Next steps
+
+- [Generic repository](/docs/database/generic-repository) — the
+  document-specific repositories in context.
+- [Provider registry](/docs/database/provider-registry) — registering it beside
+  a SQL provider.

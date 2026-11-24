@@ -140,3 +140,11 @@ a.On("user.registered", func(payload any) error {
 - **Metrics** — record metrics at lifecycle points
 - **Logging** — audit log important events
 - **Notifications** — send emails, push notifications
+
+## Next steps
+
+- [The HTTP layer](/docs/http/) — the pipeline a request travels once boot is
+  done.
+- [Queue](/docs/queue) — for work that must not run on the caller's goroutine.
+- [Cache events](/docs/cache/events) — the same pattern applied to cache hits
+  and misses.
