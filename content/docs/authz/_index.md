@@ -2,7 +2,7 @@
 title: Authorization
 type: docs
 prev: docs/session
-next: docs/ratelimit/
+next: docs/rbac/
 weight: 106
 sidebar:
   open: true
@@ -221,6 +221,7 @@ other feature.
 
 ## Next steps
 
+- [Roles and permissions](/docs/rbac/) — the same decision when it has to live
+  in rows rather than in Go, for a role somebody creates at runtime.
 - [Authentication](/docs/security/authentication) — establishing who is asking.
-- [The current user](/docs/security/current-user) — the type policies receive.
 - [Middleware](/docs/http/middleware) — where `Owns` and `Gated` sit in the chain.

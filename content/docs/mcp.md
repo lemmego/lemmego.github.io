@@ -3,7 +3,7 @@ title: AI Agents (MCP)
 type: docs
 prev: docs/deployment/
 next: docs/prompting
-weight: 143
+weight: 153
 sidebar:
   open: true
 ---
@@ -26,15 +26,22 @@ the resolved configuration, the migration state or the logs, so it guesses.
 The costly guesses are about **APIs**: a call written against a function that
 does not exist survives until somebody compiles it.
 
-Two tools address that directly, and they are worth naming in your agent's
+Three tools address that directly, and they are worth naming in your agent's
 instructions:
 
 | Tool | What it gives the agent |
 | --- | --- |
 | **`module-api`** | The real exported signatures of a lemmego module at the version your project pins, read from the compiled package |
-| **`search-docs`** | The modules' own READMEs, which are the authoritative specification for each module |
+| **`search-docs`** | The documentation site's pages, compiled into the server so they are available whether or not you have a checkout of them |
+| **`list-modules`** | Every module the ecosystem publishes, including the ones your `go.mod` does not mention yet |
 
 The rest supply context about your running application.
+
+`list-modules` covers the question the other two cannot. `module-api` runs
+inside your project, so a module you have not added answers `no required
+module provides package …` — which reads as "there is no such thing". An agent
+then writes multi-tenancy, or roles and permissions, from scratch beside a
+published module that already does it.
 
 ## All tools
 
@@ -43,7 +50,8 @@ The rest supply context about your running application.
 | Name | Notes |
 | --- | --- |
 | `module-api` | Real exported signatures at the pinned version; pass a symbol for one declaration with its doc comment |
-| `search-docs` | Search the module READMEs, returning the matching sections |
+| `search-docs` | Search the documentation site, returning the matching sections |
+| `list-modules` | Every published module, what it is for, and how to add the ones this project lacks |
 | `app-info` | Go version, environment, live database dialect, the driver chosen for each subsystem, every lemmego module and its resolved version |
 | `config` | Resolved configuration, **secrets withheld**; one key or the whole tree |
 | `list-routes` | Every registered route with method, resolved path, handler and middleware counts; filterable by method or path |

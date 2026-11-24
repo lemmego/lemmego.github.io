@@ -1,9 +1,9 @@
 ---
 title: Rate Limiting
 type: docs
-prev: docs/authz/
+prev: docs/tenancy/
 next: docs/cache/
-weight: 107
+weight: 109
 sidebar:
   open: true
 ---

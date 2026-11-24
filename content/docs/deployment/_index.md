@@ -3,7 +3,7 @@ title: Deployment
 type: docs
 prev: docs/testing/
 next: docs/mcp
-weight: 142
+weight: 152
 sidebar:
   open: true
 ---

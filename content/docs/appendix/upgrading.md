@@ -3,7 +3,7 @@ title: Upgrade notes
 type: docs
 prev: docs/appendix/
 next: docs/appendix/faq
-weight: 152
+weight: 162
 sidebar:
   open: true
 ---

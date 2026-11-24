@@ -20,4 +20,6 @@ a scaffolded project; read it when a form starts returning 419.
 {{< card link="csrf" title="CSRF Protection" subtitle="Cross-site request forgery prevention" >}}
 {{< card link="encryption" title="Encryption" subtitle="AES-256-GCM encryption" >}}
 {{< card link="/docs/oauth2" title="OAuth2 Server" subtitle="Issue and revoke tokens for third-party apps" >}}
+{{< card link="/docs/rbac" title="Roles and Permissions" subtitle="Database-backed roles, checked through authz" >}}
+{{< card link="/docs/tenancy" title="Multi-tenancy" subtitle="Which tenant a request is about, and keeping rows apart" >}}
 {{< /cards >}}

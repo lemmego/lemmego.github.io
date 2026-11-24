@@ -3,7 +3,7 @@ title: Caching
 type: docs
 prev: docs/ratelimit/
 next: docs/cache/drivers
-weight: 110
+weight: 120
 sidebar:
   open: true
 aliases:

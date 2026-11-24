@@ -102,6 +102,8 @@ ORDER: list[tuple[str, list[str]]] = [
         "security/encryption.md",
         "session.md",
         "authz/_index.md",
+        "rbac/_index.md",
+        "tenancy/_index.md",
         "ratelimit/_index.md",
     ]),
     ("Modules", [

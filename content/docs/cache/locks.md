@@ -3,7 +3,7 @@ title: Atomic Locks
 type: docs
 prev: docs/cache/typed-access
 next: docs/cache/tags
-weight: 113
+weight: 123
 sidebar:
   open: true
 ---

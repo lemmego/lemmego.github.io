@@ -3,7 +3,7 @@ title: Tags
 type: docs
 prev: docs/cache/locks
 next: docs/cache/events
-weight: 114
+weight: 124
 sidebar:
   open: true
 ---

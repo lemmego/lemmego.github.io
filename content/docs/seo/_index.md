@@ -3,7 +3,7 @@ title: SEO
 type: docs
 prev: docs/search/
 next: docs/payments/
-weight: 123
+weight: 133
 sidebar:
   open: true
 ---

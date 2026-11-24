@@ -3,7 +3,7 @@ title: Tokens and keys
 type: docs
 prev: docs/oauth2/consent-screen
 next: docs/cli/
-weight: 137
+weight: 147
 sidebar:
   open: true
 ---

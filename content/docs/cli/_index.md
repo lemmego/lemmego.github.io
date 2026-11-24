@@ -3,7 +3,7 @@ title: "CLI & Generators"
 type: docs
 prev: docs/oauth2/tokens-and-keys
 next: docs/testing/
-weight: 140
+weight: 150
 sidebar:
   open: true
 ---

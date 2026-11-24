@@ -3,7 +3,7 @@ title: OAuth2 Server
 type: docs
 prev: docs/localization/
 next: docs/oauth2/installation
-weight: 130
+weight: 140
 sidebar:
   open: true
 ---

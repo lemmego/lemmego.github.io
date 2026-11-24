@@ -3,7 +3,7 @@ title: Media & Images
 type: docs
 prev: docs/filesystem/
 next: docs/search/
-weight: 121
+weight: 131
 sidebar:
   open: true
 ---
